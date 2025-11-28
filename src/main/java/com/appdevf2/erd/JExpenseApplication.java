@@ -1,4 +1,4 @@
-package com.example.appdevf2.erd;
+package com.example.appdevf2.jexpense;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
