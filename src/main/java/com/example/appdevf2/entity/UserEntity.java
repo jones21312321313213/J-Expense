@@ -9,10 +9,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+//import jakarta.persistence.JoinColumn;
+// import jakarta.persistence.OneToMany;
+// import java.util.List;
+// import jakarta.persistence.CascadeType;
+
 @Entity
 @Table(name = "tbl_user")
 public class UserEntity {
-
+  
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -29,6 +34,14 @@ public class UserEntity {
 
     @Column(name = "creation_date")
     private Date creation_date;
+
+
+
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    // private List<TransactionEntity> transactions;
+
+
+    
 
     public UserEntity() {
         super();
