@@ -10,6 +10,9 @@ import add  from "../../assets/addIcon.png";
 
 function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetAmount, onSave, onClose }) {
     const [addClicked, setAddClicked] = useState(false);
+    const [name, setName] = useState("");
+    const [frequency, setFrequency] = useState(1);
+    const [beginning, setBeginning] = useState("September 14");
 
     const handleAddClick = () => {
         setAddClicked(!addClicked);
@@ -76,6 +79,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                     <input 
                         type="text" 
                         placeholder="Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         style={{
                             border: "none",
                             borderBottom: "2px solid #333",
@@ -117,8 +122,10 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                         />
                         <span>/</span>
                         <input 
-                            type="text" 
-                            defaultValue="1"
+                            type="number" 
+                            value={frequency}
+                            min={1}
+                            onChange={(e) => setFrequency(Number(e.target.value))}
                             style={{
                                 border: "none",
                                 borderBottom: "2px solid #333",
@@ -137,7 +144,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                         <span>beginning </span>
                         <input 
                             type="text" 
-                            defaultValue="September 14"
+                            value={beginning}
+                            onChange={(e) => setBeginning(e.target.value)}
                             style={{
                                 border: "none",
                                 borderBottom: "2px solid #333",
@@ -192,7 +200,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
 
                     {/* Save changes button */}
                     <button
-                        onClick={() => onSave && onSave()}
+                        onClick={() => onSave && onSave({ name, frequency, beginning })}
                         style={{
                             width: "100%",
                             maxWidth: "400px",
