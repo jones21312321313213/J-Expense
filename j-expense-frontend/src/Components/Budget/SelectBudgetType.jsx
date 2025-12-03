@@ -59,6 +59,7 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
 
     // When a type is chosen, open the amount modal
     const handleSelection = (type) => {
+        console.log('SelectBudgetType: handleSelection', type)
         setPendingType(type)
         setShowSetAmount(true)
     };
@@ -107,6 +108,7 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
 
             {showSetAmount && (
                 <SetAmount
+                    inline={true}
                     initialValue={0}
                     title={pendingType ? `Set ${pendingType} Amount` : 'Set Amount'}
                     onConfirm={handleConfirmAmount}
