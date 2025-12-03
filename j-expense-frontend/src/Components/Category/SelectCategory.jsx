@@ -7,47 +7,208 @@ import groceryBg from "../../assets/groceryCategory.png";
 import shoppingBg  from "../../assets/shoppingCategory.png";
 import miscellaneousBg  from "../../assets/miscellaneousCategory.png";
 import add  from "../../assets/addIcon.png";
-function SelectCategory() {
+
+function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetAmount, onSave, onClose }) {
     const [addClicked, setAddClicked] = useState(false);
 
     const handleAddClick = () => {
-        setAddClicked(!addClicked); // toggle clicked state
+        setAddClicked(!addClicked);
     };
 
     return (
         <div
-            className="container"
             style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "rgba(0, 0, 0, 0.5)",
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start", // 👈 align header & tiles to left
-                padding: "20px",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1000
             }}
         >
-            <h1 style={{ marginBottom: "20px" }}>Select Category</h1>
-
             <div
+                className="container"
                 style={{
                     display: "flex",
-                    flexWrap: "wrap",
-                    gap: "10px",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: "40px",
+                    background: "linear-gradient(to right, #a8d8ea 0%, #f5e6d3 100%)",
+                    borderRadius: "20px",
+                    maxWidth: "800px",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                    position: "relative"
                 }}
             >
-                <CategoryTile name="Food" icon={foodBg} bgColor="#D9D9D9" />
-                <CategoryTile name="Commute" icon={commuteBg} bgColor="#D9D9D9" />
-                <CategoryTile name="Entertainment" icon={entertainmentBg} bgColor="#D9D9D9" />
-                <CategoryTile name="Grocery" icon={groceryBg} bgColor="#D9D9D9" />
-                <CategoryTile name="Shopping" icon={shoppingBg} bgColor="#D9D9D9" />
-                <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor="#D9D9D9" />
+                {/* Close button */}
+                <button
+                    onClick={() => onClose && onClose()}
+                    style={{
+                        position: "absolute",
+                        top: "20px",
+                        right: "20px",
+                        background: "none",
+                        border: "none",
+                        fontSize: "2rem",
+                        cursor: "pointer",
+                        padding: "0",
+                        width: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    }}
+                >
+                    ×
+                </button>
 
-                {/* Add Button as a CategoryTile */}
-                <CategoryTile
-                    name="Add"
-                    bgColor={addClicked ? "#a0e0a0" : "#D9D9D9"}
-                    icon={add} // or you can pass a "+" icon image
-                    textColor="black"
-                    onClick={handleAddClick} // for later
-                />
+                {/* Edit budget section */}
+                <div style={{ 
+                    textAlign: "center", 
+                    marginBottom: "40px",
+                    width: "100%"
+                }}>
+                    <input 
+                        type="text" 
+                        placeholder="Name"
+                        style={{
+                            border: "none",
+                            borderBottom: "2px solid #333",
+                            background: "transparent",
+                            padding: "8px",
+                            textAlign: "center",
+                            fontSize: "1rem",
+                            marginBottom: "20px",
+                            width: "200px",
+                            outline: "none"
+                        }}
+                    />
+                    
+                    <div style={{ 
+                        display: "flex", 
+                        gap: "10px", 
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginBottom: "20px",
+                        fontSize: "1.1rem"
+                    }}>
+                        <input 
+                            type="text" 
+                            value={amountValue ? `P ${amountValue}` : "P 0"}
+                            readOnly
+                            onClick={() => onRequestSetAmount && onRequestSetAmount()}
+                            onFocus={() => onRequestSetAmount && onRequestSetAmount()}
+                            style={{
+                                border: "none",
+                                borderBottom: "2px solid #333",
+                                background: "transparent",
+                                padding: "8px",
+                                textAlign: "center",
+                                width: "80px",
+                                fontSize: "1rem",
+                                outline: "none",
+                                cursor: "pointer"
+                            }}
+                        />
+                        <span>/</span>
+                        <input 
+                            type="text" 
+                            defaultValue="1"
+                            style={{
+                                border: "none",
+                                borderBottom: "2px solid #333",
+                                background: "transparent",
+                                padding: "8px",
+                                textAlign: "center",
+                                width: "60px",
+                                fontSize: "1rem",
+                                outline: "none"
+                            }}
+                        />
+                        <span>month</span>
+                    </div>
+                    
+                    <div style={{ fontSize: "1rem" }}>
+                        <span>beginning </span>
+                        <input 
+                            type="text" 
+                            defaultValue="September 14"
+                            style={{
+                                border: "none",
+                                borderBottom: "2px solid #333",
+                                background: "transparent",
+                                padding: "8px",
+                                textAlign: "center",
+                                fontSize: "1rem",
+                                width: "150px",
+                                outline: "none"
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {/* Select category section */}
+                <div style={{ 
+                    width: "100%"
+                }}>
+                    <h2 style={{ 
+                        marginBottom: "30px",
+                        fontSize: "1.8rem",
+                        fontWeight: "normal",
+                        textAlign: "left",
+                        marginLeft: "10px"
+                    }}>
+                        Select category
+                    </h2>
+
+                    <div
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, 1fr)",
+                            gap: "20px",
+                            marginBottom: "40px",
+                            justifyItems: "center"
+                        }}
+                    >
+                        <CategoryTile name="Food" icon={foodBg} bgColor={selectedCategory === 'Food' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Food' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Food')} />
+                        <CategoryTile name="Commute" icon={commuteBg} bgColor={selectedCategory === 'Commute' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Commute' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Commute')} />
+                        <CategoryTile name="Entertainment" icon={entertainmentBg} bgColor={selectedCategory === 'Entertainment' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Entertainment' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Entertainment')} />
+                        <CategoryTile name="Grocery" icon={groceryBg} bgColor={selectedCategory === 'Grocery' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Grocery' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Grocery')} />
+                        <CategoryTile name="Shopping" icon={shoppingBg} bgColor={selectedCategory === 'Shopping' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Shopping' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Shopping')} />
+                        <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor={selectedCategory === 'Miscellaneous' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Miscellaneous' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Miscellaneous')} />
+                        <CategoryTile
+                            name="+"
+                            bgColor={addClicked ? "#a0e0a0" : "#D9D9D9"}
+                            icon={add}
+                            textColor="black"
+                            onClick={handleAddClick}
+                        />
+                    </div>
+
+                    {/* Save changes button */}
+                    <button
+                        onClick={() => onSave && onSave()}
+                        style={{
+                            width: "100%",
+                            maxWidth: "400px",
+                            padding: "20px",
+                            fontSize: "1.3rem",
+                            background: "rgba(200, 200, 200, 0.5)",
+                            border: "none",
+                            borderRadius: "10px",
+                            cursor: "pointer",
+                            display: "block",
+                            margin: "0 auto"
+                        }}
+                    >
+                        Save changes
+                    </button>
+                </div>
             </div>
         </div>
     );

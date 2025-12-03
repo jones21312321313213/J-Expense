@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import SetAmount from '../setAmount'
+import SelectCategory from '../../Components/Category/SelectCategory'
 
 function SelectBudgetType({ onClose, onCreateBudget }) {
     const [showSetAmount, setShowSetAmount] = useState(false)
     const [pendingType, setPendingType] = useState(null)
+    const [selectedAmount, setSelectedAmount] = useState(null)
 
     const containerStyle = {
         display: "flex",
@@ -58,20 +60,46 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
     };
 
     // When a type is chosen, open the amount modal
+    const [showCategory, setShowCategory] = useState(false)
+    const [selectedCategory, setSelectedCategory] = useState(null)
+
     const handleSelection = (type) => {
         console.log('SelectBudgetType: handleSelection', type)
         setPendingType(type)
-        setShowSetAmount(true)
+        // open category selector next
+        setShowCategory(true)
     };
 
-    const handleConfirmAmount = (amount) => {
-        // If parent provided a creator, call it; otherwise show an alert for now
-        if (onCreateBudget) onCreateBudget({ type: pendingType, amount })
-        else alert(`Create ${pendingType} with amount ${amount}`)
+    const handleCategorySelect = (category) => {
+        console.log('SelectBudgetType: category selected', category)
+        setSelectedCategory(category)
+        // do not open amount automatically - user will click the amount field in SelectCategory
+        setShowCategory(true)
+    }
 
-        // close amount modal and this selector
+    const requestSetAmount = () => {
+        // open the inline SetAmount when requested by SelectCategory
+        setShowSetAmount(true)
+    }
+
+    const handleConfirmAmount = (amount) => {
+        // set the selected amount and close only the amount input; allow user to continue editing category details
+        setSelectedAmount(amount)
         setShowSetAmount(false)
+    }
+
+    const handleSaveChanges = (extra = {}) => {
+        // finalise creating the budget using selected values
+        const payload = { type: pendingType, category: selectedCategory, amount: selectedAmount, ...extra }
+        if (onCreateBudget) onCreateBudget(payload)
+        else alert(`Create ${payload.type} | ${payload.category} with amount ${payload.amount}`)
+
+        // reset and close selector
+        setShowSetAmount(false)
+        setShowCategory(false)
         setPendingType(null)
+        setSelectedCategory(null)
+        setSelectedAmount(null)
         onClose()
     }
 
@@ -89,28 +117,44 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
             
             <h1 style={{ marginBottom: "20px" }}>Select Budget Type</h1>
             <div style={cardContainer}>
-                <div style={cardStyle} onClick={() => handleSelection("Savings Budget")}>
-                    <i className="bi bi-piggy-bank" style={iconStyle}></i>
-                    <div>
-                        <h3>Savings Budget</h3>
-                        <p>Track your income and budget your savings</p>
-                    </div>
-                </div>
+                {!showCategory ? (
+                    <>
+                        <div style={cardStyle} onClick={() => handleSelection("Savings Budget") }>
+                            <i className="bi bi-piggy-bank" style={iconStyle}></i>
+                            <div>
+                                <h3>Savings Budget</h3>
+                                <p>Track your income and budget your savings</p>
+                            </div>
+                        </div>
 
-                <div style={cardStyle} onClick={() => handleSelection("Expense Budget")}>
-                    <i className="bi bi-wallet2" style={iconStyle}></i>
-                    <div>
-                        <h3>Expense Budget</h3>
-                        <p>Track your expenses and budget your spending</p>
+                        <div style={cardStyle} onClick={() => handleSelection("Expense Budget") }>
+                            <i className="bi bi-wallet2" style={iconStyle}></i>
+                            <div>
+                                <h3>Expense Budget</h3>
+                                <p>Track your expenses and budget your spending</p>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    // Render category selector when a type has been chosen
+                    <div style={{ width: '100%' }}>
+                        <SelectCategory
+                            selectedCategory={selectedCategory}
+                            amountValue={selectedAmount}
+                            onSelect={handleCategorySelect}
+                            onRequestSetAmount={requestSetAmount}
+                            onSave={(extra) => handleSaveChanges(extra)}
+                            onClose={() => { setShowCategory(false); onClose() }}
+                        />
                     </div>
-                </div>
+                )}
             </div>
 
             {showSetAmount && (
                 <SetAmount
                     inline={true}
                     initialValue={0}
-                    title={pendingType ? `Set ${pendingType} Amount` : 'Set Amount'}
+                    title={pendingType && selectedCategory ? `Set ${pendingType} • ${selectedCategory} Amount` : 'Set Amount'}
                     onConfirm={handleConfirmAmount}
                     onClose={handleCancelAmount}
                 />
