@@ -1,7 +1,10 @@
-// src/components/SelectBudgetType.jsx
+import React, { useState } from 'react'
+import SetAmount from '../setAmount'
 
-function SelectBudgetType({ onClose }) {
-  
+function SelectBudgetType({ onClose, onCreateBudget }) {
+    const [showSetAmount, setShowSetAmount] = useState(false)
+    const [pendingType, setPendingType] = useState(null)
+
     const containerStyle = {
         display: "flex",
         flexDirection: "column",
@@ -34,10 +37,6 @@ function SelectBudgetType({ onClose }) {
         backgroundColor: "#e0e0e0",
         cursor: "pointer",
         transition: "transform 0.2s",
-        // Hover effect for better UX
-        '&:hover': {
-            transform: 'scale(1.02)',
-        }
     };
     
     // Style for the close button
@@ -58,13 +57,27 @@ function SelectBudgetType({ onClose }) {
         color: "grey",
     };
 
-    // Handler to close the modal after an action (e.g., selecting a type)
+    // When a type is chosen, open the amount modal
     const handleSelection = (type) => {
-        alert(`${type} clicked`);
-        // In a real app, you would perform budget setup here, then close:
-        onClose(); // Call the function passed from Budgets.js to close the modal
+        setPendingType(type)
+        setShowSetAmount(true)
     };
 
+    const handleConfirmAmount = (amount) => {
+        // If parent provided a creator, call it; otherwise show an alert for now
+        if (onCreateBudget) onCreateBudget({ type: pendingType, amount })
+        else alert(`Create ${pendingType} with amount ${amount}`)
+
+        // close amount modal and this selector
+        setShowSetAmount(false)
+        setPendingType(null)
+        onClose()
+    }
+
+    const handleCancelAmount = () => {
+        setShowSetAmount(false)
+        setPendingType(null)
+    }
 
     return (
         <div style={containerStyle}>
@@ -91,6 +104,15 @@ function SelectBudgetType({ onClose }) {
                     </div>
                 </div>
             </div>
+
+            {showSetAmount && (
+                <SetAmount
+                    initialValue={0}
+                    title={pendingType ? `Set ${pendingType} Amount` : 'Set Amount'}
+                    onConfirm={handleConfirmAmount}
+                    onClose={handleCancelAmount}
+                />
+            )}
         </div>
     );
 }
