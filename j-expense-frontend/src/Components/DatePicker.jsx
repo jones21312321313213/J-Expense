@@ -16,6 +16,8 @@ function DatePicker({ selectedDate, onDateSelect, onClose }) {
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
 
   const getDaysInMonth = (month, year) => {
     return new Date(year, month + 1, 0).getDate();
@@ -47,6 +49,16 @@ function DatePicker({ selectedDate, onDateSelect, onClose }) {
     } else {
       setCurrentMonth(currentMonth + 1);
     }
+  };
+
+  const handleMonthPick = (m) => {
+    setCurrentMonth(m);
+    setShowMonthDropdown(false);
+  };
+
+  const handleYearPick = (y) => {
+    setCurrentYear(y);
+    setShowYearDropdown(false);
   };
 
   const handleDateSelect = (day) => {
@@ -195,26 +207,88 @@ function DatePicker({ selectedDate, onDateSelect, onClose }) {
 
           <div style={{
             display: 'flex',
-            gap: '10px'
+            gap: '10px',
+            position: 'relative',
+            alignItems: 'center'
           }}>
-            <span style={{
-              background: '#fff',
-              padding: '8px 15px',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '1rem'
-            }}>
-              {months[currentMonth]}
-            </span>
-            <span style={{
-              background: '#fff',
-              padding: '8px 15px',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '1rem'
-            }}>
-              {currentYear}
-            </span>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowMonthDropdown(!showMonthDropdown); setShowYearDropdown(false); }}
+                style={{
+                  background: '#fff',
+                  padding: '8px 15px',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {months[currentMonth]}
+              </button>
+
+              {showMonthDropdown && (
+                <div onClick={(e) => e.stopPropagation()} style={{
+                  position: 'absolute',
+                  top: '44px',
+                  left: 0,
+                  background: '#fff',
+                  borderRadius: '8px',
+                  boxShadow: '0 6px 12px rgba(0,0,0,0.12)',
+                  padding: '8px',
+                  zIndex: 2100,
+                  width: '160px'
+                }}>
+                  {months.map((m, idx) => (
+                    <div key={m} onClick={() => handleMonthPick(idx)} style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '6px' }} onMouseEnter={(e)=> e.currentTarget.style.background='#f0f0f0'} onMouseLeave={(e)=> e.currentTarget.style.background='transparent'}>
+                      {m}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowYearDropdown(!showYearDropdown); setShowMonthDropdown(false); }}
+                style={{
+                  background: '#fff',
+                  padding: '8px 15px',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {currentYear}
+              </button>
+
+              {showYearDropdown && (
+                <div onClick={(e) => e.stopPropagation()} style={{
+                  position: 'absolute',
+                  top: '44px',
+                  left: 0,
+                  background: '#fff',
+                  borderRadius: '8px',
+                  boxShadow: '0 6px 12px rgba(0,0,0,0.12)',
+                  padding: '8px',
+                  zIndex: 2100,
+                  width: '120px',
+                  maxHeight: '200px',
+                  overflowY: 'auto'
+                }}>
+                  {Array.from({ length: 21 }).map((_, i) => {
+                    const year = currentYear - 10 + i;
+                    return (
+                      <div key={year} onClick={() => handleYearPick(year)} style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '6px' }} onMouseEnter={(e)=> e.currentTarget.style.background='#f0f0f0'} onMouseLeave={(e)=> e.currentTarget.style.background='transparent'}>
+                        {year}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           <button

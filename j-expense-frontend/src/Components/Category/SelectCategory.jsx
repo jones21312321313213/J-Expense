@@ -19,6 +19,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
         return `${monthNames[t.getMonth()]} ${t.getDate()}`;
     });
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [error, setError] = useState("");
 
     const handleAddClick = () => {
         setAddClicked(!addClicked);
@@ -27,6 +28,26 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
     const handleDateSelect = (date) => {
         setBeginning(date);
         setShowDatePicker(false);
+    };
+
+    const handleSaveClick = () => {
+        let errorMsg = "";
+        if (!name.trim()) {
+            errorMsg = "Name is required";
+        } else if (!amountValue || amountValue === 0) {
+            errorMsg = "Amount is required";
+        } else if (!selectedCategory) {
+            errorMsg = "Category is required";
+        }
+        
+        if (errorMsg) {
+            setError(errorMsg);
+            return;
+        }
+
+        // Clear error and save
+        setError("");
+        onSave && onSave({ name, frequency, beginning });
     };
 
     return (
@@ -81,7 +102,22 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                     ×
                 </button>
 
-                {/* Edit budget section */}
+                {/* Error Message */}
+                {error && (
+                    <div style={{
+                        color: "#dc2626",
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        marginBottom: "20px",
+                        textAlign: "center",
+                        padding: "10px",
+                        background: "#fee2e2",
+                        borderRadius: "8px",
+                        width: "100%"
+                    }}>
+                        {error}
+                    </div>
+                )}
                 <div style={{ 
                     textAlign: "center", 
                     marginBottom: "40px",
@@ -207,7 +243,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
 
                     {/* Save changes button */}
                     <button
-                        onClick={() => onSave && onSave({ name, frequency, beginning })}
+                        onClick={handleSaveClick}
                         style={{
                             width: "100%",
                             maxWidth: "400px",
