@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CategoryTile from "./CategoryTile";
+import DatePicker from "../DatePicker";
 import foodBg from "../../assets/foodCategory.png";
 import commuteBg from "../../assets/commuteCategory.png";
 import entertainmentBg from "../../assets/entertainmentCategory.png";
@@ -12,10 +13,20 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
     const [addClicked, setAddClicked] = useState(false);
     const [name, setName] = useState("");
     const [frequency, setFrequency] = useState(1);
-    const [beginning, setBeginning] = useState("September 14");
+    const [beginning, setBeginning] = useState(() => {
+        const t = new Date();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return `${monthNames[t.getMonth()]} ${t.getDate()}`;
+    });
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     const handleAddClick = () => {
         setAddClicked(!addClicked);
+    };
+
+    const handleDateSelect = (date) => {
+        setBeginning(date);
+        setShowDatePicker(false);
     };
 
     return (
@@ -145,7 +156,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                         <input 
                             type="text" 
                             value={beginning}
-                            onChange={(e) => setBeginning(e.target.value)}
+                            readOnly
+                            onClick={() => setShowDatePicker(true)}
                             style={{
                                 border: "none",
                                 borderBottom: "2px solid #333",
@@ -154,7 +166,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                                 textAlign: "center",
                                 fontSize: "1rem",
                                 width: "150px",
-                                outline: "none"
+                                outline: "none",
+                                cursor: "pointer"
                             }}
                         />
                     </div>
@@ -189,13 +202,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                         <CategoryTile name="Grocery" icon={groceryBg} bgColor={selectedCategory === 'Grocery' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Grocery' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Grocery')} />
                         <CategoryTile name="Shopping" icon={shoppingBg} bgColor={selectedCategory === 'Shopping' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Shopping' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Shopping')} />
                         <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor={selectedCategory === 'Miscellaneous' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Miscellaneous' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Miscellaneous')} />
-                        <CategoryTile
-                            name="+"
-                            bgColor={addClicked ? "#a0e0a0" : "#D9D9D9"}
-                            icon={add}
-                            textColor="black"
-                            onClick={handleAddClick}
-                        />
+                        
                     </div>
 
                     {/* Save changes button */}
@@ -218,6 +225,14 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                     </button>
                 </div>
             </div>
+
+            {showDatePicker && (
+                <DatePicker 
+                    selectedDate={beginning} 
+                    onDateSelect={handleDateSelect}
+                    onClose={() => setShowDatePicker(false)}
+                />
+            )}
         </div>
     );
 }
