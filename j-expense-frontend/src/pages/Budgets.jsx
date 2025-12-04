@@ -218,7 +218,8 @@ function Budgets() {
                       fontSize: "0.85rem",
                       fontWeight: "500",
                       whiteSpace: "nowrap",
-                      border: "1px solid #ddd"
+                      border: "1px solid #ddd",
+                      zIndex: 4
                     }}>
                       Today
                     </div>
@@ -239,8 +240,22 @@ function Budgets() {
                         height: "100%",
                         width: `${budget.progressPercentage}%`,
                         background: "#5a5a5a",
-                        transition: "width 0.3s ease"
+                        transition: "width 0.3s ease",
+                        zIndex: 1
                       }}></div>
+
+                      {/* Thin white 'Today' indicator line positioned under the Today badge */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: `${budget.dayProgress}%`,
+                        transform: 'translateX(-50%)',
+                        width: '2px',
+                        height: '100%',
+                        background: '#fff',
+                        opacity: 0.95,
+                        zIndex: 2
+                      }} />
 
                       {/* Percentage Text */}
                       <div style={{
