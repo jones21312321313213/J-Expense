@@ -14,6 +14,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
     const [addClicked, setAddClicked] = useState(false);
     const [name, setName] = useState("");
     const [frequency, setFrequency] = useState(1);
+    const [periodUnit, setPeriodUnit] = useState("Month");
     const [beginning, setBeginning] = useState(() => {
         const t = new Date();
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -49,7 +50,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
 
         // Clear error and save
         setError("");
-        onSave && onSave({ name, frequency, beginning });
+        onSave && onSave({ name, frequency, periodUnit, beginning });
     };
 
     return (
@@ -178,8 +179,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                             }}
                         />
                         <span>/</span>
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             value={frequency}
                             min={1}
                             onChange={(e) => setFrequency(Number(e.target.value))}
@@ -194,7 +195,31 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                                 outline: "none"
                             }}
                         />
-                        <span>month</span>
+
+                        {/* Period unit dropdown styled with underline to match amount input */}
+                        <select
+                            value={periodUnit}
+                            onChange={(e) => setPeriodUnit(e.target.value)}
+                            style={{
+                                border: "none",
+                                borderBottom: "2px solid #333",
+                                background: "transparent",
+                                padding: "8px",
+                                textAlign: "center",
+                                width: "110px",
+                                fontSize: "1rem",
+                                outline: "none",
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                MozAppearance: "none",
+                                cursor: "pointer"
+                            }}
+                        >
+                            <option>Day</option>
+                            <option>Week</option>
+                            <option>Month</option>
+                            <option>Year</option>
+                        </select>
                     </div>
                     
                     <div style={{ fontSize: "1rem" }}>
