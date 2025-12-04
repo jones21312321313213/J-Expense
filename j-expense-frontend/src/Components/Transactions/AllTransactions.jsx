@@ -13,9 +13,23 @@ function AllTransactions() {
     { item: "Transport", date: "2025-12-01", amount: "₱120", type: "expense" },
   ];
 
+  const containerStyle = {
+    width: "100%",
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+  };
+
+  const contentStyle = {
+    flex: 1,
+    overflowY: "auto",
+    paddingTop: "10px",
+    paddingRight: "5px",
+  };
+
   return (
-    <div style={{ width: "100%", height: "370px" }}>
-      
+    <div style={containerStyle}>
       {/* Table Header */}
       <div
         style={{
@@ -31,14 +45,7 @@ function AllTransactions() {
       </div>
 
       {/* Scrollable Section */}
-      <div
-        style={{
-          height: "330px",
-          overflowY: "auto",
-          overflowX: "hidden",
-          paddingRight: "5px",
-        }}
-      >
+      <div style={contentStyle}>
         {data.map((row, index) => (
           <div
             key={index}
@@ -75,7 +82,6 @@ function AllTransactions() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

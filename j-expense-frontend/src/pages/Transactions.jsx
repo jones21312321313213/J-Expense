@@ -19,22 +19,38 @@ function Transactions() {
     }
   };
 
+  // Responsive container style
+  const containerStyle = {
+    width: "100%",
+    background: "white",
+    borderRadius: "20px",
+    padding: "20px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    marginTop: "30px",
+    display: "flex",
+    flexDirection: "column",
+
+    // Responsive height: almost full viewport height
+    minHeight: "70vh",      // on small screens
+    maxHeight: "90vh",      // on large screens
+    height: "calc(96vh - 100px)", // adjust automatically based on viewport
+    overflow: "hidden",
+  };
+
+  // Scrollable content
+  const contentStyle = {
+    flex: 1,
+    overflowY: "auto",
+    paddingTop: "10px",
+  };
+
   return (
     <div style={{ width: "100%" }}>
-      {/* Title (no background) */}
+      {/* Title */}
       <h2 style={{ textAlign: "center" }}>Transactions</h2>
 
-      {/* White rounded container for navbar + content */}
-      <div
-        style={{
-          width: "100%",
-          background: "white",
-          borderRadius: "20px",
-          padding: "20px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          marginTop: "30px",
-        }}
-      >
+      {/* Responsive container */}
+      <div style={containerStyle}>
         {/* Navbar */}
         <nav
           className="navbar navbar-expand-lg navbar-light mb-3"
@@ -109,8 +125,8 @@ function Transactions() {
           </div>
         </nav>
 
-        {/* Rendered content */}
-        <div>{renderContent()}</div>
+        {/* Scrollable content */}
+        <div style={contentStyle}>{renderContent()}</div>
       </div>
     </div>
   );
