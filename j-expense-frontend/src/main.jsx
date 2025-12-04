@@ -8,7 +8,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import App from './App'
 import Add from './Components/Add';
-import SelectBudgetType from './Components/Budget/SelectBudgetType';
 
 
 
