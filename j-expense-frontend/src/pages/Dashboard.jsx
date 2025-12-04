@@ -66,7 +66,7 @@ function Dashboard() {
   };
 
   return (
-    <div style={{ width: "1624px" }}>
+    <div style={{ width: "100%" }}>
       <div style={bgStyle}>
 
         <Navbar />
