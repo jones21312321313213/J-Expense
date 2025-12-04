@@ -1,108 +1,254 @@
-import Add from "../Components/Add";
+﻿import Add from "../Components/Add";
 import { useState } from "react";
 import SelectBudgetType from "../Components/Budget/SelectBudgetType";
 
 function Budgets() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [budgets, setBudgets] = useState([]);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleCreateBudget = ({ type, category, amount, name, frequency, beginning }) => {
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // this is for testing to see if button would resize after adding things
-
-    const [budgets, setBudgets] = useState([]);
-    const addBudget = () => {
-        const newBudget = { id: budgets.length + 1, name: `Budget ${budgets.length + 1}` };
-        setBudgets([...budgets, newBudget]);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}`;
+    const endDateStr = `${monthNames[endDate.getMonth()]} ${endDate.getDate()}`;
+    
+    const daysInMonth = endDate.getDate();
+    const daysPassed = today.getDate();
+    const dayProgress = (daysPassed / daysInMonth) * 100;
+    const progressPercentage = Math.round((daysPassed / daysInMonth) * 100);
+    
+    const newBudget = {
+      id: budgets.length + 1,
+      name: name || category || type,
+      type,
+      category,
+      amount: amount || 0,
+      currentAmount: Math.floor(Math.random() * (amount || 1000)),
+      startDate: startDateStr,
+      endDate: endDateStr,
+      dayProgress,
+      progressPercentage,
+      frequency,
+      beginning
     };
+    setBudgets((b) => [...b, newBudget]);
+    closeModal();
+  };
 
-    //
+  const containerStyle = {
+    padding: "40px 20px",
+    margin: "0 auto",
+    maxWidth: "1500px",
+  };
 
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: budgets.length === 0 ? "1fr" : "repeat(2, 1fr)",
+    gap: "30px",
+    marginBottom: "20px"
+  };
 
-    const openModal = () => {
-        setIsModalOpen(true);
-    };
+  const cardStyle = {
+    borderRadius: "30px",
+    overflow: "hidden",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#fff"
+  };
 
+  const cardHeaderStyle = {
+    background: "linear-gradient(to right, #a8d8ea 0%, #f5e6d3 100%)",
+    padding: "30px 40px"
+  };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
+  const cardProgressStyle = {
+    background: "#d4d4d4",
+    padding: "50px 40px"
+  };
 
+  const addButtonContainerStyle = {
+    borderRadius: "30px",
+    overflow: "hidden",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    height: "fit-content",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "40px",
+    backgroundColor: "#fff",
+    cursor: "pointer"
+  };
 
-    const containerStyle = {
-        maxHeight: "800px", 
-        overflowY: "auto",
-        padding: "10px",
-        margin: "0 auto",
-        maxWidth: "1500px",
-    };
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  };
 
-    const gridStyle = {
-        display: "grid",
-        gridTemplateColumns: budgets.length === 0 ? "1fr" : "repeat(2, 1fr)", // full width if no budgets
-        gap: "20px",
-    };
+  return (
+    <div>
+      <h1 style={{ textAlign: "center", paddingTop: "20px" }}>Budgets</h1>
+      <div style={containerStyle}>
+        <div style={gridStyle}>
+          {budgets.map((budget) => (
+            <div key={budget.id} style={cardStyle}>
+              {/* Header Section */}
+              <div style={cardHeaderStyle}>
+                <h2 style={{
+                  margin: "0 0 10px 0",
+                  fontSize: "1.5rem",
+                  fontWeight: "bold",
+                  color: "#000"
+                }}>
+                  {budget.name}
+                </h2>
+                <p style={{
+                  margin: 0,
+                  fontSize: "1.3rem",
+                  fontWeight: "bold",
+                  color: "#000"
+                }}>
+                  P {budget.currentAmount.toLocaleString()} <span style={{ fontWeight: "normal" }}>left of P {budget.amount.toLocaleString()}</span>
+                </p>
+              </div>
 
-    const itemStyle = {
-        height: "100px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f0f0f0",
-        borderRadius: "8px",
-    };
-
-    const modalOverlayStyle = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000, // Ensure it's above other content
-    };
-
-
-
-    return (
-        <div>
-            <h1 style={{ textAlign: "center" }}>Budgets</h1>
-            <div style={containerStyle}>
-                <div style={gridStyle}>
-                    {budgets.map((budget) => (
-                        <div key={budget.id} style={itemStyle}>
-                            {budget.name}
-                        </div>
-                    ))}
-
-                    {/* Add button - Now uses the Add component and opens the modal */}
-                    <div
-                        style={{
-                            ...itemStyle,
-                            gridColumn: budgets.length === 0 ? "span 2" : "auto", // span 2 columns if no budgets
-                        }}
-                    >
-
-                        <Add onClick={openModal} />
+              {/* Progress Section */}
+              <div style={cardProgressStyle}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "20px"
+                }}>
+                  {/* Start Date */}
+                  <div style={{
+                    textAlign: "center",
+                    minWidth: "60px"
+                  }}>
+                    <div style={{
+                      fontSize: "1rem",
+                      fontWeight: "500",
+                      color: "#000"
+                    }}>
+                      {budget.startDate.split(' ')[0]}
                     </div>
+                    <div style={{
+                      fontSize: "1.4rem",
+                      fontWeight: "bold",
+                      color: "#000"
+                    }}>
+                      {budget.startDate.split(' ')[1]}
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div style={{
+                    flex: 1,
+                    position: "relative"
+                  }}>
+                    {/* Today Label */}
+                    <div style={{
+                      position: "absolute",
+                      top: "-35px",
+                      left: `${budget.dayProgress}%`,
+                      transform: "translateX(-50%)",
+                      background: "#fff",
+                      padding: "4px 12px",
+                      borderRadius: "4px",
+                      fontSize: "0.85rem",
+                      fontWeight: "500",
+                      whiteSpace: "nowrap",
+                      border: "1px solid #ddd"
+                    }}>
+                      Today
+                    </div>
+
+                    {/* Progress Bar Container */}
+                    <div style={{
+                      background: "#5a5a5a",
+                      height: "40px",
+                      borderRadius: "20px",
+                      position: "relative",
+                      overflow: "hidden"
+                    }}>
+                      {/* Progress Fill */}
+                      <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: "100%",
+                        width: `${budget.progressPercentage}%`,
+                        background: "#5a5a5a",
+                        transition: "width 0.3s ease"
+                      }}></div>
+
+                      {/* Percentage Text */}
+                      <div style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        color: "#fff",
+                        fontSize: "0.9rem",
+                        fontWeight: "bold"
+                      }}>
+                        {budget.progressPercentage}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* End Date */}
+                  <div style={{
+                    textAlign: "center",
+                    minWidth: "60px"
+                  }}>
+                    <div style={{
+                      fontSize: "1rem",
+                      fontWeight: "500",
+                      color: "#000"
+                    }}>
+                      {budget.endDate.split(' ')[0]}
+                    </div>
+                    <div style={{
+                      fontSize: "1.4rem",
+                      fontWeight: "bold",
+                      color: "#000"
+                    }}>
+                      {budget.endDate.split(' ')[1]}
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
+          ))}
 
-            {/* Modal - Conditionally rendered based on isModalOpen state */}
-            {isModalOpen && (
-                <div style={modalOverlayStyle} onClick={closeModal}>
-
-                    <SelectBudgetType 
-                        onClose={closeModal} 
-                        // prevents closing the modal when clicking inside the SelectBudgetType component
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                </div>
-            )}
+          {/* Add Button */}
+          <div style={addButtonContainerStyle} onClick={openModal}>
+            <Add />
+          </div>
         </div>
-    );
+      </div>
+
+      {isModalOpen && (
+        <div style={modalOverlayStyle} onClick={closeModal}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <SelectBudgetType onClose={closeModal} onCreateBudget={handleCreateBudget} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Budgets;

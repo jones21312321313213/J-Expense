@@ -1,4 +1,4 @@
-function CategoryTile({ name, icon, bgColor = '#e0e0e0', textColor = 'black' }) {
+function CategoryTile({ name, icon, bgColor = '#e0e0e0', textColor = 'black', onClick }) {
     const tileStyle = {
         display: 'flex',
         flexDirection: 'column',
@@ -6,7 +6,7 @@ function CategoryTile({ name, icon, bgColor = '#e0e0e0', textColor = 'black' }) 
         padding: '10px',
         margin: '10px',
         width: '100px',
-        cursor: 'pointer',
+        cursor: onClick ? 'pointer' : 'default',
         textAlign: 'center'
     };
 
@@ -30,7 +30,7 @@ function CategoryTile({ name, icon, bgColor = '#e0e0e0', textColor = 'black' }) 
     };
 
     return (
-        <div style={tileStyle}>
+        <div style={tileStyle} onClick={onClick}>
             <div style={iconBoxStyle}>
                 {icon ? (
                     <img src={icon} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
