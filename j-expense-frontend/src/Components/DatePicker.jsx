@@ -338,30 +338,54 @@ function DatePicker({ selectedDate, onDateSelect, onClose }) {
           {renderCalendar()}
         </div>
 
-        {/* Action Button */}
-        <button
-          onClick={() => {
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            if (onDateSelect) onDateSelect(`${monthNames[currentMonth]} ${tempDate}`);
-            if (onClose) onClose();
-          }}
-          style={{
-            width: '100%',
-            background: '#3d9b9b',
-            color: '#fff',
-            border: 'none',
-            padding: '12px',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#2d8080'}
-          onMouseLeave={(e) => e.target.style.background = '#3d9b9b'}
-        >
-          Ok
-        </button>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <button
+            onClick={() => {
+              const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              if (onDateSelect) onDateSelect(`${monthNames[currentMonth]} ${tempDate}`);
+              if (onClose) onClose();
+            }}
+            style={{
+              width: '100%',
+              background: '#3d9b9b',
+              color: '#fff',
+              border: 'none',
+              padding: '12px',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#2d8080'}
+            onMouseLeave={(e) => e.target.style.background = '#3d9b9b'}
+          >
+            Ok
+          </button>
+
+          <button
+            onClick={() => {
+              if (onClose) onClose();
+            }}
+            style={{
+              width: '100%',
+              background: '#ff6b6b',
+              color: '#fff',
+              border: 'none',
+              padding: '12px',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#ff5252'}
+            onMouseLeave={(e) => e.target.style.background = '#ff6b6b'}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
