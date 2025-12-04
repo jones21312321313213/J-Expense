@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CategoryTile from "./CategoryTile";
 import DatePicker from "../DatePicker";
+import Add from "../Add";
 import foodBg from "../../assets/foodCategory.png";
 import commuteBg from "../../assets/commuteCategory.png";
 import entertainmentBg from "../../assets/entertainmentCategory.png";
@@ -13,12 +14,14 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
     const [addClicked, setAddClicked] = useState(false);
     const [name, setName] = useState("");
     const [frequency, setFrequency] = useState(1);
+    const [periodUnit, setPeriodUnit] = useState("Month");
     const [beginning, setBeginning] = useState(() => {
         const t = new Date();
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         return `${monthNames[t.getMonth()]} ${t.getDate()}`;
     });
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
     const [error, setError] = useState("");
 
     const handleAddClick = () => {
@@ -47,7 +50,7 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
 
         // Clear error and save
         setError("");
-        onSave && onSave({ name, frequency, beginning });
+        onSave && onSave({ name, frequency, periodUnit, beginning });
     };
 
     return (
@@ -123,6 +126,14 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                     marginBottom: "40px",
                     width: "100%"
                 }}>
+                    <div style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 700,
+                        marginBottom: '12px',
+                        color: '#0f172a'
+                    }}>
+                        Add a Budget
+                    </div>
                     <input 
                         type="text" 
                         placeholder="Name"
@@ -168,8 +179,8 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                             }}
                         />
                         <span>/</span>
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             value={frequency}
                             min={1}
                             onChange={(e) => setFrequency(Number(e.target.value))}
@@ -184,7 +195,31 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                                 outline: "none"
                             }}
                         />
-                        <span>month</span>
+
+                        {/* Period unit dropdown styled with underline to match amount input */}
+                        <select
+                            value={periodUnit}
+                            onChange={(e) => setPeriodUnit(e.target.value)}
+                            style={{
+                                border: "none",
+                                borderBottom: "2px solid #333",
+                                background: "transparent",
+                                padding: "8px",
+                                textAlign: "center",
+                                width: "110px",
+                                fontSize: "1rem",
+                                outline: "none",
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                MozAppearance: "none",
+                                cursor: "pointer"
+                            }}
+                        >
+                            <option>Day</option>
+                            <option>Week</option>
+                            <option>Month</option>
+                            <option>Year</option>
+                        </select>
                     </div>
                     
                     <div style={{ fontSize: "1rem" }}>
@@ -239,7 +274,47 @@ function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetA
                         <CategoryTile name="Shopping" icon={shoppingBg} bgColor={selectedCategory === 'Shopping' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Shopping' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Shopping')} />
                         <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor={selectedCategory === 'Miscellaneous' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Miscellaneous' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Miscellaneous')} />
                         
+                        {/* Plus / Add new category tile */}
+                        <CategoryTile
+                            name="Add"
+                            bgColor={addClicked ? "#a0e0a0" : "#D9D9D9"}
+                            icon={add} // or you can pass a "+" icon image
+                            textColor="black"
+                            onClick={handleAddClick} // for later
+                        />
                     </div>
+
+                    {/* Inline add-new-category input shown when plus is clicked */}
+                    {addClicked && (
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', width: '100%' }}>
+                            <input
+                                type="text"
+                                placeholder="New category name"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cfcfcf', width: '200px' }}
+                            />
+                            <button
+                                onClick={() => {
+                                    const n = newCategoryName.trim();
+                                    if (n) {
+                                        onSelect && onSelect(n);
+                                        setNewCategoryName("");
+                                        setAddClicked(false);
+                                    }
+                                }}
+                                style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', background: '#efefef', cursor: 'pointer' }}
+                            >
+                                Add
+                            </button>
+                            <button
+                                onClick={() => { setNewCategoryName(""); setAddClicked(false); }}
+                                style={{ padding: '10px 12px', borderRadius: '6px', border: 'none', background: '#fff', cursor: 'pointer' }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
 
                     {/* Save changes button */}
                     <button

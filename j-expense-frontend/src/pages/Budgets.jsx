@@ -9,26 +9,75 @@ function Budgets() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleCreateBudget = ({ type, category, amount, name, frequency, beginning }) => {
+  const handleCreateBudget = ({ type, category, amount, name, frequency = 1, beginning, periodUnit = "Month" }) => {
     const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
+
+    // Helper: parse beginning like 'Dec 4' into a Date in the current year. If parsing fails, default to today.
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const parseBeginning = (b) => {
+      if (!b || typeof b !== 'string') return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const parts = b.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        const mon = parts[0];
+        const day = parseInt(parts[1], 10);
+        const mIdx = monthNames.findIndex(x => x.toLowerCase() === mon.toLowerCase().slice(0,3));
+        if (mIdx !== -1 && !isNaN(day)) {
+          return new Date(today.getFullYear(), mIdx, day);
+        }
+      }
+      // fallback try Date parse
+      const parsed = new Date(b);
+      if (!isNaN(parsed)) return parsed;
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    };
+
+    const startDate = parseBeginning(beginning);
+
+    // Compute endDate based on periodUnit and frequency. End date is inclusive (last day covered by budget).
+    let endDate = new Date(startDate.getTime());
+    const unit = (periodUnit || "Month").toString().toLowerCase();
+    if (unit === 'day') {
+      endDate.setDate(endDate.getDate() + Math.max(1, frequency) - 1);
+    } else if (unit === 'week') {
+      endDate.setDate(endDate.getDate() + (Math.max(1, frequency) * 7) - 1);
+    } else if (unit === 'month') {
+      // Add months then subtract one day to make it inclusive
+      endDate.setMonth(endDate.getMonth() + Math.max(1, frequency));
+      endDate.setDate(endDate.getDate() - 1);
+    } else if (unit === 'year') {
+      endDate.setFullYear(endDate.getFullYear() + Math.max(1, frequency));
+      endDate.setDate(endDate.getDate() - 1);
+    } else {
+      // default to one month
+      endDate.setMonth(endDate.getMonth() + 1);
+      endDate.setDate(endDate.getDate() - 1);
+    }
+
+    // Format strings for display
     const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}`;
     const endDateStr = `${monthNames[endDate.getMonth()]} ${endDate.getDate()}`;
-    
-    const daysInMonth = endDate.getDate();
-    const daysPassed = today.getDate();
-    const dayProgress = (daysPassed / daysInMonth) * 100;
-    const progressPercentage = Math.round((daysPassed / daysInMonth) * 100);
-    
+
+    // Compute progress percent based on time elapsed between start and end
+    let progressPercentage = 0;
+    if (today <= startDate) {
+      progressPercentage = 0;
+    } else if (today >= endDate) {
+      progressPercentage = 100;
+    } else {
+      const total = endDate.getTime() - startDate.getTime();
+      const passed = today.getTime() - startDate.getTime();
+      progressPercentage = total > 0 ? Math.round((passed / total) * 100) : 0;
+    }
+
+    const dayProgress = Math.min(100, Math.max(0, progressPercentage));
+
     const newBudget = {
       id: budgets.length + 1,
       name: name || category || type,
       type,
       category,
       amount: amount || 0,
+      periodUnit,
       currentAmount: Math.floor(Math.random() * (amount || 1000)),
       startDate: startDateStr,
       endDate: endDateStr,
@@ -169,7 +218,8 @@ function Budgets() {
                       fontSize: "0.85rem",
                       fontWeight: "500",
                       whiteSpace: "nowrap",
-                      border: "1px solid #ddd"
+                      border: "1px solid #ddd",
+                      zIndex: 4
                     }}>
                       Today
                     </div>
@@ -190,8 +240,22 @@ function Budgets() {
                         height: "100%",
                         width: `${budget.progressPercentage}%`,
                         background: "#5a5a5a",
-                        transition: "width 0.3s ease"
+                        transition: "width 0.3s ease",
+                        zIndex: 1
                       }}></div>
+
+                      {/* Thin white 'Today' indicator line positioned under the Today badge */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: `${budget.dayProgress}%`,
+                        transform: 'translateX(-50%)',
+                        width: '2px',
+                        height: '100%',
+                        background: '#fff',
+                        opacity: 0.95,
+                        zIndex: 2
+                      }} />
 
                       {/* Percentage Text */}
                       <div style={{
