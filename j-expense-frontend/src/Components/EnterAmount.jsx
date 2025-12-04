@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 
+// This is the same with setAmount 
 // Not yet finished since when it is 99999999999 it will go out of the container
 function EnterAmount({ onSubmit, onClose }) {
   const [amount, setAmount] = useState("");
