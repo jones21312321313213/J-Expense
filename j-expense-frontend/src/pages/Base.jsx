@@ -2,6 +2,7 @@ import Sidebar from "../Components/Sidebar";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import bgImage from "../assets/dashbg.jpg";
+import AddTransactionButton from "../Components/AddTransactionButton"; // import your FAB
 
 function Base() {
     // Zoom disabling useEffect 
@@ -37,6 +38,7 @@ function Base() {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         overflow: "auto",
+        position: "relative", // important for positioning the FAB
         padding: "20px"
     };
 
@@ -47,6 +49,9 @@ function Base() {
             {/* Background wrapper for all routed pages */}
             <div style={contentBgStyle}>
                 <Outlet />
+
+                {/* Floating Add Transaction Button */}
+                <AddTransactionButton />
             </div>
         </div>
     );

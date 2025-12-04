@@ -9,9 +9,25 @@ function IncomeTransactions() {
     { item: "Bonus", date: "2025-11-25", amount: "₱1,000", icon: "/icons/bonus.png" },
   ];
 
-  return (
-    <div style={{ width: "100%", height: "370px" }}>
+  // Container style: responsive height
+  const containerStyle = {
+    width: "100%",
+    flex: 1,                 // take remaining space from parent
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",      // prevent overflow outside container
+  };
 
+  // Scrollable content style
+  const contentStyle = {
+    flex: 1,                 // fill remaining height
+    overflowY: "auto",
+    paddingTop: "10px",
+    paddingRight: "5px",
+  };
+
+  return (
+    <div style={containerStyle}>
       {/* Table Header */}
       <div
         style={{
@@ -27,14 +43,7 @@ function IncomeTransactions() {
       </div>
 
       {/* Scrollable Section */}
-      <div
-        style={{
-          height: "330px",
-          overflowY: "auto",
-          overflowX: "hidden",
-          paddingRight: "5px",
-        }}
-      >
+      <div style={contentStyle}>
         {data.map((row, index) => (
           <div
             key={index}
@@ -71,7 +80,6 @@ function IncomeTransactions() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }
