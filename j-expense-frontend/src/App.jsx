@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Base from './pages/Base'; 
 import Login from './pages/Login';
 import Landing from './pages/Landing';
+import Register from './pages/Register'
 
 // Import all the pages that will load inside the Base layout
 import Dashboard from './pages/Dashboard';
@@ -25,6 +26,7 @@ function App() {
       {/* 1. Public Routes (Change Landing path to avoid conflict) */}
       <Route path="/landing" element={<Landing />} /> {/*will change the path for this later*/}
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       
       {/* 2. Protected/Layout Routes (With Sidebar/Base Layout) */}
       {/* The parent path remains "/", meaning this layout loads for all children */}
