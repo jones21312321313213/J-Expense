@@ -16,6 +16,14 @@ function AddTransaction() {
   const [error, setError] = useState("");
   const [category, setCategory] = useState("");
 
+
+    // --- ADDITIONAL STATE FOR REPETITIVE TAB ---
+  const [periodLength, setPeriodLength] = useState(1);
+  const [periodUnit, setPeriodUnit] = useState("Day");
+  const [endDate, setEndDate] = useState("");
+
+
+
   const activeStyle = {
     borderBottom: "2px solid #21c7b8",
     color: "#21c7b8",
@@ -140,10 +148,21 @@ function AddTransaction() {
             </span>
           </div>
 
-          <div style={{ marginTop: "20px" }}>
-            {rightTab === "default" && <AddTransactionDefault />}
-            {rightTab === "repetitive" && <AddTransactionRepetitive />}
-          </div>
+        <div style={{ marginTop: "20px" }}>
+          {rightTab === "default" && <AddTransactionDefault />}
+          
+          {rightTab === "repetitive" && (
+            <AddTransactionRepetitive
+              periodLength={periodLength}
+              setPeriodLength={setPeriodLength}
+              periodUnit={periodUnit}
+              setPeriodUnit={setPeriodUnit}
+              endDate={endDate}
+              setEndDate={setEndDate}
+            />
+          )}
+        </div>
+
         </div>
       </div>
 
