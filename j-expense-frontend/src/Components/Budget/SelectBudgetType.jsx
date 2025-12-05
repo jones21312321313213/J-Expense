@@ -28,7 +28,6 @@ import React, { useState } from 'react'
 import AddBudget from "./AddBudget";
 import SelectCategory from '../../Components/Category/SelectCategory'
 import SetAmount from '../setAmount'
-import EnterAmount from '../EnterAmount';
 
 function SelectBudgetType({ onClose, onCreateBudget }) {
     const [pendingType, setPendingType] = useState(null)
