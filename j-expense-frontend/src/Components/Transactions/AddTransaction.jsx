@@ -8,6 +8,14 @@ function AddTransaction() {
   const [leftTab, setLeftTab] = useState("expenses");
   const [rightTab, setRightTab] = useState("default");
 
+  // --- LIFTED STATE FOR TRANSACTION ---
+  const [name, setName] = useState("");
+  const [amountValue, setAmountValue] = useState(0);
+  const [beginning, setBeginning] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
+  const [category, setCategory] = useState("");
+
   const activeStyle = {
     borderBottom: "2px solid #21c7b8",
     color: "#21c7b8",
@@ -63,8 +71,38 @@ function AddTransaction() {
           </div>
 
           <div style={{ marginTop: "20px" }}>
-            {leftTab === "expenses" && <AddTransactionExpenses />}
-            {leftTab === "income" && <AddTransactionIncome />}
+            {leftTab === "expenses" && (
+              <AddTransactionExpenses
+                name={name}
+                setName={setName}
+                amountValue={amountValue}
+                setAmountValue={setAmountValue}
+                beginning={beginning}
+                setBeginning={setBeginning}
+                description={description}
+                setDescription={setDescription}
+                error={error}
+                setError={setError}
+                category={category}
+                setCategory={setCategory}
+              />
+            )}
+            {leftTab === "income" && (
+              <AddTransactionIncome
+                name={name}
+                setName={setName}
+                amountValue={amountValue}
+                setAmountValue={setAmountValue}
+                beginning={beginning}
+                setBeginning={setBeginning}
+                description={description}
+                setDescription={setDescription}
+                error={error}
+                setError={setError}
+                category={category}
+                setCategory={setCategory}
+              />
+            )}
           </div>
         </div>
 

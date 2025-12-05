@@ -1,30 +1,19 @@
-
-/**
- * SetAmount Component
- * ------------------
- * A custom numeric keypad modal for entering monetary amounts.
- * 
- * Features:
- *  - Displays a floating modal overlay with a numeric keypad.
- *  - Supports decimal input with a maximum of 2 decimal places.
- *  - Includes Clear, Cancel, and Set buttons.
- *  - Backspace key to remove digits.
- *  - Displays current input in a large display area.
- *  - Fully controlled via props:
- *      - initialValue: starting value (number)
- *      - onConfirm: callback returning the numeric value when user clicks Set
- *      - onClose: callback when modal closes (Cancel or outside click)
- *      - title: optional title for the modal
- * 
- * Usage:
- *  - Can be used for budget, transaction, or any numeric input fields.
- *  - Appears as a modal overlay, blocks interaction with background until closed.
- */
-
-
 import React, { useState, useEffect } from 'react';
 
-function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {}, title = 'Set Amount' }) {
+/**
+ * SetPeriodLength Component
+ * ------------------------
+ * A modal to select a numeric period length (e.g., every 1, 2, 3 days/weeks/months).
+ * Same style as SetAmount, includes '.' for alignment but ignores it.
+ *
+ * Props:
+ * - initialValue (number): starting value
+ * - onConfirm (function): callback that returns the selected number
+ * - onClose (function): callback when modal is closed
+ * - title (string): optional modal title
+ */
+
+function SetPeriodLength({ initialValue = 1, onConfirm = () => {}, onClose = () => {}, title = 'Set Period Length' }) {
   const [value, setValue] = useState('');
 
   useEffect(() => {
@@ -34,28 +23,19 @@ function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {},
   }, [initialValue]);
 
   const append = (ch) => {
-    if (ch === '.' && value.includes('.')) return;
-    if (value.includes('.') && ch !== '.') {
-      const decimals = value.split('.')[1] || '';
-      if (decimals.length >= 2) return;
-    }
-    if (value === '0' && ch !== '.') {
-      setValue(ch);
-      return;
-    }
-    setValue((v) => (v || '') + ch);
+    if (ch === '.') return; // ignore, only for keypad alignment
+    setValue((v) => (v === '0' ? ch : v + ch));
   };
 
   const backspace = () => setValue((v) => (v || '').slice(0, -1));
 
   const handleConfirm = () => {
-    const parsed = parseFloat(value);
-    const out = Number.isFinite(parsed) ? parsed : 0;
-    onConfirm(out); // return number
+    const parsed = parseInt(value);
+    const out = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    onConfirm(out);
     onClose();
   };
 
-  // Minimal SetPeriod-style styling
   const overlayStyle = {
     position: 'fixed',
     inset: 0,
@@ -140,7 +120,7 @@ function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {},
         </div>
 
         {/* Display */}
-        <div style={displayStyle}>₱{value || '0.00'}</div>
+        <div style={displayStyle}>{value || '1'}</div>
 
         {/* Keypad */}
         <div style={keypadStyle}>
@@ -164,11 +144,11 @@ function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {},
           onMouseUp={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
           onClick={handleConfirm}
         >
-          Set Amount
+          Set
         </button>
       </div>
     </div>
   );
 }
 
-export default SetAmount;
+export default SetPeriodLength;
