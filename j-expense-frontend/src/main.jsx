@@ -9,7 +9,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import App from './App'
 import SetDate from './Components/SetDate';
 import SetAmount from './Components/setAmount';
-import EnterAmount from './Components/EnterAmount';
 import AddTransaction from './Components/Transactions/AddTransaction';
 import AddTransactionPage from './pages/AddTransactionPage';
 import AddBudget from './Components/Budget/AddBudget';
