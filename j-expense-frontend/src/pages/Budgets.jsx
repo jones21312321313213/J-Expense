@@ -1,5 +1,7 @@
 ﻿import Add from "../Components/Add";
 import { useState } from "react";
+
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 import SelectBudgetType from "../Components/Budget/SelectBudgetType";
 
 function Budgets() {
@@ -13,14 +15,14 @@ function Budgets() {
     const today = new Date();
 
     // Helper: parse beginning like 'Dec 4' into a Date in the current year. If parsing fails, default to today.
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const parseBeginning = (b) => {
       if (!b || typeof b !== 'string') return new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const parts = b.trim().split(/\s+/);
       if (parts.length >= 2) {
         const mon = parts[0];
         const day = parseInt(parts[1], 10);
-        const mIdx = monthNames.findIndex(x => x.toLowerCase() === mon.toLowerCase().slice(0,3));
+        // match by first 3 letters (abbr) or full month name
+        const mIdx = monthNames.findIndex(x => x.slice(0,3).toLowerCase() === mon.toLowerCase().slice(0,3) || x.toLowerCase() === mon.toLowerCase());
         if (mIdx !== -1 && !isNaN(day)) {
           return new Date(today.getFullYear(), mIdx, day);
         }
@@ -35,27 +37,33 @@ function Budgets() {
 
     // Compute endDate based on periodUnit and frequency. End date is inclusive (last day covered by budget).
     let endDate = new Date(startDate.getTime());
-    const unit = (periodUnit || "Month").toString().toLowerCase();
+    let unit = (periodUnit).toString().toLowerCase();
+    // Normalize variants like 'daily', 'weekly', 'monthly', 'yearly' to canonical units
+    if (unit.indexOf('day') !== -1) unit = 'day';
+    else if (unit.indexOf('week') !== -1) unit = 'week';
+    else if (unit.indexOf('month') !== -1) unit = 'month';
+    else if (unit.indexOf('year') !== -1) unit = 'year';
+
     if (unit === 'day') {
-      endDate.setDate(endDate.getDate() + Math.max(1, frequency) - 1);
+      // End is start + frequency days
+      endDate.setDate(endDate.getDate() + Math.max(1, frequency));
     } else if (unit === 'week') {
-      endDate.setDate(endDate.getDate() + (Math.max(1, frequency) * 7) - 1);
+      // End is start + frequency * 7 days
+      endDate.setDate(endDate.getDate() + (Math.max(1, frequency) * 7));
     } else if (unit === 'month') {
-      // Add months then subtract one day to make it inclusive
+      // End is start + frequency months
       endDate.setMonth(endDate.getMonth() + Math.max(1, frequency));
-      endDate.setDate(endDate.getDate() - 1);
     } else if (unit === 'year') {
+      // End is start + frequency years
       endDate.setFullYear(endDate.getFullYear() + Math.max(1, frequency));
-      endDate.setDate(endDate.getDate() - 1);
     } else {
       // default to one month
       endDate.setMonth(endDate.getMonth() + 1);
-      endDate.setDate(endDate.getDate() - 1);
     }
 
     // Format strings for display
-    const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}`;
-    const endDateStr = `${monthNames[endDate.getMonth()]} ${endDate.getDate()}`;
+    const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}, ${startDate.getFullYear()}`;
+    const endDateStr = `${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
 
     // Compute progress percent based on time elapsed between start and end
     let progressPercentage = 0;
@@ -81,6 +89,8 @@ function Budgets() {
       currentAmount: Math.floor(Math.random() * (amount || 1000)),
       startDate: startDateStr,
       endDate: endDateStr,
+      startDateISO: startDate.toISOString(),
+      endDateISO: endDate.toISOString(),
       dayProgress,
       progressPercentage,
       frequency,
@@ -180,24 +190,24 @@ function Budgets() {
                   alignItems: "center",
                   gap: "20px"
                 }}>
-                  {/* Start Date */}
+                  {/* Start Date: top = Month Day, bottom = Year */}
                   <div style={{
                     textAlign: "center",
-                    minWidth: "60px"
+                    minWidth: "80px"
                   }}>
                     <div style={{
                       fontSize: "1rem",
                       fontWeight: "500",
                       color: "#000"
                     }}>
-                      {budget.startDate.split(' ')[0]}
+                      {(() => { const d = new Date(budget.startDateISO); return `${monthNames[d.getMonth()]} ${d.getDate()}`; })()}
                     </div>
                     <div style={{
-                      fontSize: "1.4rem",
+                      fontSize: "1.2rem",
                       fontWeight: "bold",
                       color: "#000"
                     }}>
-                      {budget.startDate.split(' ')[1]}
+                      {(() => { const d = new Date(budget.startDateISO); return `${d.getFullYear()}`; })()}
                     </div>
                   </div>
 
@@ -272,24 +282,24 @@ function Budgets() {
                     </div>
                   </div>
 
-                  {/* End Date */}
+                  {/* End Date: top = Month Day, bottom = Year */}
                   <div style={{
                     textAlign: "center",
-                    minWidth: "60px"
+                    minWidth: "80px"
                   }}>
                     <div style={{
                       fontSize: "1rem",
                       fontWeight: "500",
                       color: "#000"
                     }}>
-                      {budget.endDate.split(' ')[0]}
+                      {(() => { const d = new Date(budget.endDateISO); return `${monthNames[d.getMonth()]} ${d.getDate()}`; })()}
                     </div>
                     <div style={{
-                      fontSize: "1.4rem",
+                      fontSize: "1.2rem",
                       fontWeight: "bold",
                       color: "#000"
                     }}>
-                      {budget.endDate.split(' ')[1]}
+                      {(() => { const d = new Date(budget.endDateISO); return `${d.getFullYear()}`; })()}
                     </div>
                   </div>
                 </div>

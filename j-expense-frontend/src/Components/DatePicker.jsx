@@ -365,8 +365,9 @@ function DatePicker({ selectedDate, onDateSelect, onClose }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
             onClick={() => {
-              const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-              if (onDateSelect) onDateSelect(`${monthNames[currentMonth]} ${tempDate}`);
+              // Return an ISO date string for robustness (YYYY-MM-DDT...Z)
+              const selected = new Date(currentYear, currentMonth, tempDate);
+              if (onDateSelect) onDateSelect(selected.toISOString());
               if (onClose) onClose();
             }}
             style={{
