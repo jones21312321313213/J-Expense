@@ -39,7 +39,9 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
     const [name, setName] = useState('')
     const [amountValue, setAmountValue] = useState(null)
     const [frequency, setFrequency] = useState(1)
-    const [periodUnit, setPeriodUnit] = useState('Month')
+    // periodUnit should be driven by user selection (Daily/Weekly/Monthly/Yearly)
+    // start as empty so the UI forces user to choose
+    const [periodUnit, setPeriodUnit] = useState('')
     const [beginning, setBeginning] = useState('')
     const [error, setError] = useState(null)
 
@@ -52,27 +54,46 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
         setShowSetAmount(false)
     }
 
-const handleAddBudget = () => {
+const handleAddBudget = (extra = {}) => {
     // Reset previous error
     setError(null);
 
+    // Merge values: prefer values passed in `extra` (from SelectCategory) otherwise use component state
+    const mergedName = (extra.name && extra.name.trim()) || name.trim();
+    const mergedFrequency = extra.frequency !== undefined ? Number(extra.frequency) : Number(frequency);
+    const mergedBeginning = extra.beginning || beginning;
+    const mergedPeriodRaw = extra.periodUnit || periodUnit;
+
     // Validate each field individually
     if (!selectedCategory) return setError("Please select a category");
-    if (!name.trim()) return setError("Please enter a budget name");
+    if (!mergedName) return setError("Please enter a budget name");
     if (!selectedAmount || selectedAmount <= 0) return setError("Please set a valid budget amount");
-    if (!frequency || frequency <= 0) return setError("Please enter a valid frequency");
-    if (!periodUnit) return setError("Please select a period unit");
-    if (!beginning) return setError("Please select a beginning date");
+    if (!mergedFrequency || mergedFrequency <= 0) return setError("Please enter a valid frequency");
+    if (!mergedPeriodRaw) return setError("Please select a period unit");
+    if (!mergedBeginning) return setError("Please select a beginning date");
+
+    // Normalize periodUnit to a canonical short form so budgets computation is consistent
+    const normalizePeriod = (p) => {
+        if (!p) return '';
+        const s = p.toString().toLowerCase();
+        if (s.includes('day')) return 'Day';
+        if (s.includes('week')) return 'Week';
+        if (s.includes('month')) return 'Month';
+        if (s.includes('year')) return 'Year';
+        return p;
+    };
+
+    const canonicalPeriod = normalizePeriod(mergedPeriodRaw);
 
     // Build payload
     const payload = {
         type: pendingType,
         category: selectedCategory,
-        name: name.trim(),
+        name: mergedName,
         amount: selectedAmount,
-        frequency,
-        periodUnit,
-        beginning
+        frequency: mergedFrequency,
+        periodUnit: canonicalPeriod,
+        beginning: mergedBeginning
     };
 
     // Pass payload to parent or show alert
@@ -88,7 +109,7 @@ const handleAddBudget = () => {
     setSelectedAmount(null);
     setName('');
     setFrequency(1);
-    setPeriodUnit('Month');
+    setPeriodUnit('');
     setBeginning('');
     setError(null);
 
