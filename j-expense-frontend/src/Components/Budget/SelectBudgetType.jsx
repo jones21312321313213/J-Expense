@@ -40,8 +40,8 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
     const [amountValue, setAmountValue] = useState(null)
     const [frequency, setFrequency] = useState(1)
     // periodUnit should be driven by user selection (Daily/Weekly/Monthly/Yearly)
-    // start as empty so the UI forces user to choose
-    const [periodUnit, setPeriodUnit] = useState('')
+    // default to 'Month' so the underline shows Month by default when opening
+    const [periodUnit, setPeriodUnit] = useState('Month')
     const [beginning, setBeginning] = useState('')
     const [error, setError] = useState(null)
 
@@ -109,7 +109,7 @@ const handleAddBudget = (extra = {}) => {
     setSelectedAmount(null);
     setName('');
     setFrequency(1);
-    setPeriodUnit('');
+    setPeriodUnit('Month');
     setBeginning('');
     setError(null);
 

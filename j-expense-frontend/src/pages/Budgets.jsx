@@ -1,7 +1,7 @@
 ﻿import Add from "../Components/Add";
 import { useState } from "react";
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 import SelectBudgetType from "../Components/Budget/SelectBudgetType";
 
 function Budgets() {
@@ -21,7 +21,8 @@ function Budgets() {
       if (parts.length >= 2) {
         const mon = parts[0];
         const day = parseInt(parts[1], 10);
-        const mIdx = monthNames.findIndex(x => x.toLowerCase() === mon.toLowerCase().slice(0,3));
+        // match by first 3 letters (abbr) or full month name
+        const mIdx = monthNames.findIndex(x => x.slice(0,3).toLowerCase() === mon.toLowerCase().slice(0,3) || x.toLowerCase() === mon.toLowerCase());
         if (mIdx !== -1 && !isNaN(day)) {
           return new Date(today.getFullYear(), mIdx, day);
         }
@@ -189,24 +190,24 @@ function Budgets() {
                   alignItems: "center",
                   gap: "20px"
                 }}>
-                  {/* Start Date */}
+                  {/* Start Date: top = Month Day, bottom = Year */}
                   <div style={{
                     textAlign: "center",
-                    minWidth: "60px"
+                    minWidth: "80px"
                   }}>
                     <div style={{
                       fontSize: "1rem",
                       fontWeight: "500",
                       color: "#000"
                     }}>
-                      {(() => { const d = new Date(budget.startDateISO); return monthNames[d.getMonth()]; })()}
+                      {(() => { const d = new Date(budget.startDateISO); return `${monthNames[d.getMonth()]} ${d.getDate()}`; })()}
                     </div>
                     <div style={{
-                      fontSize: "1.4rem",
+                      fontSize: "1.2rem",
                       fontWeight: "bold",
                       color: "#000"
                     }}>
-                      {(() => { const d = new Date(budget.startDateISO); return `${d.getDate()}, ${d.getFullYear()}`; })()}
+                      {(() => { const d = new Date(budget.startDateISO); return `${d.getFullYear()}`; })()}
                     </div>
                   </div>
 
@@ -281,24 +282,24 @@ function Budgets() {
                     </div>
                   </div>
 
-                  {/* End Date */}
+                  {/* End Date: top = Month Day, bottom = Year */}
                   <div style={{
                     textAlign: "center",
-                    minWidth: "60px"
+                    minWidth: "80px"
                   }}>
                     <div style={{
                       fontSize: "1rem",
                       fontWeight: "500",
                       color: "#000"
                     }}>
-                      {(() => { const d = new Date(budget.endDateISO); return monthNames[d.getMonth()]; })()}
+                      {(() => { const d = new Date(budget.endDateISO); return `${monthNames[d.getMonth()]} ${d.getDate()}`; })()}
                     </div>
                     <div style={{
-                      fontSize: "1.4rem",
+                      fontSize: "1.2rem",
                       fontWeight: "bold",
                       color: "#000"
                     }}>
-                      {(() => { const d = new Date(budget.endDateISO); return `${d.getDate()}, ${d.getFullYear()}`; })()}
+                      {(() => { const d = new Date(budget.endDateISO); return `${d.getFullYear()}`; })()}
                     </div>
                   </div>
                 </div>
