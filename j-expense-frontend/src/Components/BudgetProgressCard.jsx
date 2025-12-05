@@ -1,3 +1,23 @@
+/**
+ * BudgetProgressCard Component
+ * ----------------------------
+ * This component displays a visual summary of a budget, showing:
+ *  - Budget name
+ *  - Current remaining amount vs total budget
+ *  - Start and end dates
+ *  - A horizontal progress bar indicating how much of the budget has been used
+ *  - A "Today" marker showing the current day's position relative to the month
+ *
+ * Features:
+ *  - Uses inline styles for layout and colors.
+ *  - Dynamically calculates the day progress based on the current date.
+ *  - Progress bar shows both the percentage used and a visual fill.
+ *
+ * Usage:
+ *  - Typically displayed on a dashboard to give a quick overview of budget usage.
+ *  - Can be reused for multiple budgets by passing dynamic values (currently hardcoded).
+ */
+
 import React from 'react';
 
 function BudgetProgressCard() {

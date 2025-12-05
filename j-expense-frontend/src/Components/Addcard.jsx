@@ -1,3 +1,6 @@
+
+
+// this is the add for the dashboard goals and budget the one where there is a + 
 function Addcard() {
 
   const bgStyleOutside = {

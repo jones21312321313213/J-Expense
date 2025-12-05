@@ -1,4 +1,4 @@
-
+// para makita all recent transactions sa dashboard 
 function RtAll(){
 
     return(

@@ -1,3 +1,28 @@
+/**
+ * Sidebar.jsx
+ *
+ * This component renders a vertical sidebar for navigation within the J-Expense app.
+ * It includes links to main pages such as Dashboard, Budgets, Transactions, Bills,
+ * Expenses, Goals, Activity Log, and Settings, as well as a dropdown section for
+ * editing details (Budget Details, Goals Details, Category Details).
+ *
+ * Features:
+ * - Highlights the active link based on the current route using `useLocation`.
+ * - Supports icons for each navigation item (Bootstrap icons or custom SVGs).
+ * - Collapsible dropdown section for "Edit Data".
+ * - Scrollable navigation area for smaller screens.
+ * - Displays the user profile at the bottom with a logout link.
+ *
+ * Props / State:
+ * - `editOpen` (state) – controls visibility of the "Edit Data" dropdown.
+ * - `location` – used to determine the active navigation link.
+ *
+ * Notes:
+ * - Icon size and spacing are standardized via `iconSizeStyle`.
+ * - Styles are mostly inline with Bootstrap classes for layout consistency.
+ */
+
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom"; 
 

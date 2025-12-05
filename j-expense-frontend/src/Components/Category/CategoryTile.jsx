@@ -1,3 +1,29 @@
+/**
+ * CategoryTile Component
+ * ----------------------
+ * This component renders a single category tile that can be used in a category selector UI.
+ * 
+ * Props:
+ * - `name` (string): The display name of the category.
+ * - `icon` (string, optional): URL of the icon image to display. If not provided, a default SVG icon is shown.
+ * - `bgColor` (string, optional): Background color of the icon box. Default is '#e0e0e0'.
+ * - `textColor` (string, optional): Color of the category name text. Default is 'black'.
+ * - `onClick` (function, optional): Callback function invoked when the tile is clicked. If not provided, tile is not clickable.
+ * 
+ * Features:
+ * 1. Displays an icon inside a square box with customizable background and border.
+ * 2. Shows the category name below the icon.
+ * 3. Supports a click event if `onClick` is provided.
+ * 4. Default SVG icon is rendered if no `icon` URL is provided.
+ * 
+ * Styling:
+ * - Flexbox is used to center icon and text vertically.
+ * - Fixed width and height for icon box to maintain consistent layout.
+ * - Text is centered below the icon.
+ */
+
+
+
 function CategoryTile({ name, icon, bgColor = '#e0e0e0', textColor = 'black', onClick }) {
     const tileStyle = {
         display: 'flex',

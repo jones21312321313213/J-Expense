@@ -1,154 +1,213 @@
+/**
+ * SelectBudgetType Component
+ * -------------------------
+ * This component handles the creation of a new budget in the app.
+ * It provides a step-by-step interface for the user:
+ * 
+ * 1. **Select Budget Type**: User chooses between "Savings Budget" or "Expense Budget".
+ * 2. **Fill Budget Details**: 
+ *    - Name of the budget
+ *    - Amount (entered via SetAmount modal)
+ *    - Frequency and period unit
+ *    - Beginning date
+ * 3. **Select Category**: User picks a category for the budget (e.g., Food, Rent).
+ * 4. **Add Budget**: The entered information is validated and then passed back to the parent component via `onCreateBudget`.
+ * 
+ * State management:
+ * - Uses `useState` to manage current selections, input values, modal visibility, and error messages.
+ * - `pendingType` determines whether the type selection screen or the full form is displayed.
+ * - `selectedAmount` is updated via the SetAmount component.
+ * 
+ * Props:
+ * - `onClose`: Function to close the modal.
+ * - `onCreateBudget`: Function to receive the final budget data when the user confirms.
+ */
+
+
 import React, { useState } from 'react'
-import SetAmount from '../setAmount'
+import AddBudget from "./AddBudget";
 import SelectCategory from '../../Components/Category/SelectCategory'
+import SetAmount from '../setAmount'
+import EnterAmount from '../EnterAmount';
 
 function SelectBudgetType({ onClose, onCreateBudget }) {
-    const [showSetAmount, setShowSetAmount] = useState(false)
     const [pendingType, setPendingType] = useState(null)
+    const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedAmount, setSelectedAmount] = useState(null)
+    const [showSetAmount, setShowSetAmount] = useState(false)
 
+    // State for AddBudget inputs
+    const [name, setName] = useState('')
+    const [amountValue, setAmountValue] = useState(null)
+    const [frequency, setFrequency] = useState(1)
+    const [periodUnit, setPeriodUnit] = useState('Month')
+    const [beginning, setBeginning] = useState('')
+    const [error, setError] = useState(null)
+
+    // ---- Handlers ----
+    const handleSelection = (type) => setPendingType(type)
+    const handleCategorySelect = (category) => setSelectedCategory(category)
+    const requestSetAmount = () => setShowSetAmount(true)
+    const handleConfirmAmount = (amount) => {
+        setSelectedAmount(amount)
+        setShowSetAmount(false)
+    }
+
+const handleAddBudget = () => {
+    // Reset previous error
+    setError(null);
+
+    // Validate each field individually
+    if (!selectedCategory) return setError("Please select a category");
+    if (!name.trim()) return setError("Please enter a budget name");
+    if (!selectedAmount || selectedAmount <= 0) return setError("Please set a valid budget amount");
+    if (!frequency || frequency <= 0) return setError("Please enter a valid frequency");
+    if (!periodUnit) return setError("Please select a period unit");
+    if (!beginning) return setError("Please select a beginning date");
+
+    // Build payload
+    const payload = {
+        type: pendingType,
+        category: selectedCategory,
+        name: name.trim(),
+        amount: selectedAmount,
+        frequency,
+        periodUnit,
+        beginning
+    };
+
+    // Pass payload to parent or show alert
+    if (onCreateBudget) {
+        onCreateBudget(payload);
+    } else {
+        alert(`Added ${payload.type} • ${payload.category} • ${payload.name} (P ${payload.amount})`);
+    }
+
+    // Reset states after adding
+    setPendingType(null);
+    setSelectedCategory(null);
+    setSelectedAmount(null);
+    setName('');
+    setFrequency(1);
+    setPeriodUnit('Month');
+    setBeginning('');
+    setError(null);
+
+    // Close modal
+    onClose();
+};
+
+
+    const handleCancelAmount = () => setShowSetAmount(false)
+
+    // ---- Styles ----
     const containerStyle = {
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "center",
+        alignItems: "center",
+        justifyContent: "flex-start",
         background: "linear-gradient(135deg, #C0EBFF, #FFEFCB)",
         padding: "40px", 
         fontFamily: "Arial, sans-serif",
         borderRadius: "20px",
-        width: "500px",
-        height: "500px",
-        position: 'relative', // IMPORTANT for positioning the close button
-        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)', // Added shadow for "pop-out" effect
-    };
+        width: "650px",
+        minHeight: "750px",
+        position: 'relative',
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
+        overflowY: 'auto'
+    }
 
-    const cardContainer = {
-        display: "flex",
-        flexDirection: "column",
-        gap: "25px",
-        marginTop: "30px",
-        width: "100%",
-    };
-
-    const cardStyle = {
-        display: "flex",
-        alignItems: "center",
-        gap: "15px",
-        padding: "20px",
-        borderRadius: "10px",
-        backgroundColor: "#e0e0e0",
-        cursor: "pointer",
-        transition: "transform 0.2s",
-    };
-    
-    // Style for the close button
     const closeButtonStyle = {
         position: 'absolute',
         top: '10px',
         right: '15px',
         border: 'none',
         background: 'none',
-        fontSize: '2rem', // Larger 'x'
+        fontSize: '2rem',
         cursor: 'pointer',
         color: '#333',
-        zIndex: 1, // Ensure it's clickable
-    };
-
-    const iconStyle = {
-        fontSize: "2.5rem",
-        color: "grey",
-    };
-
-    // When a type is chosen, open the amount modal
-    const [showCategory, setShowCategory] = useState(false)
-    const [selectedCategory, setSelectedCategory] = useState(null)
-
-    const handleSelection = (type) => {
-        console.log('SelectBudgetType: handleSelection', type)
-        setPendingType(type)
-        // open category selector next
-        setShowCategory(true)
-    };
-
-    const handleCategorySelect = (category) => {
-        console.log('SelectBudgetType: category selected', category)
-        setSelectedCategory(category)
-        // do not open amount automatically - user will click the amount field in SelectCategory
-        setShowCategory(true)
-    }
-
-    const requestSetAmount = () => {
-        // open the inline SetAmount when requested by SelectCategory
-        setShowSetAmount(true)
-    }
-
-    const handleConfirmAmount = (amount) => {
-        // set the selected amount and close only the amount input; allow user to continue editing category details
-        setSelectedAmount(amount)
-        setShowSetAmount(false)
-    }
-
-    const handleSaveChanges = (extra = {}) => {
-        // finalise creating the budget using selected values
-        const payload = { type: pendingType, category: selectedCategory, amount: selectedAmount, ...extra }
-        if (onCreateBudget) onCreateBudget(payload)
-        else alert(`Create ${payload.type} | ${payload.category} with amount ${payload.amount}`)
-
-        // reset and close selector
-        setShowSetAmount(false)
-        setShowCategory(false)
-        setPendingType(null)
-        setSelectedCategory(null)
-        setSelectedAmount(null)
-        onClose()
-    }
-
-    const handleCancelAmount = () => {
-        setShowSetAmount(false)
-        setPendingType(null)
+        zIndex: 1,
     }
 
     return (
         <div style={containerStyle}>
-            {/* Close Button */}
             <button style={closeButtonStyle} onClick={onClose}>
                 &times;
             </button>
-            
-            <h1 style={{ marginBottom: "20px" }}>Select Budget Type</h1>
-            <div style={cardContainer}>
-                {!showCategory ? (
-                    <>
-                        <div style={cardStyle} onClick={() => handleSelection("Savings Budget") }>
-                            <i className="bi bi-piggy-bank" style={iconStyle}></i>
+
+            {!pendingType && (
+                <>
+                    <h1 style={{ marginBottom: "20px" }}>Select Budget Type</h1>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "25px", marginBottom: "20px", width: "100%" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "15px", padding: "20px", borderRadius: "10px", backgroundColor: "#e0e0e0", cursor: "pointer" }} onClick={() => handleSelection("Savings Budget")}>
+                            <i className="bi bi-piggy-bank" style={{ fontSize: "2.5rem", color: "grey" }}></i>
                             <div>
                                 <h3>Savings Budget</h3>
                                 <p>Track your income and budget your savings</p>
                             </div>
                         </div>
 
-                        <div style={cardStyle} onClick={() => handleSelection("Expense Budget") }>
-                            <i className="bi bi-wallet2" style={iconStyle}></i>
+                        <div style={{ display: "flex", alignItems: "center", gap: "15px", padding: "20px", borderRadius: "10px", backgroundColor: "#e0e0e0", cursor: "pointer" }} onClick={() => handleSelection("Expense Budget")}>
+                            <i className="bi bi-wallet2" style={{ fontSize: "2.5rem", color: "grey" }}></i>
                             <div>
                                 <h3>Expense Budget</h3>
                                 <p>Track your expenses and budget your spending</p>
                             </div>
                         </div>
-                    </>
-                ) : (
-                    // Render category selector when a type has been chosen
-                    <div style={{ width: '100%' }}>
+                    </div>
+                </>
+            )}
+
+            {pendingType && (
+                <>
+                    {/* AddBudget on top */}
+                    <AddBudget
+                        name={name}
+                        setName={setName}
+                        amountValue={selectedAmount}
+                        frequency={frequency}
+                        setFrequency={setFrequency}
+                        periodUnit={periodUnit}
+                        setPeriodUnit={setPeriodUnit}
+                        beginning={beginning}
+                        setBeginning={setBeginning}
+                        onRequestSetAmount={requestSetAmount}
+                        error={error}
+                        setError={setError}
+                    />
+
+                    {/* Category selector at bottom */}
+                    <div style={{ width: '100%', marginTop: '20px' }}>
                         <SelectCategory
                             selectedCategory={selectedCategory}
                             amountValue={selectedAmount}
                             onSelect={handleCategorySelect}
                             onRequestSetAmount={requestSetAmount}
-                            onSave={(extra) => handleSaveChanges(extra)}
-                            onClose={() => { setShowCategory(false); onClose() }}
+                            onSave={handleAddBudget}  // save button triggers Add Budget
+                            onClose={onClose}
                         />
                     </div>
-                )}
-            </div>
+
+                    {/* Add Budget Button at bottom */}
+                    <button
+                        onClick={handleAddBudget}
+                        style={{
+                            marginTop: '30px',
+                            width: '100%',
+                            maxWidth: '400px',
+                            padding: '20px',
+                            fontSize: '1.3rem',
+                            background: 'rgba(0, 128, 128, 0.7)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Add Budget
+                    </button>
+                </>
+            )}
 
             {showSetAmount && (
                 <SetAmount
@@ -160,7 +219,7 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
                 />
             )}
         </div>
-    );
+    )
 }
 
-export default SelectBudgetType;
+export default SelectBudgetType
