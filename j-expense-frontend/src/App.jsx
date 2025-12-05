@@ -17,6 +17,7 @@ import Settings from './pages/Settings'
 import BudgetDetails from './pages/BudgetDetails'
 import GoalsDetails from './pages/GoalsDetails'
 import CategoryDetails from './pages/CategoryDetails'
+import AddTransactionPage from './pages/AddTransactionPage';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path = "budgets" element = {<Budgets/>} />
         <Route path = "transactions" element = {<Transactions/>} />
+        <Route path="add-transaction" element={<AddTransactionPage />} />
         <Route path = "bills" element = {<Bills/>} />
         <Route path = "expenses" element = {<Expenses/>} />
         <Route path = "goals" element = {<Goals/>} /> 

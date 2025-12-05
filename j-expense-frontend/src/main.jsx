@@ -13,6 +13,7 @@ import EnterAmount from './Components/EnterAmount';
 import AddTransaction from './Components/Transactions/AddTransaction';
 import AddTransactionPage from './pages/AddTransactionPage';
 import AddBudget from './Components/Budget/AddBudget';
+import SetPeriod from './Components/SetPeriod';
 
 
 

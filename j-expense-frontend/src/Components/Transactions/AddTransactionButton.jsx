@@ -20,6 +20,7 @@
  * - Used in dashboards or pages where quick access to add new transactions is needed.
  */
 
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +29,8 @@ function AddTransactionButton() {
   const [hover, setHover] = useState(false);
 
   const handleClick = () => {
-    navigate("/transactions");
+    // Navigate to the Add Transaction page
+    navigate("/add-transaction");
   };
 
   const buttonStyle = {
@@ -39,7 +41,7 @@ function AddTransactionButton() {
     height: "6rem",
     backgroundColor: "white",
     border: "4px solid black",
-    borderRadius: "30%",     
+    borderRadius: "50%",     // Fully circular button
     boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
     display: "flex",
     alignItems: "center",
