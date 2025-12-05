@@ -30,9 +30,9 @@
  */
 
 
-import DatePicker from "../DatePicker"; 
-import Add from "../Add";
-import { useState } from "react";
+import React, { useState } from "react";
+import DatePicker from "../DatePicker";
+import SetPeriod from "../SetPeriod";
 
 function AddBudget({
   name,
@@ -46,8 +46,10 @@ function AddBudget({
   setBeginning,
   onRequestSetAmount,
   error,
-  setError
+  setError,
 }) {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showPeriodModal, setShowPeriodModal] = useState(false);
 
   const inputStyle = {
     padding: "10px",
@@ -57,98 +59,129 @@ function AddBudget({
     marginBottom: "20px",
     outline: "none",
     fontSize: "1rem",
-    background: "transparent"
+    background: "transparent",
   };
 
-  const smallerInputStyle = { ...inputStyle, width: "200px" }; // smaller width
+  const smallerInputStyle = { ...inputStyle, width: "200px" };
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  // helper function to format date as "Month Day" (e.g., "Dec 5")
   const formatDate = (date) => {
-      if (!date) return "";
-      const options = { month: "short", day: "numeric" };
-      return new Date(date).toLocaleDateString(undefined, options);
+    if (!date) return "";
+    const options = { month: "short", day: "numeric" };
+    return new Date(date).toLocaleDateString(undefined, options);
   };
 
   return (
-      <div style={{ width: "100%", textAlign: "center" }}>
-
-          {/* Error */}
-          {error && (
-              <div style={{
-                  color: "#dc2626",
-                  background: "#fee2e2",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "20px"
-              }}>
-                  {error}
-              </div>
-          )}
-
-          <h1 style={{ marginBottom: "20px" }}>Add a Budget</h1>
-
-          {/* Name */}
-          <input 
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={smallerInputStyle} // smaller width
-          />
-
-          {/* Amount / Frequency */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-              <input
-                  readOnly
-                  placeholder="P"
-                  value={amountValue ? `P ${amountValue}` : ""}
-                  onClick={onRequestSetAmount}
-                  style={{...inputStyle, width: "80px", textAlign: "center"}}
-              />
-              <span>/</span>
-              <input
-                  type="number"
-                  min={1}
-                  placeholder="1"
-                  value={frequency}
-                  onChange={(e) => setFrequency(Number(e.target.value))}
-                  style={{...inputStyle, width: "60px", textAlign: "center"}}
-              />
-              <select
-                  value={periodUnit}
-                  onChange={(e) => setPeriodUnit(e.target.value)}
-                  style={{...inputStyle, width: "100px", padding: "8px 0"}}
-              >
-                  <option>Day</option>
-                  <option>Week</option>
-                  <option>Month</option>
-                  <option>Year</option>
-              </select>
-          </div>
-
-        {/* Beginning date with label */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
-            <span style={{ fontSize: "1rem" }}>beginning</span>
-                <input
-                    readOnly
-                    placeholder="Select Date"
-                    value={beginning ? formatDate(beginning) : ""}
-                    onClick={() => setShowDatePicker(true)}
-                    style={{...smallerInputStyle, flex: "none"}}
-                />
+    <div style={{ width: "100%", textAlign: "center" }}>
+      {/* Error */}
+      {error && (
+        <div
+          style={{
+            color: "#dc2626",
+            background: "#fee2e2",
+            padding: "10px",
+            borderRadius: "8px",
+            marginBottom: "20px",
+          }}
+        >
+          {error}
         </div>
+      )}
 
-        {showDatePicker && (
-            <DatePicker
-                selectedDate={beginning}           
-                onDateSelect={(dateStr) => setBeginning(dateStr)} 
-                onClose={() => setShowDatePicker(false)}         
-            />
-        )}
+      <h1 style={{ marginBottom: "20px" }}>Add a Budget</h1>
 
+      {/* Name */}
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={smallerInputStyle}
+      />
+
+      {/* Amount / Frequency / Period Row */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* Amount */}
+        <input
+          readOnly
+          placeholder="P"
+          value={amountValue ? `P ${amountValue}` : ""}
+          onClick={onRequestSetAmount}
+          style={{ ...inputStyle, width: "80px", textAlign: "center" }}
+        />
+
+        <span>/</span>
+
+        {/* Frequency */}
+        <input
+          type="number"
+          min={1}
+          placeholder="1"
+          value={frequency}
+          onChange={(e) => setFrequency(Number(e.target.value))}
+          style={{ ...inputStyle, width: "60px", textAlign: "center" }}
+        />
+
+        {/* Period Selection */}
+        <input
+          readOnly
+          value={periodUnit}
+          placeholder="Select Period"
+          onClick={() => setShowPeriodModal(true)}
+          style={{
+            padding: "10px",
+            border: "none",
+            borderBottom: "2px solid #ccc",
+            width: "120px",
+            textAlign: "center",
+            background: "transparent",
+          }}
+        />
       </div>
+
+      {showPeriodModal && (
+        <SetPeriod
+          initialPeriod={periodUnit}
+          onSelectPeriod={(selected) => setPeriodUnit(selected)}
+          onClose={() => setShowPeriodModal(false)}
+        />
+      )}
+
+      {/* Beginning date */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          justifyContent: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <span style={{ fontSize: "1rem" }}>Beginning</span>
+        <input
+          readOnly
+          placeholder="Select Date"
+          value={beginning ? formatDate(beginning) : ""}
+          onClick={() => setShowDatePicker(true)}
+          style={{ ...smallerInputStyle, flex: "none" }}
+        />
+      </div>
+
+      {showDatePicker && (
+        <DatePicker
+          selectedDate={beginning}
+          onDateSelect={(dateStr) => setBeginning(dateStr)}
+          onClose={() => setShowDatePicker(false)}
+        />
+      )}
+    </div>
   );
 }
 
