@@ -1,38 +1,7 @@
-/**
- * AddBudget Component
- * ------------------
- * This component renders the form for adding a budget's details.
- * It is typically displayed after the user selects a budget type in the parent component.
- * 
- * Props:
- * - `name` (string): The current name of the budget.
- * - `setName` (function): Setter for updating the budget name.
- * - `amountValue` (number): The currently selected amount for the budget.
- * - `frequency` (number): How often this budget repeats (e.g., every 1 Month).
- * - `setFrequency` (function): Setter for updating the frequency.
- * - `periodUnit` (string): Unit of the budget period (Day, Week, Month, Year).
- * - `setPeriodUnit` (function): Setter for updating the period unit.
- * - `beginning` (string/date): Starting date of the budget.
- * - `setBeginning` (function): Setter for updating the beginning date.
- * - `onRequestSetAmount` (function): Callback to open the SetAmount modal.
- * - `error` (string): Optional error message to display if validation fails.
- * - `setError` (function): Setter for updating the error message.
- * 
- * Features:
- * 1. Displays an optional error message at the top.
- * 2. Inputs for budget name, amount (read-only, triggers SetAmount modal), frequency, and period unit.
- * 3. A beginning date input that opens a DatePicker when clicked.
- * 4. Formats the selected date in "Month Day" format (e.g., "Dec 5").
- * 
- * Styling:
- * - Uses inline styles for layout, inputs, and error messages.
- * - Inputs have a transparent background with bottom borders for a clean look.
- */
-
-
 import React, { useState } from "react";
 import DatePicker from "../DatePicker";
 import SetPeriod from "../SetPeriod";
+import SetPeriodLength from "../SetPeriodLength"; // import new component
 
 function AddBudget({
   name,
@@ -50,6 +19,7 @@ function AddBudget({
 }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPeriodModal, setShowPeriodModal] = useState(false);
+  const [showPeriodLengthModal, setShowPeriodLengthModal] = useState(false); // new state
 
   const inputStyle = {
     padding: "10px",
@@ -119,13 +89,12 @@ function AddBudget({
 
         <span>/</span>
 
-        {/* Frequency */}
+        {/* Frequency (replaced with SetPeriodLength modal) */}
         <input
-          type="number"
-          min={1}
-          placeholder="1"
+          readOnly
           value={frequency}
-          onChange={(e) => setFrequency(Number(e.target.value))}
+          placeholder="1"
+          onClick={() => setShowPeriodLengthModal(true)}
           style={{ ...inputStyle, width: "60px", textAlign: "center" }}
         />
 
@@ -151,6 +120,14 @@ function AddBudget({
           initialPeriod={periodUnit}
           onSelectPeriod={(selected) => setPeriodUnit(selected)}
           onClose={() => setShowPeriodModal(false)}
+        />
+      )}
+
+      {showPeriodLengthModal && (
+        <SetPeriodLength
+          initialValue={frequency}
+          onConfirm={(val) => setFrequency(val)}
+          onClose={() => setShowPeriodLengthModal(false)}
         />
       )}
 

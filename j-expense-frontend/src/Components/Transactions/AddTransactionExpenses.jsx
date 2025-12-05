@@ -1,21 +1,21 @@
 import { useState } from "react";
-import DatePicker from "../DatePicker"; 
-import SetAmount from "../SetAmount"; // import the modal
+import DatePicker from "../DatePicker";
+import SetAmount from "../SetAmount";
 
 function AddTransactionExpenses({
   name,
   setName,
   amountValue,
   setAmountValue,
-  frequency,
-  setFrequency,
-  periodUnit,
-  setPeriodUnit,
   beginning,
   setBeginning,
   error,
-  setError
+  setError,
+  description,
+  setDescription
 }) {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSetAmount, setShowSetAmount] = useState(false);
 
   const inputStyle = {
     padding: "10px",
@@ -28,11 +28,6 @@ function AddTransactionExpenses({
     background: "transparent"
   };
 
-  const smallerInputStyle = { ...inputStyle, width: "200px" };
-
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showSetAmount, setShowSetAmount] = useState(false); // <-- modal state
-
   const formatDate = (date) => {
     if (!date) return "";
     const options = { month: "short", day: "numeric" };
@@ -41,89 +36,158 @@ function AddTransactionExpenses({
 
   return (
     <div style={{ width: "100%", textAlign: "center" }}>
-
+      
       {/* Error */}
       {error && (
-        <div style={{
-          color: "#dc2626",
-          background: "#fee2e2",
-          padding: "10px",
-          borderRadius: "8px",
-          marginBottom: "20px"
-        }}>
+        <div
+          style={{
+            color: "#dc2626",
+            background: "#fee2e2",
+            padding: "10px",
+            borderRadius: "8px",
+            marginBottom: "20px"
+          }}
+        >
           {error}
         </div>
       )}
 
       {/* Name */}
-      <input 
+      <input
         type="text"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        style={smallerInputStyle}
+        style={{ ...inputStyle, width: "100%" }}
       />
 
-      {/* Amount / Frequency */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-        <input
-          readOnly
-          placeholder="P"
-          value={amountValue ? `P ${amountValue}` : ""}
-          onClick={() => setShowSetAmount(true)} // <-- open modal
-          style={{...inputStyle, width: "80px", textAlign: "center", cursor: "pointer"}}
-        />
-        <span>/</span>
-        <input
-          type="number"
-          min={1}
-          placeholder="1"
-          value={frequency}
-          onChange={(e) => setFrequency(Number(e.target.value))}
-          style={{...inputStyle, width: "60px", textAlign: "center"}}
-        />
-        <select
-          value={periodUnit}
-          onChange={(e) => setPeriodUnit(e.target.value)}
-          style={{...inputStyle, width: "100px", padding: "8px 0"}}
+
+        {/* Amount + Date */}
+    <div
+        style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "20px",
+            marginBottom: "20px",
+            width: "100%",
+            flexWrap: "wrap"
+        }}
         >
-          <option>Day</option>
-          <option>Week</option>
-          <option>Month</option>
-          <option>Year</option>
-        </select>
+
+        {/* LEFT — Amount */}
+        <div style={{ width: "48%", minWidth: "200px" }}>
+            <label
+            style={{
+                display: "block",
+                textAlign: "left",
+                marginBottom: "6px",
+                fontWeight: "600",
+                fontSize: "0.95rem"
+            }}
+            >
+            Amount
+            </label>
+
+            <input
+            readOnly
+            placeholder="₱"
+            value={amountValue ? `₱ ${amountValue}` : ""}
+            onClick={() => setShowSetAmount(true)}
+            style={{
+                padding: "10px",
+                border: "none",
+                borderBottom: "2px solid #ccc",
+                width: "100%",
+                textAlign: "center",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "1rem"
+            }}
+            />
+        </div>
+
+        {/* RIGHT — Date */}
+        <div style={{ width: "48%", minWidth: "200px" }}>
+            <label
+            style={{
+                display: "block",
+                textAlign: "left",
+                marginBottom: "6px",
+                fontWeight: "600",
+                fontSize: "0.95rem"
+            }}
+            >
+            Date
+            </label>
+
+            <input
+            readOnly
+            placeholder="Select Date"
+            value={beginning ? formatDate(beginning) : ""}
+            onClick={() => setShowDatePicker(true)}
+            style={{
+                padding: "10px",
+                border: "none",
+                borderBottom: "2px solid #ccc",
+                width: "100%",
+                textAlign: "center",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "1rem"
+            }}
+            />
+        </div>
+    </div>
+
+
+      {/* Description */}
+      <div style={{ textAlign: "left", width: "100%", marginBottom: "12px" }}>
+        <span style={{ fontSize: "1rem" }}>Description</span>
       </div>
 
-      {/* Beginning date */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
-        <span style={{ fontSize: "1rem" }}>beginning</span>
-        <input
-          readOnly
-          placeholder="Select Date"
-          value={beginning ? formatDate(beginning) : ""}
-          onClick={() => setShowDatePicker(true)}
-          style={{...smallerInputStyle, flex: "none"}}
-        />
-      </div>
+      <textarea
+        placeholder="Write a description..."
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        style={{
+          width: "100%",
+          minHeight: "100px",
+          padding: "10px",
+          borderRadius: "10px",
+          border: "2px solid #ccc",
+          outline: "none",
+          resize: "vertical",
+          fontSize: "1rem"
+        }}
+      />
 
+      {/* Date Picker Modal */}
       {showDatePicker && (
         <DatePicker
-          selectedDate={beginning}
-          onDateSelect={(dateStr) => setBeginning(dateStr)}
-          onClose={() => setShowDatePicker(false)}
+        selectedDate={beginning}
+        onDateSelect={(dateStr) => {
+            setBeginning(dateStr);
+            setShowDatePicker(false);  // <-- FIX
+        }}
+        onClose={() => setShowDatePicker(false)}
         />
+
       )}
 
-      {/* SetAmount Modal */}
+      {/* Amount Modal */}
       {showSetAmount && (
         <SetAmount
-          initialValue={amountValue || 0}
-          title="Set Amount"
-          onConfirm={(val) => setAmountValue(val)}
-          onClose={() => setShowSetAmount(false)}
+        initialValue={amountValue || 0}
+        title="Set Amount"
+        onConfirm={(val) => {
+            setAmountValue(val);
+            setShowSetAmount(false);   // <-- FIX
+        }}
+        onClose={() => setShowSetAmount(false)}
         />
-      )}
 
+      )}
     </div>
   );
 }
