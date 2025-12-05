@@ -1,3 +1,9 @@
+/**
+ * para rani sa mga transaction na repetitive ig
+ * pwede pa guro ta mo add og 1 more transaction type which is subscriptions ig
+ * dunno how do we identify bills from transactions or repetitive transactions = bills
+ */
+
 import React from "react";
 
 function Bills() {
