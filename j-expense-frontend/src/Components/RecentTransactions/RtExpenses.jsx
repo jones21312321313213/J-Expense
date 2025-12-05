@@ -1,4 +1,4 @@
-
+// para makita expenses recent transactions sa dashboard 
 function RtExpenses(){
 
     return(

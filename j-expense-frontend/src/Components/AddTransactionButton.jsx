@@ -1,3 +1,25 @@
+/**
+ * AddTransactionButton Component
+ * -------------------------------
+ * This component renders a floating "plus" button on the dashboard, typically used
+ * to add a new transaction. It is positioned fixed at the bottom-right corner of the screen.
+ *
+ * Features:
+ * - Floating and always visible, overlaying other content.
+ * - Enlarges slightly on hover for visual feedback.
+ * - On click, navigates the user to the "/transactions" page using React Router's `useNavigate`.
+ *
+ * Props / State:
+ * - `hover` (boolean): Tracks whether the mouse is hovering over the button to apply a scale effect.
+ *
+ * Styling:
+ * - Circular-ish button with a bold "+" icon.
+ * - Shadow and border to make it stand out from the background.
+ *
+ * Usage:
+ * - Used in dashboards or pages where quick access to add new transactions is needed.
+ */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

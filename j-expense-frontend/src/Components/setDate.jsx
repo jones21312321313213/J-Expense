@@ -1,3 +1,28 @@
+/**
+ * DatePickerModal.jsx
+ *
+ * This component renders a fully custom calendar modal for selecting a date.
+ * It displays the current month and year with navigation buttons to switch months,
+ * and shows all days in a 6-row grid including previous and next month filler days.
+ * Users can select a date, hover over days, and confirm or cancel their selection.
+ *
+ * Common use cases:
+ * - Picking a transaction date in a dashboard or finance app
+ * - Setting start/end dates for budgets or events
+ *
+ * Features:
+ * - Month and year navigation
+ * - Highlighted selected day
+ * - Previous/next month filler days to maintain grid alignment
+ * - "Ok" and "Cancel" action buttons
+ * - Inline styling with hover and active effects
+ *
+ * Props (to extend for callbacks):
+ * - onDateSelect: function(dateString) - called when a date is confirmed
+ * - onClose: function() - called when modal is closed
+ */
+
+
 import { useState } from 'react';
 
 function DatePickerModal() {

@@ -1,3 +1,26 @@
+/**
+ * DatePicker Component
+ * -------------------
+ * A custom calendar modal component for selecting a date.
+ * 
+ * Features:
+ *  - Displays a month view calendar with current, previous, and next month's days.
+ *  - Highlights the currently selected day.
+ *  - Allows navigating months and years via buttons and dropdowns.
+ *  - Provides "Ok" and "Cancel" buttons to confirm or discard the selection.
+ *  - Supports temporary selection before confirmation.
+ *  - Closes when clicking outside the calendar or pressing "Cancel".
+ *  - Fully controlled via props:
+ *      - selectedDate: initial date in "Mon Day" format (e.g., "Dec 5")
+ *      - onDateSelect: callback when user confirms selection
+ *      - onClose: callback when modal closes
+ * 
+ * Usage:
+ *  - Typically used in forms for setting beginning dates of budgets or events.
+ *  - Can be placed inline or as a modal overlay.
+ */
+
+
 import { useState } from 'react';
 
 function DatePicker({ selectedDate, onDateSelect, onClose }) {

@@ -1,348 +1,101 @@
+/**
+ * SelectCategory Component
+ * ------------------------
+ * This component renders a horizontal scrollable row of predefined category tiles and allows the user
+ * to select one. It also supports adding a new custom category dynamically.
+ * 
+ * Props:
+ * - `onSelect` (function): Callback triggered when a category is selected, passing the category name.
+ * - `selectedCategory` (string): The currently selected category. Used to highlight the active tile.
+ * 
+ * Features:
+ * 1. Predefined categories with icons and dynamic background highlighting when selected.
+ * 2. "Add" tile that toggles an input field to create a new custom category.
+ * 3. Horizontal scrolling for the category row to handle overflow.
+ * 4. New categories can be added by typing a name and clicking "Add", which calls the `onSelect` callback.
+ * 
+ * Styling:
+ * - Flexbox row with gap and horizontal overflow.
+ * - Input and button for adding a new category are centered below the tiles.
+ */
+
+
 import { useState } from "react";
-import CategoryTile from "./CategoryTile";
-import DatePicker from "../DatePicker";
-import Add from "../Add";
+import CategoryTile from "./CategoryTile"; 
 import foodBg from "../../assets/foodCategory.png";
 import commuteBg from "../../assets/commuteCategory.png";
 import entertainmentBg from "../../assets/entertainmentCategory.png";
-import groceryBg from "../../assets/groceryCategory.png";
-import shoppingBg  from "../../assets/shoppingCategory.png";
-import miscellaneousBg  from "../../assets/miscellaneousCategory.png";
-import add  from "../../assets/addIcon.png";
+import groceryBg from "../../assets/groceryCategory.png"; 
+import shoppingBg from "../../assets/shoppingCategory.png";
+import miscellaneousBg from "../../assets/miscellaneousCategory.png"; 
+import add from "../../assets/addIcon.png";
 
-function SelectCategory({ onSelect, selectedCategory, amountValue, onRequestSetAmount, onSave, onClose }) {
+function SelectCategory({ onSelect, selectedCategory }) {
     const [addClicked, setAddClicked] = useState(false);
-    const [name, setName] = useState("");
-    const [frequency, setFrequency] = useState(1);
-    const [periodUnit, setPeriodUnit] = useState("Month");
-    const [beginning, setBeginning] = useState(() => {
-        const t = new Date();
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        return `${monthNames[t.getMonth()]} ${t.getDate()}`;
-    });
-    const [showDatePicker, setShowDatePicker] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
-    const [error, setError] = useState("");
-
-    const handleAddClick = () => {
-        setAddClicked(!addClicked);
-    };
-
-    const handleDateSelect = (date) => {
-        setBeginning(date);
-        setShowDatePicker(false);
-    };
-
-    const handleSaveClick = () => {
-        let errorMsg = "";
-        if (!name.trim()) {
-            errorMsg = "Name is required";
-        } else if (!amountValue || amountValue === 0) {
-            errorMsg = "Amount is required";
-        } else if (!selectedCategory) {
-            errorMsg = "Category is required";
-        }
-        
-        if (errorMsg) {
-            setError(errorMsg);
-            return;
-        }
-
-        // Clear error and save
-        setError("");
-        onSave && onSave({ name, frequency, periodUnit, beginning });
-    };
 
     return (
-        <div
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 1000
-            }}
-        >
+        <div>
+
+            {/* HORIZONTAL SCROLL ROW */}
             <div
-                className="container"
                 style={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: "40px",
-                    background: "linear-gradient(to right, #a8d8ea 0%, #f5e6d3 100%)",
-                    borderRadius: "20px",
-                    maxWidth: "800px",
-                    maxHeight: "90vh",
-                    overflowY: "auto",
-                    position: "relative"
+                    flexDirection: "row",
+                    gap: "20px",
+                    overflowX: "auto",
+                    paddingBottom: "10px",
+                    whiteSpace: "nowrap"
                 }}
             >
-                {/* Close button */}
-                <button
-                    onClick={() => onClose && onClose()}
-                    style={{
-                        position: "absolute",
-                        top: "20px",
-                        right: "20px",
-                        background: "none",
-                        border: "none",
-                        fontSize: "2rem",
-                        cursor: "pointer",
-                        padding: "0",
-                        width: "40px",
-                        height: "40px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                    }}
-                >
-                    ×
-                </button>
+                <CategoryTile name="Food" icon={foodBg} bgColor={selectedCategory === 'Food' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Food')} />
+                <CategoryTile name="Commute" icon={commuteBg} bgColor={selectedCategory === 'Commute' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Commute')} />
+                <CategoryTile name="Entertainment" icon={entertainmentBg} bgColor={selectedCategory === 'Entertainment' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Entertainment')} />
+                <CategoryTile name="Grocery" icon={groceryBg} bgColor={selectedCategory === 'Grocery' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Grocery')} />
+                <CategoryTile name="Shopping" icon={shoppingBg} bgColor={selectedCategory === 'Shopping' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Shopping')} />
+                <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor={selectedCategory === 'Miscellaneous' ? '#bdbdbd' : '#D9D9D9'} onClick={() => onSelect('Miscellaneous')} />
 
-                {/* Error Message */}
-                {error && (
-                    <div style={{
-                        color: "#dc2626",
-                        fontSize: "1rem",
-                        fontWeight: "600",
-                        marginBottom: "20px",
-                        textAlign: "center",
-                        padding: "10px",
-                        background: "#fee2e2",
-                        borderRadius: "8px",
-                        width: "100%"
-                    }}>
-                        {error}
-                    </div>
-                )}
-                <div style={{ 
-                    textAlign: "center", 
-                    marginBottom: "40px",
-                    width: "100%"
-                }}>
-                    <div style={{
-                        fontSize: '1.25rem',
-                        fontWeight: 700,
-                        marginBottom: '12px',
-                        color: '#0f172a'
-                    }}>
-                        Add a Budget
-                    </div>
-                    <input 
-                        type="text" 
-                        placeholder="Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        style={{
-                            border: "none",
-                            borderBottom: "2px solid #333",
-                            background: "transparent",
-                            padding: "8px",
-                            textAlign: "center",
-                            fontSize: "1rem",
-                            marginBottom: "20px",
-                            width: "200px",
-                            outline: "none"
-                        }}
-                    />
-                    
-                    <div style={{ 
-                        display: "flex", 
-                        gap: "10px", 
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginBottom: "20px",
-                        fontSize: "1.1rem"
-                    }}>
-                        <input 
-                            type="text" 
-                            value={amountValue ? `P ${amountValue}` : "P 0"}
-                            readOnly
-                            onClick={() => onRequestSetAmount && onRequestSetAmount()}
-                            onFocus={() => onRequestSetAmount && onRequestSetAmount()}
-                            style={{
-                                border: "none",
-                                borderBottom: "2px solid #333",
-                                background: "transparent",
-                                padding: "8px",
-                                textAlign: "center",
-                                width: "80px",
-                                fontSize: "1rem",
-                                outline: "none",
-                                cursor: "pointer"
-                            }}
-                        />
-                        <span>/</span>
-                        <input
-                            type="number"
-                            value={frequency}
-                            min={1}
-                            onChange={(e) => setFrequency(Number(e.target.value))}
-                            style={{
-                                border: "none",
-                                borderBottom: "2px solid #333",
-                                background: "transparent",
-                                padding: "8px",
-                                textAlign: "center",
-                                width: "60px",
-                                fontSize: "1rem",
-                                outline: "none"
-                            }}
-                        />
-
-                        {/* Period unit dropdown styled with underline to match amount input */}
-                        <select
-                            value={periodUnit}
-                            onChange={(e) => setPeriodUnit(e.target.value)}
-                            style={{
-                                border: "none",
-                                borderBottom: "2px solid #333",
-                                background: "transparent",
-                                padding: "8px",
-                                textAlign: "center",
-                                width: "110px",
-                                fontSize: "1rem",
-                                outline: "none",
-                                appearance: "none",
-                                WebkitAppearance: "none",
-                                MozAppearance: "none",
-                                cursor: "pointer"
-                            }}
-                        >
-                            <option>Day</option>
-                            <option>Week</option>
-                            <option>Month</option>
-                            <option>Year</option>
-                        </select>
-                    </div>
-                    
-                    <div style={{ fontSize: "1rem" }}>
-                        <span>beginning </span>
-                        <input 
-                            type="text" 
-                            value={beginning}
-                            readOnly
-                            onClick={() => setShowDatePicker(true)}
-                            style={{
-                                border: "none",
-                                borderBottom: "2px solid #333",
-                                background: "transparent",
-                                padding: "8px",
-                                textAlign: "center",
-                                fontSize: "1rem",
-                                width: "150px",
-                                outline: "none",
-                                cursor: "pointer"
-                            }}
-                        />
-                    </div>
-                </div>
-
-                {/* Select category section */}
-                <div style={{ 
-                    width: "100%"
-                }}>
-                    <h2 style={{ 
-                        marginBottom: "30px",
-                        fontSize: "1.8rem",
-                        fontWeight: "normal",
-                        textAlign: "left",
-                        marginLeft: "10px"
-                    }}>
-                        Select category
-                    </h2>
-
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, 1fr)",
-                            gap: "20px",
-                            marginBottom: "40px",
-                            justifyItems: "center"
-                        }}
-                    >
-                        <CategoryTile name="Food" icon={foodBg} bgColor={selectedCategory === 'Food' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Food' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Food')} />
-                        <CategoryTile name="Commute" icon={commuteBg} bgColor={selectedCategory === 'Commute' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Commute' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Commute')} />
-                        <CategoryTile name="Entertainment" icon={entertainmentBg} bgColor={selectedCategory === 'Entertainment' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Entertainment' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Entertainment')} />
-                        <CategoryTile name="Grocery" icon={groceryBg} bgColor={selectedCategory === 'Grocery' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Grocery' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Grocery')} />
-                        <CategoryTile name="Shopping" icon={shoppingBg} bgColor={selectedCategory === 'Shopping' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Shopping' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Shopping')} />
-                        <CategoryTile name="Miscellaneous" icon={miscellaneousBg} bgColor={selectedCategory === 'Miscellaneous' ? '#bdbdbd' : '#D9D9D9'} textColor={selectedCategory === 'Miscellaneous' ? '#6b7280' : 'black'} onClick={() => onSelect && onSelect('Miscellaneous')} />
-                        
-                        {/* Plus / Add new category tile */}
-                        <CategoryTile
-                            name="Add"
-                            bgColor={addClicked ? "#a0e0a0" : "#D9D9D9"}
-                            icon={add} // or you can pass a "+" icon image
-                            textColor="black"
-                            onClick={handleAddClick} // for later
-                        />
-                    </div>
-
-                    {/* Inline add-new-category input shown when plus is clicked */}
-                    {addClicked && (
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', width: '100%' }}>
-                            <input
-                                type="text"
-                                placeholder="New category name"
-                                value={newCategoryName}
-                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cfcfcf', width: '200px' }}
-                            />
-                            <button
-                                onClick={() => {
-                                    const n = newCategoryName.trim();
-                                    if (n) {
-                                        onSelect && onSelect(n);
-                                        setNewCategoryName("");
-                                        setAddClicked(false);
-                                    }
-                                }}
-                                style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', background: '#efefef', cursor: 'pointer' }}
-                            >
-                                Add
-                            </button>
-                            <button
-                                onClick={() => { setNewCategoryName(""); setAddClicked(false); }}
-                                style={{ padding: '10px 12px', borderRadius: '6px', border: 'none', background: '#fff', cursor: 'pointer' }}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Save changes button */}
-                    <button
-                        onClick={handleSaveClick}
-                        style={{
-                            width: "100%",
-                            maxWidth: "400px",
-                            padding: "20px",
-                            fontSize: "1.3rem",
-                            background: "rgba(200, 200, 200, 0.5)",
-                            border: "none",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                            display: "block",
-                            margin: "0 auto"
-                        }}
-                    >
-                        Save changes
-                    </button>
-                </div>
+                <CategoryTile
+                    name="Add"
+                    icon={add}
+                    bgColor="#D9D9D9"
+                    onClick={() => setAddClicked(!addClicked)}
+                />
             </div>
 
-            {showDatePicker && (
-                <DatePicker 
-                    selectedDate={beginning} 
-                    onDateSelect={handleDateSelect}
-                    onClose={() => setShowDatePicker(false)}
-                />
+            {addClicked && (
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                    <input
+                        type="text"
+                        placeholder="New category name"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        style={{
+                            padding: "10px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                            marginRight: "10px"
+                        }}
+                    />
+                    <button
+                        onClick={() => {
+                            if (newCategoryName.trim()) {
+                                onSelect(newCategoryName.trim());
+                                setNewCategoryName("");
+                                setAddClicked(false);
+                            }
+                        }}
+                        style={{
+                            padding: "10px 14px",
+                            borderRadius: "6px",
+                            border: "none",
+                            background: "#ddd",
+                            cursor: "pointer"
+                        }}
+                    >
+                        Add
+                    </button>
+                </div>
             )}
         </div>
     );

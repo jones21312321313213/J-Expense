@@ -1,5 +1,6 @@
 
 
+// this is the add Icon on the select category
 function Add({ onClick }) {
     const bgStyle = {
         backgroundColor: "#D9D9D9",

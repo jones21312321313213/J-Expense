@@ -1,3 +1,26 @@
+/**
+ * RecentTransaction Component
+ * ---------------------------
+ * This component displays a tabbed view of recent transactions within the dashboard.
+ * It allows users to switch between three tabs: "All", "Revenue", and "Expenses".
+ *
+ * State:
+ * - `activeTab` (string): Keeps track of which tab is currently selected.
+ *
+ * Structure:
+ * 1. Navbar:
+ *    - Bootstrap-based navigation bar with three tabs.
+ *    - Clicking a tab updates `activeTab` to switch the displayed content.
+ * 2. Body:
+ *    - Conditionally renders one of the following components based on `activeTab`:
+ *      - RtAll: Shows all recent transactions.
+ *      - RtRevenue: Shows only revenue transactions.
+ *      - RtExpenses: Shows only expense transactions.
+ *
+ * Usage:
+ * - Typically used inside a dashboard page to quickly view and filter recent financial activity.
+ */
+
 import { useState } from "react";
 import RtAll from "./RtAll";
 import RtRevenue from "./RtRevenue";

@@ -1,4 +1,4 @@
-// Statistics.jsx
+// The chart in the dashboard
 import React, { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
 
