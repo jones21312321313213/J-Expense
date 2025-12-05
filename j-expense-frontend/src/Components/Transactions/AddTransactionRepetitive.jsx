@@ -70,7 +70,6 @@ function AddTransactionRepetitive({
 
   return (
     <div style={{ width: "100%", textAlign: "center" }}>
-      <h2 style={{ marginBottom: "20px" }}>Set Repetition</h2>
 
       {/* Repeat every row */}
       <div
@@ -80,6 +79,7 @@ function AddTransactionRepetitive({
           justifyContent: "center",
           gap: "10px",
           marginBottom: "20px",
+          marginTop:"80px",
           flexWrap: "wrap",
         }}
       >

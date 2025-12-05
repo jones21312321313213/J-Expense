@@ -28,7 +28,7 @@
  *   - AddTransactionDefault
  *   - AddTransactionRepetitive
  * - Flex layout separates left and right sections with a thin separator line.
- * - Bottom line added fo
+ * 
  * */
 
 

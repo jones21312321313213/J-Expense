@@ -7,10 +7,21 @@
  * and an "Add Transaction" button at the bottom.
  */
 
+import { useState } from "react";
 import SelectCategory from "../Components/Category/SelectCategory";
 import AddTransaction from "../Components/Transactions/AddTransaction";
 
 function AddTransactionPage() {
+  // Track selected category
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Optional: track selected amount per category if needed
+  const [selectedAmount, setSelectedAmount] = useState(0);
+
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(categoryName);
+    console.log("Selected category:", categoryName);
+  };
 
   const categoryContainerStyle = {
     width: "80%",
@@ -71,16 +82,27 @@ function AddTransactionPage() {
       {/* ADD TRANSACTION CONTAINER */}
       <AddTransaction />
 
-      {/* CATEGORY SELECTION */}
+
       <h2 style={categoryTitleStyle}>Select a Category</h2>
       <div style={categoryContainerStyle}>
-        <div style={categoryScrollStyle}>
-          <SelectCategory />
+        <div
+          style={{
+            ...categoryScrollStyle,
+            display: "flex",
+            justifyContent: "center",  // centers items horizontally
+            gap: "20px",
+          }}
+        >
+          <SelectCategory
+            selectedCategory={selectedCategory}
+            onSelect={handleCategorySelect}
+          />
         </div>
       </div>
 
+
       {/* ADD TRANSACTION BUTTON */}
-      <button style={addButtonStyle}>
+      <button style={addButtonStyle} onClick={() => console.log("Adding transaction with category:", selectedCategory)}>
         Add Transaction
       </button>
     </div>
