@@ -1,3 +1,41 @@
+/**
+ * AddTransactionIncome.jsx
+ * ------------------------
+ * Component for adding an income transaction in the Add Transaction flow.
+ *
+ * Features:
+ * - Input fields for:
+ *   - Name of the income source.
+ *   - Amount (opens `SetAmount` modal for input).
+ *   - Date (opens `DatePicker` modal for selection).
+ *   - Description (multi-line textarea).
+ * - Error display area for validation messages.
+ * - Responsive layout using flexbox for amount and date inputs.
+ * - Read-only inputs trigger modals for interactive selection.
+ *
+ * Props:
+ * - `name` (string): current name input value.
+ * - `setName` (function): setter for name state.
+ * - `amountValue` (number): current amount input value.
+ * - `setAmountValue` (function): setter for amount state.
+ * - `beginning` (Date | string): selected date for the transaction.
+ * - `setBeginning` (function): setter for beginning date state.
+ * - `error` (string): current validation error message.
+ * - `setError` (function): setter for error state.
+ * - `description` (string): current description text.
+ * - `setDescription` (function): setter for description state.
+ *
+ * State:
+ * - `showDatePicker` (boolean): controls visibility of the DatePicker modal.
+ * - `showSetAmount` (boolean): controls visibility of the SetAmount modal.
+ *
+ * Notes:
+ * - Inline styles are used for consistent styling across all input elements.
+ * - Flexbox ensures that Amount and Date inputs remain side by side on larger screens and wrap on smaller screens.
+ * - The component integrates with lifted state from a parent AddTransaction component.
+ */
+
+
 import { useState } from "react";
 import DatePicker from "../DatePicker";
 import SetAmount from "../SetAmount";

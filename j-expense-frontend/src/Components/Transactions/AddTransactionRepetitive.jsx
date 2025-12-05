@@ -1,3 +1,39 @@
+/**
+ * AddTransactionRepetitive.jsx
+ * ------------------------
+ * A component for setting up repetitive transactions in the Add Transaction flow.
+ *
+ * Features:
+ * - Allows users to specify:
+ *   - Repeat interval: numeric period length and unit (day, week, month, year).
+ *   - End date for repetition.
+ * - Read-only input fields trigger modals for selecting values:
+ *   - `SetPeriodLength` modal for numeric period length.
+ *   - `SetPeriod` modal for period unit selection.
+ *   - `DatePicker` modal for end date selection.
+ * - Displays formatted dates in a user-friendly style.
+ * - Responsive layout with flexbox and wrapping for smaller screens.
+ *
+ * Props:
+ * - `periodLength` (number): current numeric repetition interval.
+ * - `setPeriodLength` (function): setter for periodLength state.
+ * - `periodUnit` (string): current period unit (e.g., "Daily", "Weekly").
+ * - `setPeriodUnit` (function): setter for periodUnit state.
+ * - `endDate` (Date | string): selected end date for repetition.
+ * - `setEndDate` (function): setter for endDate state.
+ *
+ * State:
+ * - `showPeriodLengthModal` (boolean): controls visibility of numeric period modal.
+ * - `showPeriodModal` (boolean): controls visibility of period unit modal.
+ * - `showDatePicker` (boolean): controls visibility of end date picker modal.
+ *
+ * Notes:
+ * - Uses inline styles for all layout and input elements.
+ * - Input fields are styled to look interactive but are read-only, opening modals on click.
+ * - Ensures user-friendly alignment and spacing between labels and inputs.
+ * - Designed to integrate seamlessly with the AddTransaction component for lifted state management.
+ */
+
 import React, { useState } from "react";
 import DatePicker from "../DatePicker";
 import SetPeriod from "../SetPeriod";

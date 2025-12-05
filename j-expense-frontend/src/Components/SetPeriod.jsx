@@ -1,3 +1,25 @@
+/**
+ * SetPeriod.jsx
+ * --------------
+ * A modal component for selecting a recurring period for transactions or budgets.
+ *
+ * Features:
+ * - Displays options: Daily, Weekly, Monthly, Yearly.
+ * - Highlights the currently selected period.
+ * - Includes a close button and a "Set period length" action button.
+ * - Styled with inline styles for quick customization.
+ * - Includes hover and active effects on the confirmation button.
+ *
+ * Props:
+ * - `initialPeriod` (string): The default selected period (default: 'Monthly').
+ * - `onSelectPeriod` (function): Callback called with the selected period when confirmed.
+ * - `onClose` (function): Callback called when the modal is closed.
+ *
+ * Notes:
+ * - The modal overlays the entire screen with a semi-transparent background.
+ * - Selection is controlled locally via internal state `localSelection`.
+ * - Supports keyboard and mouse interactions via radio buttons and buttons.
+ */
 import React, { useState } from 'react';
 
 function SetPeriod({ initialPeriod = 'Monthly', onSelectPeriod, onClose }) {
