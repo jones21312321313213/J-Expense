@@ -24,42 +24,6 @@
 
 import React, { useState, useEffect } from 'react';
 
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.45)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999
-  },
-  modal: {
-    width: 340,
-    maxWidth: '92%',
-    background: '#fff',
-    borderRadius: 12,
-    boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
-    overflow: 'hidden'
-  },
-  header: {
-    padding: '12px 16px',
-    borderBottom: '1px solid #eee',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  title: { fontSize: 16, fontWeight: 600 },
-  display: { padding: '18px 16px', fontSize: 28, textAlign: 'right', background: '#fafafa' },
-  keypad: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: 12, background: '#fff' },
-  key: { padding: '14px 10px', textAlign: 'center', fontSize: 18, borderRadius: 8, background: '#f2f4f7', cursor: 'pointer', userSelect: 'none' },
-  keyAccent: { background: '#4f46e5', color: '#fff' },
-  footer: { display: 'flex', gap: 8, padding: 12, borderTop: '1px solid #eee', background: '#fff' },
-  btn: { flex: 1, padding: '10px 12px', borderRadius: 8, cursor: 'pointer', textAlign: 'center' },
-  btnSecondary: { background: '#f3f4f6' },
-  btnPrimary: { background: '#10b981', color: '#fff' }
-};
-
 function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {}, title = 'Set Amount' }) {
   const [value, setValue] = useState('');
 
@@ -83,39 +47,125 @@ function SetAmount({ initialValue = 0, onConfirm = () => {}, onClose = () => {},
   };
 
   const backspace = () => setValue((v) => (v || '').slice(0, -1));
-  const clear = () => setValue('');
 
   const handleConfirm = () => {
     const parsed = parseFloat(value);
     const out = Number.isFinite(parsed) ? parsed : 0;
-    onConfirm(out); // this will return a number
+    onConfirm(out); // return number
     onClose();
   };
 
+  // Minimal SetPeriod-style styling
+  const overlayStyle = {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.3)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+    padding: '1rem',
+  };
+
+  const modalStyle = {
+    backgroundColor: '#fdf0e1',
+    borderRadius: '1.5rem',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    padding: '1.5rem',
+    width: '100%',
+    maxWidth: '25rem',
+    textAlign: 'center',
+  };
+
+  const headerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem',
+  };
+
+  const closeBtnStyle = {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    color: '#6b7280',
+    cursor: 'pointer',
+    border: 'none',
+    background: 'transparent',
+  };
+
+  const displayStyle = {
+    fontSize: '2rem',
+    fontWeight: 'bold',
+    margin: '1rem 0',
+  };
+
+  const keypadStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '0.75rem',
+    marginBottom: '1.5rem',
+  };
+
+  const keyStyle = {
+    padding: '1rem 0',
+    borderRadius: '1rem',
+    backgroundColor: '#16a34a',
+    color: 'white',
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '0.75rem 0',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    color: 'white',
+    backgroundColor: '#16a34a',
+    borderRadius: '1rem',
+    cursor: 'pointer',
+    border: 'none',
+    transition: 'all 0.2s',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+  };
+
   return (
-    <div style={styles.overlay} onMouseDown={onClose}>
-      <div style={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
-        <div style={styles.header}>
-          <div style={styles.title}>{title}</div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>✕</button>
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div style={headerStyle}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937' }}>{title}</h2>
+          <button style={closeBtnStyle} onClick={onClose}>×</button>
         </div>
 
-        <div style={styles.display}>{value || '0.00'}</div>
+        {/* Display */}
+        <div style={displayStyle}>₱{value || '0.00'}</div>
 
-        <div style={styles.keypad}>
-          {['7','8','9','4','5','6','1','2','3'].map((k) => (
-            <div key={k} style={styles.key} onClick={() => append(k)}>{k}</div>
+        {/* Keypad */}
+        <div style={keypadStyle}>
+          {['7','8','9','4','5','6','1','2','3','.','0','⌫'].map((key) => (
+            <div
+              key={key}
+              style={keyStyle}
+              onClick={() => key === '⌫' ? backspace() : append(key)}
+            >
+              {key}
+            </div>
           ))}
-          <div style={styles.key} onClick={() => append('0')}>0</div>
-          <div style={styles.key} onClick={() => append('.')}>.</div>
-          <div style={styles.key} onClick={backspace}>⌫</div>
         </div>
 
-        <div style={styles.footer}>
-          <div style={{ ...styles.btn, ...styles.btnSecondary }} onClick={clear}>Clear</div>
-          <div style={{ ...styles.btn, ...styles.btnSecondary }} onClick={onClose}>Cancel</div>
-          <div style={{ ...styles.btn, ...styles.btnPrimary }} onClick={handleConfirm}>Set</div>
-        </div>
+        {/* Set Button */}
+        <button
+          style={buttonStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}
+          onMouseDown={(e) => e.currentTarget.style.backgroundColor = '#166534'}
+          onMouseUp={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
+          onClick={handleConfirm}
+        >
+          Set Amount
+        </button>
       </div>
     </div>
   );

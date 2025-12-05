@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-function SetPeriod() {
-  const [localSelection, setLocalSelection] = useState('Monthly');
+function SetPeriod({ initialPeriod = 'Monthly', onSelectPeriod, onClose }) {
+  const [localSelection, setLocalSelection] = useState(initialPeriod);
   const [showModal, setShowModal] = useState(true);
   const periods = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -18,15 +18,14 @@ function SetPeriod() {
     padding: '1rem',
   };
 
-const modalStyle = {
-  backgroundColor: '#fdf0e1',
-  borderRadius: '1.5rem',
-  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-  padding: '1.5rem',
-  width: '100%',
-  maxWidth: '30rem', // increased from 20rem to 30rem
-};
-
+  const modalStyle = {
+    backgroundColor: '#fdf0e1',
+    borderRadius: '1.5rem',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    padding: '1.5rem',
+    width: '100%',
+    maxWidth: '30rem',
+  };
 
   const headerStyle = {
     display: 'flex',
@@ -91,22 +90,27 @@ const modalStyle = {
   };
 
   const handleSelect = () => {
-    console.log(`Selected period: ${localSelection}`);
+    if (onSelectPeriod) onSelectPeriod(localSelection);
     setShowModal(false);
+    if (onClose) onClose();
   };
 
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
-        {/* Header */}
         <div style={headerStyle}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937' }}>Select period</h2>
-          <button style={closeBtnStyle} onClick={() => setShowModal(false)}>
+          <button
+            style={closeBtnStyle}
+            onClick={() => {
+              setShowModal(false);
+              if (onClose) onClose();
+            }}
+          >
             ×
           </button>
         </div>
 
-        {/* Period Options */}
         <div style={optionsStyle}>
           {periods.map((period, index) => {
             const isSelected = localSelection === period;
@@ -129,7 +133,6 @@ const modalStyle = {
           })}
         </div>
 
-        {/* Action Button */}
         <button
           style={buttonStyle}
           onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
