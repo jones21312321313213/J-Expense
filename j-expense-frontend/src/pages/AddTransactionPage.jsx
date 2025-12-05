@@ -1,3 +1,12 @@
+/**
+ * AddTransactionPage Component
+ * ----------------------------
+ * A page to create a new transaction with options for income/expenses,
+ * plus the ability to select a category. Includes a back arrow,
+ * a main AddTransaction form, a horizontally scrollable category selector,
+ * and an "Add Transaction" button at the bottom.
+ */
+
 import SelectCategory from "../Components/Category/SelectCategory";
 import AddTransaction from "../Components/Transactions/AddTransaction";
 

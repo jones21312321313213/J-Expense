@@ -1,3 +1,36 @@
+/**
+ * AddTransaction.jsx
+ * ------------------
+ * Main component for adding a transaction, combining multiple sub-components
+ * for both expenses and income, as well as default and repetitive transaction options.
+ *
+ * Features:
+ * - Two main tab sections:
+ *   - Left: Switch between Expenses and Income inputs.
+ *   - Right: Switch between Default and Repetitive transaction settings.
+ * - Lifts state for transaction details to manage inputs across tabs:
+ *   - Name, Amount, Date, Description, Error, Category.
+ * - Additional state for repetitive transactions:
+ *   - Period length, period unit, and end date.
+ * - Inline styles for tab highlighting, separators, and responsive layout.
+ * - Ensures side-by-side layout with flex, wrapping inputs as needed.
+ *
+ * Props / State:
+ * - `leftTab` (state) – controls whether Expenses or Income form is shown.
+ * - `rightTab` (state) – controls whether Default or Repetitive form is shown.
+ * - Transaction state variables are lifted and passed down to sub-components.
+ *
+ * Notes:
+ * - Tabs visually indicate the active selection via `activeStyle`.
+ * - Sub-components used:
+ *   - AddTransactionExpenses
+ *   - AddTransactionIncome
+ *   - AddTransactionDefault
+ *   - AddTransactionRepetitive
+ * - Flex layout separates left and right sections with a thin separator line.
+ * - Bottom line added fo*
+
+
 import { useState } from "react";
 import AddTransactionDefault from "./AddTransactionDefault";
 import AddTransactionExpenses from "./AddTransactionExpenses";

@@ -1,3 +1,26 @@
+/**
+ * IncomeTransactions.jsx
+ * ----------------------
+ * A component to display a scrollable list of income transactions in a table-like layout.
+ *
+ * Features:
+ * - Renders a header row with columns: Item, Date, Amount.
+ * - Displays each transaction with an icon (via CategoryTile), name, date, and amount.
+ * - Amounts are styled in green to indicate income.
+ * - Scrollable content area for long lists of transactions.
+ * - Responsive container that fills available vertical space without overflowing.
+ *
+ * Props / State:
+ * - `data` (array): hardcoded list of income transactions with fields: item, date, amount, icon.
+ *
+ * Notes:
+ * - Uses CSS Grid for column layout.
+ * - Uses flexbox for item + icon alignment.
+ * - Container and content areas use flex and overflow to ensure scrollable content.
+ * - Supports dynamic addition of more transactions by extending the `data` array.
+ */
+
+
 import React from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png";
