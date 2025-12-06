@@ -14,7 +14,6 @@ function Settings() {
   const linkStyle = {
     color: "#555",
     textDecoration: "none",
-    paddingBottom: "5px",
     marginRight: "15px",
     cursor: "pointer",
   };
@@ -27,14 +26,14 @@ function Settings() {
         marginTop: "20px",
         display: "flex",
         flexDirection: "column",
-        // ❌ remove alignItems: center (this was centering all children)
+
       }}
     >
       <h1 style={{ textAlign: "center", margin: "20px 0" }}>Settings</h1>
 
       {/* Navbar */}
       <nav
-        className="navbar navbar-expand-lg navbar-light bg-light mb-3"
+        className="navbar navbar-expand-lg navbar-light bg-white "
         style={{
           width: "100%",
           display: "flex",
