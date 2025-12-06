@@ -19,6 +19,7 @@ import BudgetDetails from './pages/BudgetDetails'
 import GoalsDetails from './pages/GoalsDetails'
 import CategoryDetails from './pages/CategoryDetails'
 import AddTransactionPage from './pages/AddTransactionPage';
+import EditSettingsAccount from './Components/Settings/EditSettingsAccount'
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         
         <Route path="activity-log" element={<ActivityLog />} />
         <Route path="settings" element={<Settings />} />
+         <Route path="/edit-settings-account" element={<EditSettingsAccount />} />
         <Route path="budget-details" element={<BudgetDetails />} />
         <Route path="goals-details" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
