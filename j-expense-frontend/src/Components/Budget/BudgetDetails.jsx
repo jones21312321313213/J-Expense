@@ -1,3 +1,50 @@
+/**
+ * BudgetDetails.jsx
+ * -----------------
+ * A detailed view component for managing and tracking a specific budget.
+ *
+ * Features:
+ * - Displays budget name (editable), remaining amount, and total budget.
+ * - Shows a progress bar indicating spending progress over time.
+ * - Displays start and end dates for the budget period.
+ * - Calculates and shows daily spending allowance based on remaining days.
+ * - Lists all transactions associated with the budget.
+ * - Allows adding new transactions via a modal form.
+ * - Supports deleting existing transactions.
+ * - Full-screen overlay with gradient background for immersive experience.
+ *
+ * Props:
+ * - `budget` (object): The budget object containing:
+ *   - `name` (string): Budget name
+ *   - `amount` (number): Total budget amount
+ *   - `currentAmount` (number): Remaining budget amount
+ *   - `startDateISO` (string): ISO date string for budget start date
+ *   - `endDateISO` (string): ISO date string for budget end date
+ * - `onClose` (function): Callback function to close the budget details view.
+ *
+ * State Management:
+ * - `budgetName`: Editable budget name (local state).
+ * - `totalBudget`: Total budget amount.
+ * - `spent`: Amount spent from the budget.
+ * - `transactions`: Array of transaction objects with description, amount, date, and id.
+ * - `isEditing`: Boolean to toggle budget name editing mode.
+ * - `showAddTransaction`: Boolean to control add transaction modal visibility.
+ * - `newTransaction`: Object holding form data for new transaction.
+ *
+ * Calculations:
+ * - `remaining`: Total budget minus spent amount.
+ * - `percentage`: Spending progress as a percentage of total budget.
+ * - `daysLeft`: Number of days remaining until budget end date.
+ * - `dailyBudget`: Recommended daily spending based on remaining amount and days.
+ *
+ * Notes:
+ * - Uses Lucide React icons for UI elements (ChevronLeft, Edit2, Plus).
+ * - Styled with inline CSS styles for compatibility without Tailwind.
+ * - Gradient background transitions from cyan to blue to orange.
+ * - Transactions update budget calculations in real-time.
+ * - Modal prevents click-through with event propagation control.
+ */
+
 import React, { useState } from 'react';
 import { ChevronLeft, Edit2, Plus } from 'lucide-react';
 
@@ -59,98 +106,241 @@ export default function BudgetDetails({ budget, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-cyan-100 via-blue-50 to-orange-100 overflow-auto">
-      <div className="min-h-screen p-6">
-        <div className="max-w-2xl mx-auto">
+    <div style={{
+      background: 'linear-gradient(to bottom right, #a8d8ea, #d4e9f7, #f5e6d3)',
+      minHeight: '100vh',
+      height: '100%',
+      width: '100%',
+      overflow: 'auto',
+      margin: 0,
+      padding: '24px',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{ minHeight: '100vh', margin: 0 }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           {/* Header */}
-          <div className="flex items-center justify-between mb-12">
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            marginBottom: '48px' 
+          }}>
             <button 
-              className="w-12 h-12 border-2 border-gray-800 bg-white hover:bg-gray-50 rounded-lg transition-colors flex items-center justify-center" 
+              style={{
+                width: '48px',
+                height: '48px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
               onClick={onClose}
             >
-              <ChevronLeft className="w-6 h-6 text-gray-800" />
+              <ChevronLeft size={24} color="#1f2937" />
             </button>
             
-            <div className="flex-1 text-center mx-4">
+            <div style={{ flex: 1, textAlign: 'center', margin: '0 16px' }}>
               {isEditing ? (
                 <input
                   type="text"
                   value={budgetName}
                   onChange={(e) => setBudgetName(e.target.value)}
-                  className="w-full text-3xl font-semibold text-center bg-transparent outline-none border-b-2 border-gray-800 px-4 py-2"
+                  style={{
+                    width: '100%',
+                    fontSize: '1.875rem',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                    borderBottom: '2px solid #1f2937',
+                    padding: '8px 16px'
+                  }}
                   onBlur={() => setIsEditing(false)}
                   autoFocus
                 />
               ) : (
-                <h1 className="text-3xl font-semibold text-gray-800">{budgetName}</h1>
+                <h1 style={{ 
+                  fontSize: '1.875rem', 
+                  fontWeight: '600', 
+                  color: '#1f2937',
+                  margin: 0
+                }}>
+                  {budgetName}
+                </h1>
               )}
             </div>
             
             <button 
               onClick={() => setIsEditing(true)}
-              className="w-12 h-12 border-2 border-gray-800 bg-white hover:bg-gray-50 rounded-lg transition-colors flex items-center justify-center"
+              style={{
+                width: '48px',
+                height: '48px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
             >
-              <Edit2 className="w-6 h-6 text-gray-800" />
+              <Edit2 size={24} color="#1f2937" />
             </button>
           </div>
 
           {/* Budget Summary */}
-          <div className="mb-16">
+          <div style={{ marginBottom: '64px' }}>
             {/* Remaining Amount */}
-            <div className="text-center mb-12">
-              <p className="text-2xl font-medium text-gray-700">
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <p style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: '500', 
+                color: '#374151',
+                margin: 0
+              }}>
                 ₱{remaining} left of ₱{totalBudget}
               </p>
             </div>
 
             {/* Progress Section */}
-            <div className="mb-8">
-              <p className="text-base text-gray-700 font-medium mb-4">Today</p>
-              <div className="relative w-full h-12 bg-gray-600 rounded-full overflow-hidden mb-4">
-                <div 
-                  className="absolute h-full bg-gray-600 transition-all duration-500 flex items-center justify-center"
-                  style={{ width: '100%' }}
-                >
-                  <span className="text-white font-semibold text-lg">{percentage.toFixed(0)}%</span>
+            <div style={{ marginBottom: '32px' }}>
+              <p style={{ 
+                fontSize: '1rem', 
+                color: '#374151', 
+                fontWeight: '500', 
+                marginBottom: '16px' 
+              }}>
+                Today
+              </p>
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                height: '48px',
+                backgroundColor: '#4b5563',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                marginBottom: '16px'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                  backgroundColor: '#4b5563',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'width 0.5s'
+                }}>
+                  <span style={{ 
+                    color: '#fff', 
+                    fontWeight: '600', 
+                    fontSize: '1.125rem' 
+                  }}>
+                    {percentage.toFixed(0)}%
+                  </span>
                 </div>
               </div>
-              <div className="flex justify-between text-base text-gray-700">
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                fontSize: '1rem', 
+                color: '#374151' 
+              }}>
                 <span>{getFormattedDate(budget?.startDateISO)}</span>
                 <span>{getFormattedDate(budget?.endDateISO)}</span>
               </div>
             </div>
 
             {/* Daily Budget Info */}
-            <p className="text-center text-gray-700 text-base">
-              You can spend <span className="font-medium">₱{dailyBudget}/day</span> for <span className="font-medium">{daysLeft} more days</span>
+            <p style={{ 
+              textAlign: 'center', 
+              color: '#374151', 
+              fontSize: '1rem',
+              margin: 0
+            }}>
+              You can spend <span style={{ fontWeight: '500' }}>₱{dailyBudget}/day</span> for <span style={{ fontWeight: '500' }}>{daysLeft} more days</span>
             </p>
           </div>
 
           {/* Transactions */}
-          <div className="pb-32">
+          <div style={{ paddingBottom: '128px' }}>
             {transactions.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-gray-800 text-lg font-medium mb-2">
+              <div style={{ textAlign: 'center', padding: '64px 0' }}>
+                <p style={{ 
+                  color: '#1f2937', 
+                  fontSize: '1.125rem', 
+                  fontWeight: '500', 
+                  marginBottom: '8px' 
+                }}>
                   No transaction within the time range
                 </p>
-                <p className="text-gray-700 text-base">{getDateRange()}</p>
+                <p style={{ color: '#374151', fontSize: '1rem', margin: 0 }}>
+                  {getDateRange()}
+                </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {transactions.map((transaction) => (
                   <div 
                     key={transaction.id}
-                    className="flex items-center justify-between p-4 bg-white/50 rounded-xl hover:bg-white/70 transition-colors"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      borderRadius: '12px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.7)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)'}
                   >
                     <div>
-                      <p className="font-semibold text-gray-800">{transaction.description}</p>
-                      <p className="text-sm text-gray-600">{transaction.date}</p>
+                      <p style={{ 
+                        fontWeight: '600', 
+                        color: '#1f2937',
+                        margin: '0 0 4px 0'
+                      }}>
+                        {transaction.description}
+                      </p>
+                      <p style={{ 
+                        fontSize: '0.875rem', 
+                        color: '#4b5563',
+                        margin: 0
+                      }}>
+                        {transaction.date}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <p className="text-lg font-bold text-red-600">-₱{transaction.amount.toFixed(2)}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <p style={{ 
+                        fontSize: '1.125rem', 
+                        fontWeight: '700', 
+                        color: '#dc2626',
+                        margin: 0
+                      }}>
+                        -₱{transaction.amount.toFixed(2)}
+                      </p>
                       <button
                         onClick={() => handleDeleteTransaction(transaction.id, transaction.amount)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        style={{
+                          color: '#ef4444',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.color = '#b91c1c'}
+                        onMouseOut={(e) => e.currentTarget.style.color = '#ef4444'}
                       >
                         Delete
                       </button>
@@ -162,78 +352,228 @@ export default function BudgetDetails({ budget, onClose }) {
           </div>
 
           {/* Add Transaction Button */}
-          <button
+          {/* <button
             onClick={() => setShowAddTransaction(true)}
-            className="fixed bottom-8 right-8 w-16 h-16 bg-white border-4 border-gray-800 text-gray-800 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform hover:bg-gray-50"
+            style={{
+              position: 'fixed',
+              bottom: '32px',
+              right: '32px',
+              width: '64px',
+              height: '64px',
+              backgroundColor: '#fff',
+              border: '4px solid #1f2937',
+              color: '#1f2937',
+              borderRadius: '50%',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'transform 0.2s, background-color 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.backgroundColor = '#f9fafb';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.backgroundColor = '#fff';
+            }}
             title="Add new transaction"
           >
-            <Plus className="w-8 h-8" strokeWidth={3} />
-          </button>
+            <Plus size={32} strokeWidth={3} />
+          </button> */}
 
           {/* Add Transaction Modal */}
-          {showAddTransaction && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Transaction</h2>
+          {/* {showAddTransaction && (
+            <div 
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px',
+                zIndex: 50
+              }}
+              onClick={() => setShowAddTransaction(false)}
+            >
+              <div 
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  maxWidth: '448px',
+                  width: '100%',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 style={{ 
+                  fontSize: '1.5rem', 
+                  fontWeight: '700', 
+                  color: '#1f2937', 
+                  marginBottom: '24px',
+                  marginTop: 0
+                }}>
+                  Add Transaction
+                </h2>
                 
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      color: '#374151', 
+                      marginBottom: '8px' 
+                    }}>
                       Description
                     </label>
                     <input
                       type="text"
                       value={newTransaction.description}
                       onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="e.g., Groceries"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      color: '#374151', 
+                      marginBottom: '8px' 
+                    }}>
                       Amount (₱)
                     </label>
                     <input
                       type="number"
                       value={newTransaction.amount}
                       onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="0.00"
                       step="0.01"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      color: '#374151', 
+                      marginBottom: '8px' 
+                    }}>
                       Date
                     </label>
                     <input
                       type="date"
                       value={newTransaction.date}
                       onChange={(e) => setNewTransaction({...newTransaction, date: e.target.value})}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                     />
                   </div>
                 </div>
                 
-                <div className="flex gap-3 mt-6">
+                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                   <button
                     onClick={() => setShowAddTransaction(false)}
-                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+                    style={{
+                      flex: 1,
+                      padding: '8px 16px',
+                      backgroundColor: '#e5e7eb',
+                      color: '#374151',
+                      fontWeight: '600',
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d1d5db'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddTransaction}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    style={{
+                      flex: 1,
+                      padding: '8px 16px',
+                      backgroundColor: '#2563eb',
+                      color: '#fff',
+                      fontWeight: '600',
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
                   >
                     Add
                   </button>
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
