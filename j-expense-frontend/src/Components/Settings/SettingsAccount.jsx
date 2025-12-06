@@ -1,8 +1,10 @@
-
+import { useNavigate } from "react-router-dom";
 import pfp from "/src/assets/pfp.png";
 
 
-function SettingsAccount() {
+function SettingsAccount({ onEditClick }) {
+
+  const navigate = useNavigate(); 
   const container = {
     display: "flex",
     justifyContent: "space-between",
@@ -65,6 +67,13 @@ function SettingsAccount() {
     cursor: "pointer",
   };
 
+const handleEditClick = () => {
+    // Call the prop function provided by the parent (Settings)
+    if (onEditClick) {
+      onEditClick(); 
+    }
+  };
+
   return (
     <div style={{ backgroundColor: "white", margin: "0", padding: "0" }}>
 
@@ -97,7 +106,8 @@ function SettingsAccount() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <button style={updateBtn}>Edit</button>
+        {/* The onClick now uses the new handler */}
+        <button style={updateBtn} onClick={handleEditClick}>Edit</button>
       </div>
 
     </div>

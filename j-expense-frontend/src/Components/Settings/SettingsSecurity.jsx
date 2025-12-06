@@ -1,4 +1,5 @@
-function SettingsSecurity() {
+// 1. Accept the onEditClick prop
+function SettingsSecurity({ onEditClick }) {
   const container = {
     display: "flex",
     flexDirection: "column",
@@ -17,22 +18,29 @@ function SettingsSecurity() {
     fontSize: "15px",
   };
 
-  const buttonStyle = {
-    padding: "12px 30px",
+  const updateBtn = {
+    marginBottom: "30px",
+    marginTop: "50px",
+    padding: "12px",
     background: "#299D91",
+    border:"none",
     color: "#fff",
     fontWeight: "600",
-    border: "none",
-    borderRadius: "0px",
+    width: "20%",
     cursor: "pointer",
-    minWidth: "150px",
   };
 
   const buttonContainer = {
     display: "flex",
     justifyContent: "center",
-    gap: "400px",
     marginTop: "40px",
+  };
+  
+  // 2. Define the handler function
+  const handleEditClick = () => {
+    if (onEditClick) {
+        onEditClick();
+    }
   };
 
   return (
@@ -62,8 +70,8 @@ function SettingsSecurity() {
 
       {/* Buttons outside input container but inside white wrapper */}
       <div style={buttonContainer}>
-        <button style={buttonStyle}>Change Password</button>
-        <button style={buttonStyle}>Change Number</button>
+        {/* 3. Attach the handler to the button */}
+        <button style={updateBtn} onClick={handleEditClick}>Edit</button>
       </div>
     </div>
   );
