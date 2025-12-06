@@ -7,6 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; 
 
 import App from './App'
+import ForgetPassword from './pages/ForgetPassword';
 
 
 
@@ -15,7 +16,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <RouterProvider router ={router} /> */}
     <BrowserRouter>
-      <App/>
+      <ForgetPassword/>
     </BrowserRouter>
   </StrictMode>,
 )
