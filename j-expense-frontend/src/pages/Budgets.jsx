@@ -3,10 +3,12 @@ import { useState } from "react";
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 import SelectBudgetType from "../Components/Budget/SelectBudgetType";
+import BudgetDetails from "../Components/Budget/BudgetDetails";
 
 function Budgets() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [budgets, setBudgets] = useState([]);
+  const [selectedBudget, setSelectedBudget] = useState(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -158,11 +160,15 @@ function Budgets() {
 
   return (
     <div>
-      <h1 style={{ textAlign: "center", paddingTop: "20px" }}>Budgets</h1>
-      <div style={containerStyle}>
-        <div style={gridStyle}>
-          {budgets.map((budget) => (
-            <div key={budget.id} style={cardStyle}>
+      {selectedBudget ? (
+        <BudgetDetails budget={selectedBudget} onClose={() => setSelectedBudget(null)} />
+      ) : (
+        <>
+          <h1 style={{ textAlign: "center", paddingTop: "20px" }}>Budgets</h1>
+          <div style={containerStyle}>
+            <div style={gridStyle}>
+              {budgets.map((budget) => (
+                <div key={budget.id} style={{...cardStyle, cursor: 'pointer'}} onClick={() => setSelectedBudget(budget)}>
               {/* Header Section */}
               <div style={cardHeaderStyle}>
                 <h2 style={{
@@ -320,6 +326,8 @@ function Budgets() {
             <SelectBudgetType onClose={closeModal} onCreateBudget={handleCreateBudget} />
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
