@@ -1,21 +1,33 @@
-function ForgetPassword() {
+import { useNavigate } from "react-router-dom";
+import bgForgot from '../../assets/bgForgotPassword.jpg';
+
+function ForgotPassword() {
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate("/forgot-password/verify"); 
+  };
 
   const pageStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 50%, #FFC3A0 100%)', 
+    backgroundImage: `url(${bgForgot})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
     padding: '20px',
   };
 
   const cardStyle = {
     backgroundColor: 'white',
-    padding: '40px 50px',
-    borderRadius: '10px',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    padding: '60px 70px',
+    borderRadius: '16px',
+    boxShadow: '0 6px 25px rgba(0, 0, 0, 0.15)',
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '500px',
     textAlign: 'center',
   };
 
@@ -65,7 +77,7 @@ function ForgetPassword() {
   const buttonStyle = {
     width: '100%',
     padding: '12px',
-    backgroundColor: '#333', // Dark background for the button
+    backgroundColor: '#333',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
@@ -83,42 +95,34 @@ function ForgetPassword() {
     textDecoration: 'none',
   };
 
-
   return (
     <div style={pageStyle}>
       <div style={cardStyle}>
-        
-        {/* Logo/App Name */}
+
         <h1 style={logoStyle}>J-Expense</h1>
-        
-        {/* Header */}
+
         <h2 style={headerStyle}>Forgot Password?</h2>
-        
-        {/* Description */}
+
         <p style={descriptionStyle}>
           Enter your email address to get the password reset link.
         </p>
 
-        <form>
-          {/* Email Input */}
+        <form onSubmit={handleSubmit}>
           <div style={formGroupStyle}>
             <label htmlFor="email" style={labelStyle}>Email</label>
             <input
               type="email"
               id="email"
-              placeholder="johndoe@email.com"
+              placeholder="youremail@example.com"
               style={inputStyle}
-              // You would typically use useState here to capture the value
             />
           </div>
 
-          {/* Password Reset Button */}
           <button type="submit" style={buttonStyle}>
             Password reset
           </button>
         </form>
 
-        {/* Back to Login Link */}
         <a href="/login" style={backLinkStyle}>
           Back to log in
         </a>
@@ -128,4 +132,4 @@ function ForgetPassword() {
   );
 }
 
-export default ForgetPassword;
+export default ForgotPassword;
