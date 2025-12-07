@@ -5,6 +5,10 @@ import Base from './pages/Base';
 import Login from './pages/Login';
 import Landing from './pages/Landing';
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import ForgotPasswordVerificationCode from './pages/ForgotPassword/ForgotPasswordVerificationCode';
+import ForgotPasswordChangePassword from './pages/ForgotPassword/ForgotPasswordChangePassword';
+import ForgotPasswordSuccess from './pages/ForgotPassword/ForgotPasswordSuccess';
 
 // Import all the pages that will load inside the Base layout
 import Dashboard from './pages/Dashboard';
@@ -21,14 +25,22 @@ import CategoryDetails from './pages/CategoryDetails'
 import AddTransactionPage from './pages/AddTransactionPage';
 import EditSettingsAccount from './Components/Settings/EditSettingsAccount'
 
+
+
+
 function App() {
   return (
     <Routes>
-      {/* 1. Public Routes (Change Landing path to avoid conflict) */}
+      {/* 1. Public Routes */}
       <Route path="/landing" element={<Landing />} /> {/*will change the path for this later*/}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      
+
+
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/forgot-password/verify" element={<ForgotPasswordVerificationCode />} />
+      <Route path="/forgot-password/change-password" element={<ForgotPasswordChangePassword />} />
+      <Route path="/forgot-password/success" element={<ForgotPasswordSuccess />} />
       {/* 2. Protected/Layout Routes (With Sidebar/Base Layout) */}
       {/* The parent path remains "/", meaning this layout loads for all children */}
       <Route path="/" element={<Base />}> 
@@ -47,7 +59,7 @@ function App() {
         
         <Route path="activity-log" element={<ActivityLog />} />
         <Route path="settings" element={<Settings />} />
-         <Route path="/edit-settings-account" element={<EditSettingsAccount />} />
+        <Route path="edit-settings-account" element={<EditSettingsAccount />} />
         <Route path="budget-details" element={<BudgetDetails />} />
         <Route path="goals-details" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
