@@ -1,8 +1,9 @@
 import { useState } from "react";
 import DatePicker from "../DatePicker"; 
-import SetAmount from "../SetAmount"; // import the modal
+import SetAmount from "../setAmount"; // import the modal
 
 function AddTransactionExpenses({
+  onAdd, // 👈 new prop from context
   name,
   setName,
   amountValue,
@@ -16,7 +17,6 @@ function AddTransactionExpenses({
   error,
   setError
 }) {
-
   const inputStyle = {
     padding: "10px",
     border: "none",
@@ -39,9 +39,35 @@ function AddTransactionExpenses({
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
-  return (
-    <div style={{ width: "100%", textAlign: "center" }}>
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    if (!name || !amountValue || !beginning) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    // 👇 Call context helper
+    onAdd({
+      type: "Expense",
+      category: "Food", // you can make this dynamic later
+      name,
+      vendor: "Custom Vendor", // placeholder until you add vendor input
+      amount: parseFloat(amountValue),
+      date: beginning,
+    });
+
+    // Reset fields
+    setName("");
+    setAmountValue("");
+    setFrequency(1);
+    setPeriodUnit("Day");
+    setBeginning("");
+    setError("");
+  };
+
+  return (
+    <form style={{ width: "100%", textAlign: "center" }} onSubmit={handleSubmit}>
       {/* Error */}
       {error && (
         <div style={{
@@ -124,7 +150,22 @@ function AddTransactionExpenses({
         />
       )}
 
-    </div>
+      {/* Submit button */}
+      <button
+        type="submit"
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          background: "#21c7b8",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
+      >
+        Add Expense
+      </button>
+    </form>
   );
 }
 

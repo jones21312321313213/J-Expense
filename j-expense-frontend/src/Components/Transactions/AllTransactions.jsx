@@ -1,17 +1,10 @@
 import React from "react";
+import { useTransactions } from "../../context/TransactionsContext";
 import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png";
 
 function AllTransactions() {
-  // Mock data with `type`: "income" or "expense"
-  const data = [
-    { item: "Groceries", date: "2025-12-04", amount: "₱450", type: "expense" },
-    { item: "Salary", date: "2025-12-01", amount: "₱15,000", type: "income" },
-    { item: "Load", date: "2025-12-02", amount: "₱50", type: "expense" },
-    { item: "Freelance Work", date: "2025-11-28", amount: "₱3,200", type: "income" },
-    { item: "Bonus", date: "2025-11-25", amount: "₱1,000", type: "income" },
-    { item: "Transport", date: "2025-12-01", amount: "₱120", type: "expense" },
-  ];
+  const { transactions, removeTransaction } = useTransactions();
 
   const containerStyle = {
     width: "100%",
@@ -34,7 +27,7 @@ function AllTransactions() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr 80px",
           fontWeight: 600,
           padding: "10px 0",
         }}
@@ -42,45 +35,76 @@ function AllTransactions() {
         <span>Item</span>
         <span>Date</span>
         <span style={{ textAlign: "right" }}>Amount</span>
+        <span style={{ textAlign: "center" }}>Action</span>
       </div>
 
       {/* Scrollable Section */}
       <div style={contentStyle}>
-        {data.map((row, index) => (
-          <div
-            key={index}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              padding: "12px 0",
-              alignItems: "center",
-            }}
-          >
-            {/* ITEM + ICON */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <CategoryTile
-                name=""
-                icon={foodBg}
-                bgColor="#f1f1f1"
-                textColor="black"
-              />
-              <span>{row.item}</span>
-            </div>
-
-            <span>{row.date}</span>
-
-            {/* DYNAMIC COLOR AMOUNT */}
-            <span
+        {Array.isArray(transactions) && transactions.length > 0 ? (
+          transactions.map((tx, index) => (
+            <div
+              key={index}
               style={{
-                textAlign: "right",
-                fontWeight: 500,
-                color: row.type === "income" ? "green" : "red",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 80px",
+                padding: "12px 0",
+                alignItems: "center",
+                borderBottom: "1px solid #f1f1f1",
               }}
             >
-              {row.amount}
-            </span>
-          </div>
-        ))}
+              {/* ITEM + ICON */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CategoryTile
+                  name={tx.category}
+                  icon={foodBg} // placeholder icon
+                  bgColor="#f1f1f1"
+                  textColor="black"
+                />
+                <span>{tx.name || "Untitled"}</span>
+              </div>
+
+              {/* DATE */}
+              <span>
+                {tx.date
+                  ? new Date(tx.date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "No date"}
+              </span>
+
+              {/* AMOUNT */}
+              <span
+                style={{
+                  textAlign: "right",
+                  fontWeight: 500,
+                  color: tx.type === "Income" ? "green" : "red",
+                }}
+              >
+                ₱ {Number(tx.amount ?? 0).toLocaleString()}
+              </span>
+
+              {/* DELETE BUTTON */}
+              <button
+                onClick={() => removeTransaction(index)}
+                style={{
+                  background: "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        ) : (
+          <p style={{ fontSize: "0.9rem", color: "#6c757d" }}>No transactions yet.</p>
+        )}
       </div>
     </div>
   );

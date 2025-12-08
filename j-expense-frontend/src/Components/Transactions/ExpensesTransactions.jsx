@@ -1,14 +1,15 @@
 import React from "react";
+import { useTransactions } from "../../context/TransactionsContext";
 import CategoryTile from "../../Components/Category/CategoryTile";
-import foodBg from "../../assets/foodCategory.png";
+import foodBg from "../../assets/foodCategory.png"; // placeholder icon
 
 function ExpensesTransactions() {
-  const data = [
-    { item: "Groceries", date: "2025-12-04", amount: "₱450", icon: "/icons/grocery.png" },
-    { item: "Load", date: "2025-12-02", amount: "₱50", icon: "/icons/load.png" },
-    { item: "Transport", date: "2025-12-01", amount: "₱120", icon: "/icons/transport.png" },
-    // add more to test scrolling
-  ];
+  const { transactions, removeTransaction } = useTransactions();
+
+  // Carry original index along with each transaction
+  const expenseTx = transactions
+    .map((tx, idx) => ({ tx, idx }))
+    .filter(({ tx }) => tx.type === "Expense");
 
   const containerStyle = {
     width: "100%",
@@ -31,7 +32,7 @@ function ExpensesTransactions() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr 80px",
           fontWeight: 600,
           padding: "10px 0",
         }}
@@ -39,45 +40,76 @@ function ExpensesTransactions() {
         <span>Item</span>
         <span>Date</span>
         <span style={{ textAlign: "right" }}>Amount</span>
+        <span style={{ textAlign: "center" }}>Action</span>
       </div>
 
       {/* Scrollable Section */}
       <div style={contentStyle}>
-        {data.map((row, index) => (
-          <div
-            key={index}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              padding: "12px 0",
-              alignItems: "center",
-            }}
-          >
-            {/* ITEM + CATEGORY ICON */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <CategoryTile
-                name=""
-                icon={foodBg}
-                bgColor="#f1f1f1"
-                textColor="black"
-              />
-              <span>{row.item}</span>
-            </div>
-
-            <span>{row.date}</span>
-
-            {/* RED AMOUNT */}
-            <span
+        {expenseTx.length === 0 ? (
+          <p style={{ fontSize: "0.9rem", color: "#6c757d" }}>No expense transactions yet.</p>
+        ) : (
+          expenseTx.map(({ tx, idx }) => (
+            <div
+              key={idx}
               style={{
-                textAlign: "right",
-                fontWeight: 500,
-                color: "red",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 80px",
+                padding: "12px 0",
+                alignItems: "center",
+                borderBottom: "1px solid #f1f1f1",
               }}
             >
-              {row.amount}
-            </span>
-          </div>
-        ))}
+              {/* ITEM + CATEGORY ICON */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CategoryTile
+                  name={tx.category}
+                  icon={foodBg} // placeholder icon
+                  bgColor="#f1f1f1"
+                  textColor="black"
+                />
+                <span>{tx.name || "Untitled"}</span>
+              </div>
+
+              {/* DATE */}
+              <span>
+                {tx.date
+                  ? new Date(tx.date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "No date"}
+              </span>
+
+              {/* AMOUNT (red for expenses) */}
+              <span
+                style={{
+                  textAlign: "right",
+                  fontWeight: 500,
+                  color: "red",
+                }}
+              >
+                ₱ {Number(tx.amount ?? 0).toLocaleString()}
+              </span>
+
+              {/* DELETE BUTTON */}
+              <button
+                onClick={() => removeTransaction(idx)}
+                style={{
+                  background: "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

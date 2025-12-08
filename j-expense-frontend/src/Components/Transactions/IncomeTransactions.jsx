@@ -1,26 +1,26 @@
 import React from "react";
+import { useTransactions } from "../../context/TransactionsContext";
 import CategoryTile from "../../Components/Category/CategoryTile";
-import foodBg from "../../assets/foodCategory.png";
+import foodBg from "../../assets/foodCategory.png"; // placeholder icon
 
 function IncomeTransactions() {
-  const data = [
-    { item: "Salary", date: "2025-12-01", amount: "₱15,000", icon: "/icons/salary.png" },
-    { item: "Freelance Work", date: "2025-11-28", amount: "₱3,200", icon: "/icons/freelance.png" },
-    { item: "Bonus", date: "2025-11-25", amount: "₱1,000", icon: "/icons/bonus.png" },
-  ];
+  const { transactions, removeTransaction } = useTransactions();
 
-  // Container style: responsive height
+  // Carry original index along with each transaction
+  const incomeTx = transactions
+    .map((tx, idx) => ({ tx, idx }))
+    .filter(({ tx }) => tx.type === "Income");
+
   const containerStyle = {
     width: "100%",
-    flex: 1,                 // take remaining space from parent
+    flex: 1,
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden",      // prevent overflow outside container
+    overflow: "hidden",
   };
 
-  // Scrollable content style
   const contentStyle = {
-    flex: 1,                 // fill remaining height
+    flex: 1,
     overflowY: "auto",
     paddingTop: "10px",
     paddingRight: "5px",
@@ -32,7 +32,7 @@ function IncomeTransactions() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr 80px",
           fontWeight: 600,
           padding: "10px 0",
         }}
@@ -40,45 +40,76 @@ function IncomeTransactions() {
         <span>Item</span>
         <span>Date</span>
         <span style={{ textAlign: "right" }}>Amount</span>
+        <span style={{ textAlign: "center" }}>Action</span>
       </div>
 
       {/* Scrollable Section */}
       <div style={contentStyle}>
-        {data.map((row, index) => (
-          <div
-            key={index}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              padding: "12px 0",
-              alignItems: "center",
-            }}
-          >
-            {/* ITEM + ICON */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <CategoryTile
-                name=""
-                icon={foodBg}
-                bgColor="#f1f1f1"
-                textColor="black"
-              />
-              <span>{row.item}</span>
-            </div>
-
-            <span>{row.date}</span>
-
-            {/* GREEN AMOUNT */}
-            <span
+        {incomeTx.length === 0 ? (
+          <p style={{ fontSize: "0.9rem", color: "#6c757d" }}>No income transactions yet.</p>
+        ) : (
+          incomeTx.map(({ tx, idx }) => (
+            <div
+              key={idx}
               style={{
-                textAlign: "right",
-                fontWeight: 600,
-                color: "green",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 80px",
+                padding: "12px 0",
+                alignItems: "center",
+                borderBottom: "1px solid #f1f1f1",
               }}
             >
-              {row.amount}
-            </span>
-          </div>
-        ))}
+              {/* ITEM + ICON */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CategoryTile
+                  name={tx.category}
+                  icon={foodBg} // you can swap icons per category later
+                  bgColor="#f1f1f1"
+                  textColor="black"
+                />
+                <span>{tx.name || "Untitled"}</span>
+              </div>
+
+              {/* DATE */}
+              <span>
+                {tx.date
+                  ? new Date(tx.date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "No date"}
+              </span>
+
+              {/* AMOUNT (green for income) */}
+              <span
+                style={{
+                  textAlign: "right",
+                  fontWeight: 600,
+                  color: "green",
+                }}
+              >
+                ₱ {Number(tx.amount ?? 0).toLocaleString()}
+              </span>
+
+              {/* DELETE BUTTON */}
+              <button
+                onClick={() => removeTransaction(idx)}
+                style={{
+                  background: "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

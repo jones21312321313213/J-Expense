@@ -1,33 +1,24 @@
 /**
  * RecentTransaction Component
  * ---------------------------
- * This component displays a tabbed view of recent transactions within the dashboard.
- * It allows users to switch between three tabs: "All", "Revenue", and "Expenses".
- *
- * State:
- * - `activeTab` (string): Keeps track of which tab is currently selected.
- *
- * Structure:
- * 1. Navbar:
- *    - Bootstrap-based navigation bar with three tabs.
- *    - Clicking a tab updates `activeTab` to switch the displayed content.
- * 2. Body:
- *    - Conditionally renders one of the following components based on `activeTab`:
- *      - RtAll: Shows all recent transactions.
- *      - RtRevenue: Shows only revenue transactions.
- *      - RtExpenses: Shows only expense transactions.
- *
- * Usage:
- * - Typically used inside a dashboard page to quickly view and filter recent financial activity.
+ * Displays a tabbed view of recent transactions within the dashboard.
+ * Tabs: "All", "Revenue", "Expenses".
+ * Pulls live data from TransactionsContext and passes it to child components.
  */
 
 import { useState } from "react";
+import { useTransactions } from "../../context/TransactionsContext";
 import RtAll from "./RtAll";
 import RtRevenue from "./RtRevenue";
 import RtExpenses from "./RtExpenses";
 
 function RecentTransaction() {
   const [activeTab, setActiveTab] = useState("all"); // default tab
+  const { transactions = [] } = useTransactions(); // ✅ safe default
+
+  // Filtered datasets
+  const revenueTx = transactions.filter((tx) => tx.type === "Income");
+  const expenseTx = transactions.filter((tx) => tx.type === "Expense");
 
   return (
     <div style={{ maxWidth: "500px" }}>
@@ -50,21 +41,30 @@ function RecentTransaction() {
             <a
               className={`nav-item nav-link ${activeTab === "all" ? "active" : ""}`}
               href="#"
-              onClick={() => setActiveTab("all")}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("all");
+              }}
             >
               All
             </a>
             <a
               className={`nav-item nav-link ${activeTab === "revenue" ? "active" : ""}`}
               href="#"
-              onClick={() => setActiveTab("revenue")}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("revenue");
+              }}
             >
               Revenue
             </a>
             <a
               className={`nav-item nav-link ${activeTab === "expenses" ? "active" : ""}`}
               href="#"
-              onClick={() => setActiveTab("expenses")}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("expenses");
+              }}
             >
               Expenses
             </a>
@@ -74,9 +74,9 @@ function RecentTransaction() {
 
       {/* Body below navbar */}
       <div>
-        {activeTab === "all" && <RtAll />}
-        {activeTab === "revenue" && <RtRevenue />}
-        {activeTab === "expenses" && <div><RtExpenses/></div>}
+        {activeTab === "all" && <RtAll transactions={transactions} />}
+        {activeTab === "revenue" && <RtRevenue transactions={revenueTx} />}
+        {activeTab === "expenses" && <RtExpenses transactions={expenseTx} />}
       </div>
     </div>
   );

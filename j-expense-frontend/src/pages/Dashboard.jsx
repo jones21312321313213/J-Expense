@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
+import { useTransactions } from "../context/TransactionsContext";
 import Addcard from "../Components/Addcard";
 import RecentTransaction from "../Components/RecentTransactions/RecentTransaction";
 import Statistics from "../Components/Statistics";
@@ -7,17 +8,32 @@ import Navbar from "../Components/Navbar";
 import { Link } from "react-router-dom";
 
 function Dashboard() {
-
+  const { transactions } = useTransactions();
   const rowRef = useRef(null);
 
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
+  const recentTx = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+  const expenseBreakdown = transactions
+    .filter((tx) => tx.type === "Expense")
+    .reduce((acc, tx) => {
+      acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+      return acc;
+    }, {});
+
   const bgStyle = {
     padding: "20px 20px",
     flex: 1,
     overflowX: "hidden",
+    minHeight: "100vh",
+    backgroundImage: 'url("/src/assets/dashbg.jpg")',
+    backgroundSize: "cover",
+    backgroundPosition: "center center",
+    backgroundRepeat: "no-repeat",
+    position: "relative",
   };
 
   const sectionStyle = {
@@ -52,7 +68,6 @@ function Dashboard() {
   };
 
   const handleMouseLeave = () => setIsDragging(false);
-
   const handleMouseUp = () => setIsDragging(false);
 
   const handleMouseMove = (e) => {
@@ -68,7 +83,6 @@ function Dashboard() {
   return (
     <div style={{ width: "100%" }}>
       <div style={bgStyle}>
-
         <Navbar />
 
         {/* Scrollable cards row */}
@@ -80,20 +94,16 @@ function Dashboard() {
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
         >
-
-          {/* Budgets */}
           <div style={sectionStyle}>
             <h3 style={{ alignSelf: "flex-start" }}>Budgets</h3>
             <Addcard />
           </div>
 
-          {/* Goals */}
           <div style={sectionStyle}>
             <h3 style={{ alignSelf: "flex-start" }}>Goals</h3>
             <Addcard />
           </div>
 
-          {/* Upcoming Bill */}
           <div style={sectionStyle}>
             <div
               style={{
@@ -104,7 +114,6 @@ function Dashboard() {
               }}
             >
               <h3 style={{ margin: 0 }}>Upcoming Bill</h3>
-
               <Link
                 to="/bills"
                 style={{
@@ -117,18 +126,13 @@ function Dashboard() {
                 View all &gt;
               </Link>
             </div>
-
             <Addcard />
           </div>
-
         </div>
 
         {/* Main Content Area */}
         <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
-
-          {/* Recent Transactions */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            
             <div
               style={{
                 display: "flex",
@@ -138,7 +142,6 @@ function Dashboard() {
               }}
             >
               <h3 style={{ margin: 0 }}>Recent Transactions</h3>
-
               <Link
                 to="/transactions"
                 style={{
@@ -151,11 +154,9 @@ function Dashboard() {
                 View all &gt;
               </Link>
             </div>
-
-            <RecentTransaction />
+            <RecentTransaction transactions={recentTx} />
           </div>
 
-          {/* Statistics + Breakdown */}
           <div
             style={{
               flex: 2,
@@ -164,7 +165,6 @@ function Dashboard() {
               gap: "20px",
             }}
           >
-
             <div>
               <h3 style={{ marginBottom: "10px" }}>Statistics</h3>
               <Statistics />
@@ -172,13 +172,10 @@ function Dashboard() {
 
             <div>
               <h3 style={{ marginBottom: "10px" }}>Expenses Breakdown</h3>
-              <ExpensesBreakdown />
+              <ExpensesBreakdown breakdown={expenseBreakdown} />
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
