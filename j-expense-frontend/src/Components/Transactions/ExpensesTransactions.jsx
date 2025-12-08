@@ -105,7 +105,7 @@ function ExpensesTransactions() {
                   fontSize: "0.85rem",
                 }}
               >
-                Delete
+                Remove
               </button>
             </div>
           ))

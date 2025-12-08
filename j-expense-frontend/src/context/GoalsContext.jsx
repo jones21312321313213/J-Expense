@@ -2,30 +2,46 @@ import { createContext, useContext, useState } from "react";
 
 const GoalsContext = createContext(null);
 
-// ✅ Export provider as a const arrow function (consistent with hook export)
 export const GoalsProvider = ({ children }) => {
   const [goals, setGoals] = useState([]);
 
   const addGoal = (goal) => {
     const enrichedGoal = {
       ...goal,
-      currentAmount: 0,
+      currentAmount: 0,      // savings: amount saved; expense: amount spent
       transactionCount: 0,
     };
     setGoals((prev) => [...prev, enrichedGoal]);
   };
 
-  const updateGoalProgress = (goalId, amount) => {
+  /**
+   * Update progress for a goal.
+   * - Savings goal: add to currentAmount (saved).
+   * - Expense goal: add to currentAmount (spent).
+   */
+  const updateGoalProgress = (goalId, amount, type) => {
     setGoals((prev) =>
-      prev.map((g) =>
-        g.id === goalId
-          ? {
-              ...g,
-              currentAmount: g.currentAmount + amount,
-              transactionCount: g.transactionCount + 1,
-            }
-          : g
-      )
+      prev.map((g) => {
+        if (g.id !== goalId) return g;
+
+        if (type === "savings") {
+          return {
+            ...g,
+            currentAmount: g.currentAmount + amount,
+            transactionCount: g.transactionCount + 1,
+          };
+        }
+
+        if (type === "expense") {
+          return {
+            ...g,
+            currentAmount: g.currentAmount + amount, // track spent
+            transactionCount: g.transactionCount + 1,
+          };
+        }
+
+        return g;
+      })
     );
   };
 
@@ -38,7 +54,6 @@ export const GoalsProvider = ({ children }) => {
   );
 };
 
-// ✅ Export hook as a const arrow function (Fast Refresh safe)
 export const useGoals = () => {
   const ctx = useContext(GoalsContext);
   if (!ctx) {

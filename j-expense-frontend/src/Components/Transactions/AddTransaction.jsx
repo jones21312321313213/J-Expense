@@ -3,10 +3,13 @@ import AddTransactionDefault from "./AddTransactionDefault";
 import AddTransactionExpenses from "./AddTransactionExpenses";
 import AddTransactionIncome from "./AddTransactionIncome";
 import AddTransactionRepetitive from "./AddTransactionRepetitive";
+import { useTransactions } from "../../context/TransactionsContext"; // 👈 import context
 
 function AddTransaction() {
   const [leftTab, setLeftTab] = useState("expenses");
   const [rightTab, setRightTab] = useState("default");
+
+  const { addTransaction } = useTransactions(); // 👈 get helper from context
 
   const activeStyle = {
     borderBottom: "2px solid #21c7b8",
@@ -63,8 +66,8 @@ function AddTransaction() {
           </div>
 
           <div style={{ marginTop: "20px" }}>
-            {leftTab === "expenses" && <AddTransactionExpenses />}
-            {leftTab === "income" && <AddTransactionIncome />}
+            {leftTab === "expenses" && <AddTransactionExpenses onAdd={addTransaction} />}
+            {leftTab === "income" && <AddTransactionIncome onAdd={addTransaction} />}
           </div>
         </div>
 
@@ -103,8 +106,8 @@ function AddTransaction() {
           </div>
 
           <div style={{ marginTop: "20px" }}>
-            {rightTab === "default" && <AddTransactionDefault />}
-            {rightTab === "repetitive" && <AddTransactionRepetitive />}
+            {rightTab === "default" && <AddTransactionDefault onAdd={addTransaction} />}
+            {rightTab === "repetitive" && <AddTransactionRepetitive onAdd={addTransaction} />}
           </div>
         </div>
       </div>
@@ -116,7 +119,7 @@ function AddTransaction() {
           height: "1px",
           background: "#ccc",
           marginTop: "20px",
-          marginBottom:"80px",
+          marginBottom: "80px",
         }}
       ></div>
     </div>

@@ -10,7 +10,6 @@ import App from './App';
 
 // ✅ Correct casing for all component imports
 import SetDate from './Components/SetDate';
-import SetAmount from './Components/SetAmount';
 import AddTransaction from './Components/Transactions/AddTransaction';
 import AddTransactionPage from './pages/AddTransactionPage';
 import AddBudget from './Components/Budget/AddBudget';
