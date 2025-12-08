@@ -1,15 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function CategoryCard({ icon, name, type }) {
+function CategoryCard({ icon, name, type, onDelete }) {
     const navigate = useNavigate();
 
     const handleClick = () => {
         navigate("/edit-category", {
-            state: {
-                name,
-                icon,
-            }
+            state: { name, icon }
         });
     };
 
@@ -26,6 +23,12 @@ function CategoryCard({ icon, name, type }) {
         cursor: "pointer",
     };
 
+    const deleteBtnStyle = {
+        fontSize: "22px",
+        cursor: "pointer",
+        padding: "10px",
+    };
+
     return (
         <div style={cardContainerStyle} onClick={handleClick}>
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
@@ -37,7 +40,14 @@ function CategoryCard({ icon, name, type }) {
                 </div>
             </div>
 
-            <i className="bi bi-trash3-fill" style={{ fontSize: "22px" }}></i>
+            <i 
+                className="bi bi-trash3-fill" 
+                style={deleteBtnStyle}
+                onClick={(e) => {
+                    e.stopPropagation();   // prevents triggering edit navigation
+                    onDelete({ name });
+                }}
+            ></i>
         </div>
     );
 }

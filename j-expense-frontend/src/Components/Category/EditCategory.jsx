@@ -13,12 +13,12 @@ function EditCategory() {
         alignItems: "center",
         fontFamily: "Inter, sans-serif",
         background: "linear-gradient(135deg, #c7e8ff, #ffe6cc)",
-        width: "700px",          // <-- smaller width
-        minHeight: "600px",      // <-- smaller height
+        width: "700px",          
+        minHeight: "600px",     
         boxSizing: "border-box",
-        borderRadius: "20px",    // optional: rounded corners
-        margin: "50px auto",     // centers the container horizontally
-        boxShadow: "0 4px 15px rgba(0,0,0,0.2)", // optional: nice shadow
+        borderRadius: "20px",   
+        margin: "50px auto",    
+        boxShadow: "0 4px 15px rgba(0,0,0,0.2)", 
     };
 
 
