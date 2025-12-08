@@ -1,3 +1,25 @@
+/**
+ * AllTransactions.jsx
+ * ------------------------
+ * A component to display a combined list of all transactions (income and expenses) in a table-like layout.
+ *
+ * Features:
+ * - Renders a header row with columns: Item, Date, Amount.
+ * - Displays each transaction with an icon (via CategoryTile), name, date, and amount.
+ * - Amounts are styled in green for income and red for expenses.
+ * - Scrollable content area for long lists of transactions.
+ * - Responsive container that fills available vertical space without overflowing.
+ *
+ * Props / State:
+ * - `data` (array): hardcoded list of transactions, each with fields: item, date, amount, type ("income" or "expense").
+ *
+ * Notes:
+ * - Uses CSS Grid for column layout.
+ * - Uses flexbox for item + icon alignment.
+ * - Container and content areas use flex and overflow to ensure scrollable content.
+ * - Supports dynamic addition of more transactions by extending the `data` array.
+ */
+
 import React from "react";
 import { useTransactions } from "../../context/TransactionsContext";
 import CategoryTile from "../../Components/Category/CategoryTile";

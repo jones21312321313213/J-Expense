@@ -1,6 +1,6 @@
 
 
-// this is the add Icon on the select category
+// this is + on both goals and budget
 function Add({ onClick }) {
     const bgStyle = {
         backgroundColor: "#D9D9D9",

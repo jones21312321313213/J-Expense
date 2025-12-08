@@ -3,7 +3,8 @@ import Sidebar from "../Components/Sidebar";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import bgImage from "../assets/dashbg.jpg";
-import AddTransactionButton from "../Components/Transactions/AddTransactionButton"; // import your FAB
+import AddTransactionButton from "../Components/Transactions/AddTransactionButton";
+
 
 function Base() {
   // Disable zoom shortcuts

@@ -1,9 +1,49 @@
+/**
+ * SetPeriod.jsx
+ * --------------
+ * A modal component for selecting a recurring period for transactions or budgets.
+ *
+ * Features:
+ * - Displays options: Daily, Weekly, Monthly, Yearly.
+ * - Highlights the currently selected period.
+ * - Includes a close button and a "Set period length" action button.
+ * - Styled with inline styles for quick customization.
+ * - Includes hover and active effects on the confirmation button.
+ *
+ * Props:
+ * - `initialPeriod` (string): The default selected period (default: 'Monthly').
+ * - `onSelectPeriod` (function): Callback called with the selected period when confirmed.
+ * - `onClose` (function): Callback called when the modal is closed.
+ *
+ * Notes:
+ * - The modal overlays the entire screen with a semi-transparent background.
+ * - Selection is controlled locally via internal state `localSelection`.
+ * - Supports keyboard and mouse interactions via radio buttons and buttons.
+ */
 import React, { useState } from 'react';
 
 function SetPeriod({ initialPeriod = 'Monthly', onSelectPeriod, onClose }) {
-  const [localSelection, setLocalSelection] = useState(initialPeriod);
+  // Normalize incoming initialPeriod to canonical short form ('Day','Week','Month','Year')
+  const normalize = (p) => {
+    if (!p) return 'Month';
+    const s = p.toString().toLowerCase();
+    if (s.includes('day')) return 'Day';
+    if (s.includes('week')) return 'Week';
+    if (s.includes('month')) return 'Month';
+    if (s.includes('year')) return 'Year';
+    return 'Month';
+  };
+
+  // Periods shown to the user with friendly labels but canonical values returned
+  const periods = [
+    { value: 'Day', label: 'Daily' },
+    { value: 'Week', label: 'Weekly' },
+    { value: 'Month', label: 'Monthly' },
+    { value: 'Year', label: 'Yearly' }
+  ];
+
+  const [localSelection, setLocalSelection] = useState(normalize(initialPeriod));
   const [showModal, setShowModal] = useState(true);
-  const periods = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 
   if (!showModal) return null;
 
@@ -113,20 +153,20 @@ function SetPeriod({ initialPeriod = 'Monthly', onSelectPeriod, onClose }) {
 
         <div style={optionsStyle}>
           {periods.map((period, index) => {
-            const isSelected = localSelection === period;
+            const isSelected = localSelection === period.value;
             return (
-              <label key={period} style={getLabelStyle(isSelected)}>
+              <label key={period.value} style={getLabelStyle(isSelected)}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <input
                     type="radio"
                     name="periodRadio"
                     id={`periodRadio${index}`}
-                    value={period}
+                    value={period.value}
                     checked={isSelected}
-                    onChange={() => setLocalSelection(period)}
+                    onChange={() => setLocalSelection(period.value)}
                     style={radioStyle}
                   />
-                  <span style={spanStyle(isSelected)}>{period}</span>
+                  <span style={spanStyle(isSelected)}>{period.label}</span>
                 </div>
               </label>
             );

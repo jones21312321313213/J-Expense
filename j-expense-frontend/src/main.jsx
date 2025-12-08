@@ -6,6 +6,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; 
 
+import App from './App'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import CategoryCard from './Components/Category/CategoryCard';
+import EditBudget from './Components/Budget/EditBudget';
+
+
 import App from './App';
 
 // ✅ Correct casing for all component imports
