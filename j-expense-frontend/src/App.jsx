@@ -24,7 +24,7 @@ import GoalsDetails from './pages/GoalsDetails'
 import CategoryDetails from './pages/CategoryDetails'
 import AddTransactionPage from './pages/AddTransactionPage';
 import EditSettingsAccount from './Components/Settings/EditSettingsAccount'
-
+import EditCategory from './Components/Category/EditCategory';
 
 
 
@@ -63,6 +63,8 @@ function App() {
         <Route path="budget-details" element={<BudgetDetails />} />
         <Route path="goals-details" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
+        <Route path="/edit-category" element={<EditCategory />} />
+
       </Route>
     </Routes>
   );

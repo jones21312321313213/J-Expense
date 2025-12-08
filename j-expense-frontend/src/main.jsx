@@ -8,7 +8,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import App from './App'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
-
+import CategoryCard from './Components/Category/CategoryCard';
+import EditBudget from './Components/Budget/EditBudget';
 
 
 
