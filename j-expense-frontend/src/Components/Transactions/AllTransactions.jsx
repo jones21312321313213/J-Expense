@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png"; // fallback icon
 import { transactionService } from '../Services/TransactionsService';
+import { useNavigate } from "react-router-dom";
 
 function AllTransactions() {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch transactions from backend
   useEffect(() => {
@@ -57,44 +59,47 @@ function AllTransactions() {
 
       {/* Scrollable Section */}
       <div style={contentStyle}>
-        {data.map((row, index) => (
-          <div
-            key={index}
+      {data.map((row, index) => (
+        <div
+          key={index}
+          onClick={() => navigate("/edit-transaction", { state: { transactionId: row.id } })}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 2fr 1fr",
+            padding: "12px 0",
+            alignItems: "center",
+            cursor: "pointer",
+            transition: "0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#f7f7f7")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          {/* ITEM + ICON */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <CategoryTile
+              name=""
+              icon={foodBg}
+              bgColor="#f1f1f1"
+              textColor="black"
+            />
+            <span>{row.item}</span>
+          </div>
+
+          <span>{row.date}</span>
+
+          <span style={descriptionStyle}>{row.description || "-"}</span>
+
+          <span
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 2fr 1fr",
-              padding: "12px 0",
-              alignItems: "center",
+              textAlign: "right",
+              fontWeight: 500,
+              color: row.type === "income" ? "green" : "red",
             }}
           >
-            {/* ITEM + ICON */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <CategoryTile
-                name=""
-                icon={foodBg} // placeholder icon for now
-                bgColor="#f1f1f1"
-                textColor="black"
-              />
-              <span>{row.item}</span>
-            </div>
-
-            <span>{row.date}</span>
-
-            {/* Description with wrap */}
-            <span style={descriptionStyle}>{row.description || "-"}</span>
-
-            {/* Amount with color */}
-            <span
-              style={{
-                textAlign: "right",
-                fontWeight: 500,
-                color: row.type === "income" ? "green" : "red",
-              }}
-            >
-              {row.amount}
-            </span>
-          </div>
-        ))}
+            {row.amount.toLocaleString()}
+          </span>
+        </div>
+      ))}
       </div>
     </div>
   );

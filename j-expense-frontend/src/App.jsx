@@ -25,6 +25,7 @@ import CategoryDetails from './pages/CategoryDetails'
 import AddTransactionPage from './pages/AddTransactionPage';
 import EditSettingsAccount from './Components/Settings/EditSettingsAccount'
 import EditCategory from './Components/Category/EditCategory';
+import EditTransaction from './Components/Transactions/EditTransaction';
 
 
 
@@ -51,6 +52,7 @@ function App() {
         <Route path = "budgets" element = {<Budgets/>} />
         <Route path = "transactions" element = {<Transactions/>} />
         <Route path="add-transaction" element={<AddTransactionPage />} />
+        <Route path="edit-transaction" element={<EditTransaction />} />
         <Route path = "bills" element = {<Bills/>} />
         <Route path = "expenses" element = {<Expenses/>} />
         <Route path = "goals" element = {<Goals/>} /> 

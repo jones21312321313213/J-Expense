@@ -15,7 +15,7 @@ public class TransactionDTO {
     private String description;
     private String name;
     private int userID;
-    // private int categoryID; // Also include category ID if needed
+    private int categoryID; // Also include category ID if needed
 
     private Boolean isIncome; // Flag to determine type 
 
