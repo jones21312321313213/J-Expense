@@ -59,7 +59,7 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="edit-settings-account" element={<EditSettingsAccount />} />
         <Route path="budget-details" element={<BudgetDetails />} />
-        <Route path="goals/:id" element={<GoalsDetails />} />
+        <Route path="goals-details" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
         <Route path="/edit-category" element={<EditCategory />} />
       </Route>
