@@ -10,10 +10,11 @@ export const transactionService = {
       
       const transactions = await response.json();
 
-      // Map backend data to front-end format
+      // Map backend data to front-end format, including description
       return transactions.map((t) => ({
         item: t.name,
         date: t.creation_date.split('T')[0], // Only date part
+        description: t.description || "-",   // <-- added description
         amount: `₱${Number(t.amount).toLocaleString()}`,
         type: t.incomeFlag ? 'income' : 'expense',
       }));

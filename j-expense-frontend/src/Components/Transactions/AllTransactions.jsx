@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png"; // fallback icon
 import { transactionService } from '../../Components/TransactionsService';
+
 function AllTransactions() {
   const [data, setData] = useState([]);
-
 
   // Fetch transactions from backend
   useEffect(() => {
@@ -15,7 +15,6 @@ function AllTransactions() {
       })
       .catch(err => console.error("Failed to fetch transactions:", err));
   }, []);
-
 
   const containerStyle = {
     width: "100%",
@@ -32,32 +31,43 @@ function AllTransactions() {
     paddingRight: "5px",
   };
 
+  const descriptionStyle = {
+    whiteSpace: "normal", // allow wrapping
+    wordBreak: "break-word", // break long words
+    overflowWrap: "anywhere",
+    maxWidth: "400px", // adjust as needed
+  };
+
   return (
     <div style={containerStyle}>
+      {/* Table Header */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 2fr 1fr",
           fontWeight: 600,
           padding: "10px 0",
         }}
       >
         <span>Item</span>
         <span>Date</span>
+        <span>Description</span>
         <span style={{ textAlign: "right" }}>Amount</span>
       </div>
 
+      {/* Scrollable Section */}
       <div style={contentStyle}>
         {data.map((row, index) => (
           <div
             key={index}
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
+              gridTemplateColumns: "1fr 1fr 2fr 1fr",
               padding: "12px 0",
               alignItems: "center",
             }}
           >
+            {/* ITEM + ICON */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <CategoryTile
                 name=""
@@ -70,6 +80,10 @@ function AllTransactions() {
 
             <span>{row.date}</span>
 
+            {/* Description with wrap */}
+            <span style={descriptionStyle}>{row.description || "-"}</span>
+
+            {/* Amount with color */}
             <span
               style={{
                 textAlign: "right",
