@@ -39,27 +39,26 @@ public class BudgetController {
     }
 
     // GET: Get Budget by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<BudgetEntity> getBudgetById(@PathVariable int id) {
-        return budgetService.getBudgetById(id)
+    @GetMapping("/{budgetID}")
+    public ResponseEntity<BudgetEntity> getBudgetById(@PathVariable int budgetID) {
+        return budgetService.getBudgetById(budgetID)
                 .map(budget -> new ResponseEntity<>(budget, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
-
-
-
-
 
     // PUT: Update an existing Budget
-    @PutMapping("/{id}")
-    public ResponseEntity<BudgetEntity> updateBudget(@PathVariable int id, @RequestBody BudgetEntity budgetDetails) {
-        return budgetService.getBudgetById(id)
+    @PutMapping("/{budgetID}")
+    public ResponseEntity<BudgetEntity> updateBudget(@PathVariable int budgetID, @RequestBody BudgetEntity budgetDetails) {
+        return budgetService.getBudgetById(budgetID)
                 .map(existingBudget -> {
                     // Update fields
+                    existingBudget.setType(budgetDetails.getType());
+                    existingBudget.setName(budgetDetails.getName());
                     existingBudget.setCategory_name(budgetDetails.getCategory_name());
                     existingBudget.setTotal_amount(budgetDetails.getTotal_amount());
                     existingBudget.setPeriod(budgetDetails.getPeriod());
+                    existingBudget.setBeginning(budgetDetails.getBeginning());
+                    existingBudget.setFrequency(budgetDetails.getFrequency());
                     
                     BudgetEntity updatedBudget = budgetService.saveBudget(existingBudget);
                     return new ResponseEntity<>(updatedBudget, HttpStatus.OK);
@@ -68,10 +67,10 @@ public class BudgetController {
     }
 
     // DELETE: Delete Budget by ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBudget(@PathVariable int id) {
-        if (budgetService.getBudgetById(id).isPresent()) {
-            budgetService.deleteBudget(id);
+    @DeleteMapping("/{budgetID}")
+    public ResponseEntity<Void> deleteBudget(@PathVariable int budgetID) {
+        if (budgetService.getBudgetById(budgetID).isPresent()) {
+            budgetService.deleteBudget(budgetID);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

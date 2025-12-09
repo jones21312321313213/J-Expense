@@ -23,17 +23,18 @@
  * - `onCreateBudget`: Function to receive the final budget data when the user confirms.
  */
 
-
 import React, { useState } from 'react'
 import AddBudget from "./AddBudget";
 import SelectCategory from '../../Components/Category/SelectCategory'
 import SetAmount from '../setAmount'
+import { budgetService } from '../Services/budgetService'
 
 function SelectBudgetType({ onClose, onCreateBudget }) {
     const [pendingType, setPendingType] = useState(null)
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedAmount, setSelectedAmount] = useState(null)
     const [showSetAmount, setShowSetAmount] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     // State for AddBudget inputs
     const [name, setName] = useState('')
@@ -54,69 +55,99 @@ function SelectBudgetType({ onClose, onCreateBudget }) {
         setShowSetAmount(false)
     }
 
-const handleAddBudget = (extra = {}) => {
-    // Reset previous error
-    setError(null);
+    const handleAddBudget = async (extra = {}) => {
+        // Reset previous error
+        setError(null);
+        setIsLoading(true);
 
-    // Merge values: prefer values passed in `extra` (from SelectCategory) otherwise use component state
-    const mergedName = (extra.name && extra.name.trim()) || name.trim();
-    const mergedFrequency = extra.frequency !== undefined ? Number(extra.frequency) : Number(frequency);
-    const mergedBeginning = extra.beginning || beginning;
-    const mergedPeriodRaw = extra.periodUnit || periodUnit;
+        // Merge values: prefer values passed in `extra` (from SelectCategory) otherwise use component state
+        const mergedName = (extra.name && extra.name.trim()) || name.trim();
+        const mergedFrequency = extra.frequency !== undefined ? Number(extra.frequency) : Number(frequency);
+        const mergedBeginning = extra.beginning || beginning;
+        const mergedPeriodRaw = extra.periodUnit || periodUnit;
 
-    // Validate each field individually
-    if (!selectedCategory) return setError("Please select a category");
-    if (!mergedName) return setError("Please enter a budget name");
-    if (!selectedAmount || selectedAmount <= 0) return setError("Please set a valid budget amount");
-    if (!mergedFrequency || mergedFrequency <= 0) return setError("Please enter a valid frequency");
-    if (!mergedPeriodRaw) return setError("Please select a period unit");
-    if (!mergedBeginning) return setError("Please select a beginning date");
+        // Validate each field individually
+        if (!selectedCategory) {
+            setIsLoading(false);
+            return setError("Please select a category");
+        }
+        if (!mergedName) {
+            setIsLoading(false);
+            return setError("Please enter a budget name");
+        }
+        if (!selectedAmount || selectedAmount <= 0) {
+            setIsLoading(false);
+            return setError("Please set a valid budget amount");
+        }
+        if (!mergedFrequency || mergedFrequency <= 0) {
+            setIsLoading(false);
+            return setError("Please enter a valid frequency");
+        }
+        if (!mergedPeriodRaw) {
+            setIsLoading(false);
+            return setError("Please select a period unit");
+        }
+        if (!mergedBeginning) {
+            setIsLoading(false);
+            return setError("Please select a beginning date");
+        }
 
-    // Normalize periodUnit to a canonical short form so budgets computation is consistent
-    const normalizePeriod = (p) => {
-        if (!p) return '';
-        const s = p.toString().toLowerCase();
-        if (s.includes('day')) return 'Day';
-        if (s.includes('week')) return 'Week';
-        if (s.includes('month')) return 'Month';
-        if (s.includes('year')) return 'Year';
-        return p;
+        // Normalize periodUnit to a canonical short form so budgets computation is consistent
+        const normalizePeriod = (p) => {
+            if (!p) return '';
+            const s = p.toString().toLowerCase();
+            if (s.includes('day')) return 'Day';
+            if (s.includes('week')) return 'Week';
+            if (s.includes('month')) return 'Month';
+            if (s.includes('year')) return 'Year';
+            return p;
+        };
+
+        const canonicalPeriod = normalizePeriod(mergedPeriodRaw);
+
+        // Build payload
+        const payload = {
+            type: pendingType,
+            category: selectedCategory,
+            name: mergedName,
+            amount: selectedAmount,
+            frequency: mergedFrequency,
+            period: `${mergedFrequency} ${canonicalPeriod}`,
+            beginning: mergedBeginning
+        };
+
+        try {
+            // Call the backend API
+            const savedBudget = await budgetService.createBudget(payload);
+            console.log('Budget saved successfully:', savedBudget);
+
+            // Call parent callback if provided
+            if (onCreateBudget) {
+                onCreateBudget(savedBudget);
+            }
+
+            // Show success message
+            alert('Budget created successfully!');
+
+            // Reset states after adding
+            setPendingType(null);
+            setSelectedCategory(null);
+            setSelectedAmount(null);
+            setName('');
+            setFrequency(1);
+            setPeriodUnit('Month');
+            setBeginning('');
+            setError(null);
+
+            // Close modal
+            onClose();
+        } catch (error) {
+            setError('Failed to create budget. Please try again.');
+            console.error('Error creating budget:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    const canonicalPeriod = normalizePeriod(mergedPeriodRaw);
-
-    // Build payload
-    const payload = {
-        type: pendingType,
-        category: selectedCategory,
-        name: mergedName,
-        amount: selectedAmount,
-        frequency: mergedFrequency,
-        periodUnit: canonicalPeriod,
-        beginning: mergedBeginning
-    };
-
-    // Pass payload to parent or show alert
-    if (onCreateBudget) {
-        onCreateBudget(payload);
-    } else {
-        alert(`Added ${payload.type} • ${payload.category} • ${payload.name} (P ${payload.amount})`);
-    }
-
-    // Reset states after adding
-    setPendingType(null);
-    setSelectedCategory(null);
-    setSelectedAmount(null);
-    setName('');
-    setFrequency(1);
-    setPeriodUnit('Month');
-    setBeginning('');
-    setError(null);
-
-    // Close modal
-    onClose();
-};
-
 
     const handleCancelAmount = () => setShowSetAmount(false)
 
@@ -211,20 +242,22 @@ const handleAddBudget = (extra = {}) => {
                     {/* Add Budget Button at bottom */}
                     <button
                         onClick={handleAddBudget}
+                        disabled={isLoading}
                         style={{
                             marginTop: '30px',
                             width: '100%',
                             maxWidth: '400px',
                             padding: '20px',
                             fontSize: '1.3rem',
-                            background: 'rgba(0, 128, 128, 0.7)',
+                            background: isLoading ? '#cccccc' : 'rgba(0, 128, 128, 0.7)',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '10px',
-                            cursor: 'pointer'
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                            opacity: isLoading ? 0.6 : 1
                         }}
                     >
-                        Add Budget
+                        {isLoading ? 'Adding Budget...' : 'Add Budget'}
                     </button>
                 </>
             )}
