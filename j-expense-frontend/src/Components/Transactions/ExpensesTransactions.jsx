@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png"; // fallback icon
-import { transactionService } from "../../Components/TransactionsService";
+import { transactionService } from "../Services/TransactionsService";
 
 function ExpensesTransactions() {
   const [data, setData] = useState([]);
