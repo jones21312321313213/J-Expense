@@ -6,7 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "tbl_expense")
 public class ExpenseEntity 
@@ -20,46 +24,6 @@ public class ExpenseEntity
     private String payment_method;
 
     @Column(name = "is_recurring")
-    private boolean is_recurring;
+    private boolean reccuring;
 
-    public ExpenseEntity() {
-        super();
-    }
-
-    public ExpenseEntity(int expenseID, String payment_method, boolean is_recurring) 
-    {
-        super();
-        this.expenseID = expenseID;
-        this.payment_method = payment_method;
-        this.is_recurring = is_recurring;
-    }
-    
-    //setters
-    public void setExpenseID(int expense_id)
-    {
-        this.expenseID = expense_id;
-    }
-    public void setPayment_method(String payment_method) 
-    {
-        this.payment_method = payment_method;
-    }
-    public void setIs_recurring(boolean is_recurring)
-    {
-        this.is_recurring = is_recurring;
-    }
-
-    //getters
-    public int getExpenseID() 
-    {
-        return expenseID;
-    }
-    public String getPayment_method() 
-    {
-        return payment_method;
-    }
-    
-    public boolean isIs_recurring() 
-    {
-        return is_recurring;
-    }
 }
