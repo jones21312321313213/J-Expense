@@ -18,8 +18,9 @@ function ExpensesTransactions() {
           .map((t) => ({
             item: t.item,
             date: t.date,
+            description: t.description || "-", // include description
             amount: t.amount,
-            icon: foodBg, // placeholder icon; you can replace this with a category-based icon later
+            icon: foodBg, // placeholder icon
           }));
 
         console.log("Fetched expense transactions:", expenses); // Debug print
@@ -49,13 +50,14 @@ function ExpensesTransactions() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
           fontWeight: 600,
           padding: "10px 0",
         }}
       >
         <span>Item</span>
         <span>Date</span>
+        <span>Description</span>
         <span style={{ textAlign: "right" }}>Amount</span>
       </div>
 
@@ -66,7 +68,7 @@ function ExpensesTransactions() {
             key={index}
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr",
               padding: "12px 0",
               alignItems: "center",
             }}
@@ -83,6 +85,7 @@ function ExpensesTransactions() {
             </div>
 
             <span>{row.date}</span>
+            <span>{row.description}</span>
 
             {/* RED AMOUNT */}
             <span

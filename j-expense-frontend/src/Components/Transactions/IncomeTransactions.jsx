@@ -18,8 +18,9 @@ function IncomeTransactions() {
           .map((t) => ({
             item: t.item,
             date: t.date,
+            description: t.description || "-", // include description
             amount: t.amount,
-            icon: foodBg, // placeholder icon; you can replace with category-based icons later
+            icon: foodBg, // placeholder icon; replace with category icon if needed
           }));
 
         console.log("Fetched income transactions:", incomes); // Debug print
@@ -49,13 +50,14 @@ function IncomeTransactions() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
           fontWeight: 600,
           padding: "10px 0",
         }}
       >
         <span>Item</span>
         <span>Date</span>
+        <span>Description</span>
         <span style={{ textAlign: "right" }}>Amount</span>
       </div>
 
@@ -66,7 +68,7 @@ function IncomeTransactions() {
             key={index}
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr",
               padding: "12px 0",
               alignItems: "center",
             }}
@@ -83,6 +85,7 @@ function IncomeTransactions() {
             </div>
 
             <span>{row.date}</span>
+            <span>{row.description}</span>
 
             {/* GREEN AMOUNT */}
             <span
