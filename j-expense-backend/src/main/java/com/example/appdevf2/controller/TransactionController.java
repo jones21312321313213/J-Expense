@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.appdevf2.entity.TransactionDTO;
 import com.example.appdevf2.entity.TransactionEntity;
 import com.example.appdevf2.service.TransactionService;
 
@@ -26,16 +25,10 @@ public class TransactionController {
     private TransactionService tserv;
 
     // C - create a transaction
-    // @PostMapping("/insertTransaction")
-    // public TransactionEntity insertTransaction(@RequestBody TransactionEntity transaction) {
-    //     return tserv.insertTransaction(transaction);
-    // }
-
     @PostMapping("/insertTransaction")
-    public TransactionEntity insertTransaction(@RequestBody TransactionDTO dto) {
-        return tserv.insertTransaction(dto);
+    public TransactionEntity insertTransaction(@RequestBody TransactionEntity transaction) {
+        return tserv.insertTransaction(transaction);
     }
-
 
     // R - read all transactions
     @GetMapping("/getAllTransactions")

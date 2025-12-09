@@ -7,15 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.appdevf2.entity.UserEntity;
-import com.example.appdevf2.repository.CategoryRepository;
 import com.example.appdevf2.repository.UserRepository;
 @Service
 public class UserService {
     @Autowired
     UserRepository urepo;
-
-    @Autowired
-    CategoryRepository crepo;
     
 
     // C - Create or insert user record in tbl_user (including transactions)
