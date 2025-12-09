@@ -3,6 +3,7 @@ package com.example.appdevf2.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.example.appdevf2.service.GoalService;
 
 @RestController
 @RequestMapping("/api/goals")
+@CrossOrigin(origins = "http://localhost:5173") // allow React frontend
 public class GoalController {
 
     @Autowired
@@ -25,6 +27,7 @@ public class GoalController {
     // Create Goal
     @PostMapping("/addGoal")
     public GoalEntity addGoal(@RequestBody GoalEntity goal) {
+        // goalType and progress are included in the request body
         return goalService.saveGoal(goal);
     }
 
@@ -43,6 +46,7 @@ public class GoalController {
     // Update Goal
     @PutMapping("/updateGoal/{id}")
     public GoalEntity updateGoal(@PathVariable int id, @RequestBody GoalEntity goal) {
+        // goalType and progress can be updated here
         return goalService.updateGoal(id, goal);
     }
 

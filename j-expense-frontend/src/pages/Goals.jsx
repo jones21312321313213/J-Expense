@@ -1,47 +1,22 @@
-/**
- * Goals Component
- * ----------------
- * This component serves as the main dashboard for managing user goals.
- *
- * Features:
- *  - Displays a grid of existing goals using GoalProgressCard
- *  - Provides an "Add" button to open the SelectGoalType modal for adding new goals
- *  - Supports dynamic addition of goals with real-time state updates
- *  - Scrollable grid layout for multiple goals
- *  - Modal overlay for goal creation using SelectGoalType
- *
- * State:
- *  - goals: array, stores all created goal objects
- *  - showSelectGoalType: boolean, toggles visibility of the goal type selection modal
- *
- * Usage:
- *  - Typically used as a page or section in a dashboard
- *  - Can handle multiple goals and allows easy creation of new goals
- *
- * Notes:
- *  - Each goal object passed to GoalProgressCard must include:
- *      - name
- *      - amount
- *      - startDate
- *      - endDate
- *      - saved
- *      - progress
- *  - Inline styles are used for layout and appearance
- */
-
-
 import React, { useState } from "react";
 import Add from "../Components/Add";
 import SelectGoalType from "../Components/Goals/SelectGoalType";
 import GoalProgressCard from "../Components/Goals/GoalProgressCard";
+import { useGoals } from "../context/GoalsContext";
 
 function Goals() {
+  const goalsContext = useGoals();
+
+  if (!goalsContext) {
+    return <div style={{ padding: "20px", color: "red" }}>GoalsContext not available</div>;
+  }
+
+  const { goals, addGoal } = goalsContext;
   const [showSelectGoalType, setShowSelectGoalType] = useState(false);
 
-  const [goals, setGoals] = useState([]);
-
   const containerStyle = {
-    width: "100%",
+    marginLeft: "280px",              
+    width: "calc(100% - 280px)",      
     height: "80vh",
     display: "flex",
     flexDirection: "column",
@@ -76,8 +51,8 @@ function Goals() {
   const overlayStyle = {
     position: "fixed",
     top: 0,
-    left: 0,
-    width: "100vw",
+    left: "280px",                   
+    width: "calc(100vw - 280px)",     
     height: "100vh",
     backgroundColor: "rgba(0,0,0,0.4)",
     display: "flex",
@@ -85,36 +60,42 @@ function Goals() {
     alignItems: "center",
     zIndex: 1000,
   };
-  const addButtonStyle = { 
+
+  const addButtonStyle = {
     borderRadius: "30px",
-    overflow: "hidden", 
+    overflow: "hidden",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     height: "90px",
-    display: "flex", justifyContent: "center",
+    display: "flex",
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff", 
-    cursor: "pointer" };
-
+    backgroundColor: "#fff",
+    cursor: "pointer",
+  };
 
   const handleAddGoal = (newGoal) => {
-    setGoals((prev) => [...prev, newGoal]);
+    addGoal(newGoal); 
     setShowSelectGoalType(false);
   };
 
   return (
     <div style={containerStyle}>
-      <h1 style={titleStyle}>GOAL</h1>
+      <h1 style={titleStyle}>My Goals</h1>
 
       {/* Scroll area */}
       <div style={scrollAreaStyle}>
         <div style={gridStyle}>
           {/* Render all goals */}
-          {goals.map((goal, index) => (
-            <GoalProgressCard key={index} data={goal} />
+          {goals.map((goal) => (
+            <GoalProgressCard key={goal.id} data={goal} />
           ))}
 
           {/* Add Button */}
-          <div  style = {addButtonStyle} onClick={() => setShowSelectGoalType(true)}>
+          <div
+            style={addButtonStyle}
+            onClick={() => setShowSelectGoalType(true)}
+            aria-label="Add new goal"
+          >
             <Add />
           </div>
         </div>
@@ -125,7 +106,7 @@ function Goals() {
         <div style={overlayStyle}>
           <SelectGoalType
             onClose={() => setShowSelectGoalType(false)}
-            onSubmit={handleAddGoal} 
+            onSubmit={handleAddGoal}
           />
         </div>
       )}

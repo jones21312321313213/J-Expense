@@ -1,32 +1,3 @@
-/**
- * AddGoal Component
- * ----------------
- * This component provides a form for creating a new goal, including:
- *  - Goal name input
- *  - Goal amount input (opens a modal)
- *  - Start and end date selectors (opens a date picker)
- *  - A submit button to add the goal
- *  - Inline error messages for validation
- *
- * Features:
- *  - Uses inline styles for layout, spacing, and alignment.
- *  - Dynamically opens modals for setting amount and picking dates.
- *  - Validates input fields before submitting to parent component.
- *  - Sends a goal object to the parent via the `onSubmit` prop.
- *
- * Props:
- *  - name, setName: state for the goal name
- *  - amountValue, setAmountValue: state for the goal amount
- *  - startDate, setStartDate: state for the goal's start date
- *  - endDate, setEndDate: state for the goal's end date
- *  - onSubmit: function to handle submission of the new goal
- *
- * Usage:
- *  - Used within a modal or parent container to allow users to add goals.
- *  - Parent handles storing the new goal in state or sending it to a server.
- */
-
-
 import React, { useState } from "react";
 import SetAmount from "../SetAmount";
 import DatePicker from "../DatePicker";
@@ -42,6 +13,7 @@ function AddGoal({
   setStartDate,
   endDate,
   setEndDate,
+  goalType = "savings", // default, can be passed from SelectGoalType
   onSubmit,
 }) {
   const [showAmountModal, setShowAmountModal] = useState(false);
@@ -109,13 +81,14 @@ function AddGoal({
 
     setError("");
 
-    // send data to parent
+    // ✅ send data with backend field names
     onSubmit({
-      name,
-      amount: amountValue,
+      goalName: name,
+      targetAmount: amountValue,
+      currentAmount: 0,
       startDate,
       endDate,
-      saved: 0,
+      goalType, // "savings" or "expense"
       progress: 0,
     });
   };

@@ -39,6 +39,8 @@ public class GoalService {
             existingGoal.setCurrentAmount(updatedGoal.getCurrentAmount());
             existingGoal.setStartDate(updatedGoal.getStartDate());
             existingGoal.setEndDate(updatedGoal.getEndDate());
+            existingGoal.setGoalType(updatedGoal.getGoalType());   // ✅ new field
+            existingGoal.setProgress(updatedGoal.getProgress());   // ✅ new field
             return goalRepository.save(existingGoal);
         }
 
