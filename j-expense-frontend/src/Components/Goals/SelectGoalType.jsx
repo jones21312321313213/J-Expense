@@ -1,29 +1,3 @@
-/**
- * SelectGoalType Component
- * ------------------------
- * This component allows users to select a goal type and add a new goal.
- *
- * Features:
- *  - Default view shows two goal type cards: "Savings Goal" and "Expense Goal"
- *  - Clicking a card opens the AddGoal component for inputting goal details
- *  - Inline modals for setting amount (SetAmount) and picking dates (DatePicker)
- *  - Maintains internal state for:
- *      - selected goal type
- *      - goal name
- *      - goal amount
- *      - start and end dates
- *      - visibility of modals
- *
- * Props:
- *  - onClose: function, called to close the modal
- *  - onSubmit: function, called when a new goal is submitted from AddGoal
- *
- * Usage:
- *  - Typically displayed as a modal overlay to allow goal creation
- *  - Can be reused for multiple goal entries
- */
-
-
 import React, { useState } from "react";
 import AddGoal from "./AddGoal";
 import SetAmount from "../SetAmount";

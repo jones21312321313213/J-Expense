@@ -35,8 +35,6 @@ function App() {
       <Route path="/landing" element={<Landing />} /> {/*will change the path for this later*/}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
-
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/forgot-password/verify" element={<ForgotPasswordVerificationCode />} />
       <Route path="/forgot-password/change-password" element={<ForgotPasswordChangePassword />} />
@@ -61,13 +59,12 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="edit-settings-account" element={<EditSettingsAccount />} />
         <Route path="budget-details" element={<BudgetDetails />} />
-        <Route path="goals-details" element={<GoalsDetails />} />
+        <Route path="goals/:id" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
         <Route path="/edit-category" element={<EditCategory />} />
-
       </Route>
     </Routes>
   );
 }
 
-export default App;
+export default App; 
