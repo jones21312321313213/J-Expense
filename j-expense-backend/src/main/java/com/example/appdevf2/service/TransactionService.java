@@ -2,6 +2,7 @@ package com.example.appdevf2.service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,19 @@ public class TransactionService {
         return trepo.findById(id).orElse(null);
     }
 
+    
+    public List<TransactionEntity> getTransactionsByUser(int userId) {
+        // Fetch all transactions
+        List<TransactionEntity> all = trepo.findAll();
+
+        // Filter in memory by user ID
+        return all.stream()
+                .filter(t -> t.getUser() != null && t.getUser().getUserID() == userId)
+                .collect(Collectors.toList());
+    }
+
+
+    
     // U - Update a transaction
     @SuppressWarnings("finally")
     public TransactionEntity updateTransaction(int tid, TransactionEntity newTransactionDetails) {

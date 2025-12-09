@@ -1,49 +1,43 @@
-/**
- * IncomeTransactions.jsx
- * ----------------------
- * A component to display a scrollable list of income transactions in a table-like layout.
- *
- * Features:
- * - Renders a header row with columns: Item, Date, Amount.
- * - Displays each transaction with an icon (via CategoryTile), name, date, and amount.
- * - Amounts are styled in green to indicate income.
- * - Scrollable content area for long lists of transactions.
- * - Responsive container that fills available vertical space without overflowing.
- *
- * Props / State:
- * - `data` (array): hardcoded list of income transactions with fields: item, date, amount, icon.
- *
- * Notes:
- * - Uses CSS Grid for column layout.
- * - Uses flexbox for item + icon alignment.
- * - Container and content areas use flex and overflow to ensure scrollable content.
- * - Supports dynamic addition of more transactions by extending the `data` array.
- */
-
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
-import foodBg from "../../assets/foodCategory.png";
+import foodBg from "../../assets/foodCategory.png"; // fallback icon
+import { transactionService } from "../../Components/TransactionsService";
 
 function IncomeTransactions() {
-  const data = [
-    { item: "Salary", date: "2025-12-01", amount: "₱15,000", icon: "/icons/salary.png" },
-    { item: "Freelance Work", date: "2025-11-28", amount: "₱3,200", icon: "/icons/freelance.png" },
-    { item: "Bonus", date: "2025-11-25", amount: "₱1,000", icon: "/icons/bonus.png" },
-  ];
+  const [data, setData] = useState([]);
 
-  // Container style: responsive height
+  // Hardcoded userId for now
+  const userId = 27;
+
+  useEffect(() => {
+    transactionService.getTransactionsByUser(userId)
+      .then((transactions) => {
+        // Filter only income transactions
+        const incomes = transactions
+          .filter((t) => t.type === "income")
+          .map((t) => ({
+            item: t.item,
+            date: t.date,
+            amount: t.amount,
+            icon: foodBg, // placeholder icon; you can replace with category-based icons later
+          }));
+
+        console.log("Fetched income transactions:", incomes); // Debug print
+        setData(incomes);
+      })
+      .catch((err) => console.error("Failed to fetch transactions:", err));
+  }, []);
+
   const containerStyle = {
     width: "100%",
-    flex: 1,                 // take remaining space from parent
+    flex: 1,
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden",      // prevent overflow outside container
+    overflow: "hidden",
   };
 
-  // Scrollable content style
   const contentStyle = {
-    flex: 1,                 // fill remaining height
+    flex: 1,
     overflowY: "auto",
     paddingTop: "10px",
     paddingRight: "5px",
@@ -81,7 +75,7 @@ function IncomeTransactions() {
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <CategoryTile
                 name=""
-                icon={foodBg}
+                icon={row.icon}
                 bgColor="#f1f1f1"
                 textColor="black"
               />
