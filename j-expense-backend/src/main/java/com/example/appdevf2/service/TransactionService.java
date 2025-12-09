@@ -117,24 +117,94 @@ public class TransactionService {
 
     
     // U - Update a transaction
-    @SuppressWarnings("finally")
-    public TransactionEntity updateTransaction(int tid, TransactionEntity newTransactionDetails) {
-        TransactionEntity t = new TransactionEntity();
-        try {
-            // 1) Search the transaction by ID
-            t = trepo.findById(tid).get();
+    // @SuppressWarnings("finally")
+    // public TransactionEntity updateTransaction(int tid, TransactionEntity newTransactionDetails) {
+    //     TransactionEntity t = new TransactionEntity();
+    //     try {
+    //         // 1) Search the transaction by ID
+    //         t = trepo.findById(tid).get();
 
-            // 2) Update the record
-            t.setAmount(newTransactionDetails.getAmount());
-            t.setCreation_date(newTransactionDetails.getCreation_date());
-            t.setDescription(newTransactionDetails.getDescription());
+    //         // 2) Update the record
+    //         t.setAmount(newTransactionDetails.getAmount());
+    //         t.setCreation_date(newTransactionDetails.getCreation_date());
+    //         t.setDescription(newTransactionDetails.getDescription());
 
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Transaction: " + tid + " is not found");
-        } finally {
-            return trepo.save(t);
+    //     } catch (NoSuchElementException e) {
+    //         throw new NoSuchElementException("Transaction: " + tid + " is not found");
+    //     } finally {
+    //         return trepo.save(t);
+    //     }
+    // }
+
+
+    // U - Update a transaction
+    // Overloaded method that accepts TransactionEntity
+    public TransactionEntity updateTransaction(int tid, TransactionEntity entity) {
+        TransactionDTO dto = new TransactionDTO();
+        dto.setAmount(entity.getAmount());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setUserID(entity.getUser() != null ? entity.getUser().getUserID() : 0);
+        dto.setCategoryID(entity.getCategory() != null ? entity.getCategory().getCategoryID() : 0);
+        dto.setIsIncome(entity.getIncomeFlag());
+        
+        if (entity.getIncome() != null) {
+            dto.setType(entity.getIncome().getType());
         }
+        if (entity.getExpense() != null) {
+            dto.setPaymentMethod(entity.getExpense().getPayment_method());
+           // dto.setIsRecurring(entity.getExpense().getReccuring());
+        }
+        // Add other fields mapping if needed
+
+        return updateTransaction(tid, dto); // call main DTO method
     }
+
+    // Main update logic using TransactionDTO
+    public TransactionEntity updateTransaction(int tid, TransactionDTO dto) {
+        TransactionEntity t = trepo.findById(tid)
+            .orElseThrow(() -> new NoSuchElementException("Transaction not found with ID: " + tid));
+
+        // Update basic fields
+        t.setAmount(dto.getAmount());
+        t.setCreation_date(dto.getCreation_date()); // ensure valid Date
+        t.setDescription(dto.getDescription());
+        t.setName(dto.getName());
+
+        // Update category
+        if (dto.getCategoryID() > 0) {
+            crepo.findById(dto.getCategoryID())
+                .ifPresentOrElse(
+                    t::setCategory,
+                    () -> { throw new NoSuchElementException("Category not found with ID: " + dto.getCategoryID()); }
+                );
+        }
+
+        // Update transaction type
+        if (dto.getIsIncome() != null) {
+            t.setIncomeFlag(dto.getIsIncome());
+
+            if (dto.getIsIncome()) {
+                IncomeEntity income = t.getIncome();
+                if (income == null) income = new IncomeEntity();
+                income.setType(dto.getType());
+                t.setIncome(irepo.save(income));
+                t.setExpense(null);
+            } else {
+                ExpenseEntity expense = t.getExpense();
+                if (expense == null) expense = new ExpenseEntity();
+                expense.setPayment_method(dto.getPaymentMethod());
+                expense.setReccuring(dto.getIsRecurring());
+                t.setExpense(erepo.save(expense));
+                t.setIncome(null);
+            }
+        }
+
+        // TODO: handle recurrence
+        return trepo.save(t);
+    }
+
+
 
     // D - Delete a transaction
     public String deleteTransaction(int tid) {
