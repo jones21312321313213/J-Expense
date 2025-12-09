@@ -1,48 +1,41 @@
-/**
- * GoalProgressCard Component
- * --------------------------
- * This component displays a visual summary of a goal, showing:
- *  - Goal name
- *  - Current saved amount vs total goal amount
- *  - Start and end dates
- *  - A horizontal progress bar indicating the completion percentage
- *  - Number of transactions associated with this goal
- *  - "Today" marker showing the current day's position relative to progress
- *
- * Features:
- *  - Uses inline styles for layout, colors, and spacing
- *  - Dynamically calculates progress percentage based on saved vs goal amount
- *  - Progress bar visually represents completion and displays percentage
- *  - Ensures percentage does not exceed 100%
- *
- * Props:
- *  - data: object containing goal details
- *      - name: string, goal name
- *      - amount: number, total goal amount
- *      - saved: number, amount already saved (default 0)
- *      - progress: number, number of transactions (default 0)
- *      - startDate:*
-*/
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useGoals } from "../../context/GoalsContext";
+import { FaTrash } from "react-icons/fa"; // install: npm install react-icons
 
 function GoalProgressCard({ data }) {
+  const { deleteGoal } = useGoals();
+  const navigate = useNavigate();
+
   const {
-    name,
-    amount,
-    startDate,
+    goalID,
+    goalName,
+    targetAmount = 0,
+    currentAmount = 0,
     endDate,
-    saved = 0,
     progress = 0,
   } = data;
 
-  const currentAmount = saved;
-  const goalAmount = amount;
+  const goalAmount = targetAmount || 0;
+  const saved = currentAmount || 0;
 
   const progressPercentage =
-    goalAmount === 0 ? 0 : Math.min((currentAmount / goalAmount) * 100, 100);
+    goalAmount === 0 ? 0 : Math.min((saved / goalAmount) * 100, 100);
+
+  const handleDelete = (e) => {
+    e.stopPropagation(); // prevent navigation when clicking delete
+    if (window.confirm("Are you sure you want to delete this goal?")) {
+      deleteGoal(goalID);
+    }
+  };
+
+  const handleClick = () => {
+    navigate(`/goals/${goalID}`);
+  };
 
   return (
     <div
+      onClick={handleClick}
       style={{
         width: "100%",
         maxWidth: "600px",
@@ -51,8 +44,28 @@ function GoalProgressCard({ data }) {
         background: "#fff",
         boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
         fontFamily: "Arial, sans-serif",
+        position: "relative",
+        cursor: "pointer",
       }}
     >
+      {/* 🗑️ DELETE BUTTON */}
+      <button
+        onClick={handleDelete}
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          color: "#ef4444",
+          fontSize: "1rem",
+        }}
+        title="Delete Goal"
+      >
+        <FaTrash />
+      </button>
+
       {/* HEADER */}
       <div
         style={{
@@ -68,7 +81,7 @@ function GoalProgressCard({ data }) {
             fontWeight: "700",
           }}
         >
-          {name}
+          {goalName || "Untitled Goal"}
         </h3>
 
         <p
@@ -78,7 +91,7 @@ function GoalProgressCard({ data }) {
             fontWeight: "600",
           }}
         >
-          Save ₱{(goalAmount - currentAmount).toFixed(2)} remaining
+          Save ₱{(goalAmount - saved).toFixed(2)} remaining
         </p>
       </div>
 
@@ -101,7 +114,7 @@ function GoalProgressCard({ data }) {
         >
           <span>{progress} transactions</span>
           <span>
-            ₱{currentAmount}/₱{goalAmount}
+            ₱{saved}/₱{goalAmount}
           </span>
         </div>
 
@@ -168,7 +181,12 @@ function GoalProgressCard({ data }) {
               fontSize: "0.75rem",
             }}
           >
-            {endDate ? new Date(endDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+            {endDate
+              ? new Date(endDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })
+              : ""}
           </div>
         </div>
       </div>
