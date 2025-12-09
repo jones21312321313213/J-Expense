@@ -6,7 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "tbl_income")
 public class IncomeEntity
@@ -18,37 +22,5 @@ public class IncomeEntity
 
     @Column(name = "type")
     private String type;
-
-    public IncomeEntity() {
-        super();
-    }
-
-    public IncomeEntity(int incomeID, String type) 
-    {
-        super();
-        this.incomeID = incomeID;
-        this.type = type;
-    }
-    
-    //getters
-    public int getIncomeID() 
-    {
-        return incomeID;
-    }
-    public String getType() 
-    {
-        return type;
-    }
-
-    //setters
-    public void setIncomeID(int incomeID) 
-    {
-        this.incomeID = incomeID;
-    }
-    
-    public void setType(String type) 
-    {
-        this.type = type;
-    }
 
 }

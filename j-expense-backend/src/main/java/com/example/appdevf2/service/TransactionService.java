@@ -6,10 +6,14 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.appdevf2.entity.ExpenseEntity;
+import com.example.appdevf2.entity.IncomeEntity;
 import com.example.appdevf2.entity.TransactionDTO;
 import com.example.appdevf2.entity.TransactionEntity;
 import com.example.appdevf2.entity.UserEntity;
 import com.example.appdevf2.repository.CategoryRepository;
+import com.example.appdevf2.repository.ExpenseRepository;
+import com.example.appdevf2.repository.IncomeRepository;
 import com.example.appdevf2.repository.TransactionRepository;
 import com.example.appdevf2.repository.UserRepository;
 
@@ -22,21 +26,30 @@ public class TransactionService {
     @Autowired
     private UserRepository urepo;
 
+    @Autowired
+    private CategoryRepository crepo;
+
+    @Autowired
+    private ExpenseRepository erepo;
+
+    @Autowired
+    private IncomeRepository irepo;
+
     // C - Create or insert transaction record
     // public TransactionEntity insertTransaction(TransactionEntity transaction) {
     // return trepo.save(transaction);
     // }
 
-    @Autowired
-    private CategoryRepository crepo;
+
+
 
     public TransactionEntity insertTransaction(TransactionDTO dto) {
 
-        // 🔥 Fetch user from DB using userID
+        // 1. Fetch User (and Category if available)
         UserEntity user = urepo.findById(dto.getUserID())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + dto.getUserID()));
+        
 
-        // 🔥 Create new TransactionEntity
         TransactionEntity t = new TransactionEntity();
         t.setAmount(dto.getAmount());
         t.setCreation_date(dto.getCreation_date());
@@ -44,11 +57,38 @@ public class TransactionService {
         t.setName(dto.getName());
         t.setUser(user);
 
-        // Optional category
-        if (dto.getCategoryID() != 0) {
-            t.setCategory(crepo.findById(dto.getCategoryID()).orElse(null));
-        }
+       
+        t.setExpense(null);
+        t.setIncome(null);
 
+        
+        if (dto.getIsIncome() != null && dto.getIsIncome()) {
+            // --- IS INCOME ---
+            t.setIncomeFlag(true);
+
+            IncomeEntity income = new IncomeEntity();
+            income.setType(dto.getType()); 
+            
+            // Save the new income entity to get its auto-generated ID
+            IncomeEntity savedIncome = irepo.save(income); 
+            t.setIncome(savedIncome);
+            
+        } else if (dto.getIsIncome() != null && !dto.getIsIncome()) {
+            // --- IS EXPENSE ---
+            t.setIncomeFlag(false);
+            
+            ExpenseEntity expense = new ExpenseEntity();
+            expense.setPayment_method(dto.getPaymentMethod()); 
+            expense.setReccuring(dto.getIsRecurring()); 
+            
+            // Save the new expense entity to get its auto-generated ID
+            ExpenseEntity savedExpense = erepo.save(expense);
+            t.setExpense(savedExpense);
+        } else {
+            
+            throw new IllegalArgumentException("Transaction type (isIncome) must be specified.");
+        }
+        
         return trepo.save(t);
     }
 

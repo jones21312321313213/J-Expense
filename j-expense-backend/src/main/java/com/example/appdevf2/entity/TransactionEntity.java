@@ -39,6 +39,8 @@ public class TransactionEntity {
     @Column(name = "name")
     private String name; 
 
+
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnoreProperties({"transactions"}) // prevents infinite loop
@@ -48,20 +50,25 @@ public class TransactionEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
     
-    @OneToOne
-    @JoinColumn(name = "expense_id") 
+    @OneToOne(optional = true)
+    @JoinColumn(name = "expense_id", nullable = true) 
     private ExpenseEntity expense;
 
-    @OneToOne
-    @JoinColumn(name = "income_id") 
+    @OneToOne(optional = true)
+    @JoinColumn(name = "income_id", nullable = true) 
     private IncomeEntity income;
+
+
+    @Column(name = "is_income")
+    private Boolean incomeFlag;
+
 
     @ManyToOne
     @JoinColumn(name = "activity_log_id") 
     private ActivityLogEntity activityLog;
 
-    @ManyToOne
-    @JoinColumn(name = "recurring_transaction_id")
+    @OneToOne
+    @JoinColumn(name = "recurring_transaction_id", nullable = true)
     private RecurringTransactionEntity recurringTransaction;
 
 }

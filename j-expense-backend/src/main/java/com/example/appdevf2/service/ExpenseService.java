@@ -40,7 +40,7 @@ public class ExpenseService
         return expenseRepository.findById(id)
             .map(expense -> {
                 expense.setPayment_method(updatedExpense.getPayment_method());
-                expense.setIs_recurring(updatedExpense.isIs_recurring());
+                expense.setReccuring(updatedExpense.isReccuring());
                 return expenseRepository.save(expense);
             }).orElse(null);
     }
