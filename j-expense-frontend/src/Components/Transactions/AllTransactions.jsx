@@ -1,39 +1,21 @@
-/**
- * AllTransactions.jsx
- * ------------------------
- * A component to display a combined list of all transactions (income and expenses) in a table-like layout.
- *
- * Features:
- * - Renders a header row with columns: Item, Date, Amount.
- * - Displays each transaction with an icon (via CategoryTile), name, date, and amount.
- * - Amounts are styled in green for income and red for expenses.
- * - Scrollable content area for long lists of transactions.
- * - Responsive container that fills available vertical space without overflowing.
- *
- * Props / State:
- * - `data` (array): hardcoded list of transactions, each with fields: item, date, amount, type ("income" or "expense").
- *
- * Notes:
- * - Uses CSS Grid for column layout.
- * - Uses flexbox for item + icon alignment.
- * - Container and content areas use flex and overflow to ensure scrollable content.
- * - Supports dynamic addition of more transactions by extending the `data` array.
- */
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CategoryTile from "../../Components/Category/CategoryTile";
-import foodBg from "../../assets/foodCategory.png";
-
+import foodBg from "../../assets/foodCategory.png"; // fallback icon
+import { transactionService } from '../../Components/TransactionsService';
 function AllTransactions() {
-  // Mock data with `type`: "income" or "expense"
-  const data = [
-    { item: "Groceries", date: "2025-12-04", amount: "₱450", type: "expense" },
-    { item: "Salary", date: "2025-12-01", amount: "₱15,000", type: "income" },
-    { item: "Load", date: "2025-12-02", amount: "₱50", type: "expense" },
-    { item: "Freelance Work", date: "2025-11-28", amount: "₱3,200", type: "income" },
-    { item: "Bonus", date: "2025-11-25", amount: "₱1,000", type: "income" },
-    { item: "Transport", date: "2025-12-01", amount: "₱120", type: "expense" },
-  ];
+  const [data, setData] = useState([]);
+
+
+  // Fetch transactions from backend
+  useEffect(() => {
+    transactionService.getTransactionsByUser(27) // hardcoded userID
+      .then(mappedData => {
+        console.log("Fetched transactions:", mappedData); // Debug print
+        setData(mappedData);
+      })
+      .catch(err => console.error("Failed to fetch transactions:", err));
+  }, []);
+
 
   const containerStyle = {
     width: "100%",
@@ -52,7 +34,6 @@ function AllTransactions() {
 
   return (
     <div style={containerStyle}>
-      {/* Table Header */}
       <div
         style={{
           display: "grid",
@@ -66,7 +47,6 @@ function AllTransactions() {
         <span style={{ textAlign: "right" }}>Amount</span>
       </div>
 
-      {/* Scrollable Section */}
       <div style={contentStyle}>
         {data.map((row, index) => (
           <div
@@ -78,11 +58,10 @@ function AllTransactions() {
               alignItems: "center",
             }}
           >
-            {/* ITEM + ICON */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <CategoryTile
                 name=""
-                icon={foodBg}
+                icon={foodBg} // placeholder icon for now
                 bgColor="#f1f1f1"
                 textColor="black"
               />
@@ -91,7 +70,6 @@ function AllTransactions() {
 
             <span>{row.date}</span>
 
-            {/* DYNAMIC COLOR AMOUNT */}
             <span
               style={{
                 textAlign: "right",
