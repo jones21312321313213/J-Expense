@@ -38,12 +38,17 @@ function Budgets() {
         if (!b || typeof b !== 'string') return new Date(today.getFullYear(), today.getMonth(), today.getDate());
         
         // Try ISO format first (YYYY-MM-DD from backend)
+        // Budgets.js -> handleCreateBudget -> parseBeginning helper (FIXED)
+
+        // Try ISO format first (YYYY-MM-DD from backend)
         if (/^\d{4}-\d{2}-\d{2}/.test(b)) {
             const parts = b.split('-');
             const year = parseInt(parts[0], 10);
             const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
             const day = parseInt(parts[2], 10);
-            return new Date(year, month, day);
+            
+            // *** FIX: Create the date object using UTC components ***
+            return new Date(Date.UTC(year, month, day));
         }
         
         // Otherwise try standard Date parsing
