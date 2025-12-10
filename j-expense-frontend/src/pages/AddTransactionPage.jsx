@@ -56,6 +56,25 @@ function AddTransactionPage() {
       return;
     }
 
+    // Convert repetitive → intervalDays
+    let intervalDays = null;
+    if (rightTab === "repetitive") {
+      if (!periodLength || !periodUnit) {
+        alert("Please fill in the repetitive period.");
+        return;
+      }
+
+      const unit = periodUnit.toLowerCase();
+
+      if (unit === "day") intervalDays = periodLength * 1;
+      else if (unit === "week") intervalDays = periodLength * 7;
+      else if (unit === "month") intervalDays = periodLength * 30;
+      else if (unit === "year") intervalDays = periodLength * 365;
+      else intervalDays = null;
+    }
+
+
+    // ---- Build the payload ----
     const transactionData = {
       name,
       amount: amountValue,
@@ -66,9 +85,12 @@ function AddTransactionPage() {
       isIncome: leftTab === "income",
       type: leftTab === "income" ? incomeType : undefined,
       paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
-      isRecurring: rightTab === "repetitive"
-    };
 
+      // RECURRING FIELDS
+      isRecurring: rightTab === "repetitive",
+      recurringDate: rightTab === "repetitive" ? endDate : null,
+      intervalDays: rightTab === "repetitive" ? intervalDays : null
+    };
 
 
     try {
@@ -84,6 +106,11 @@ function AddTransactionPage() {
       setSelectedCategory("");
       setPaymentMethod("");
       setIncomeType("");
+      setPeriodLength(1);
+      setPeriodUnit("Day");
+      setEndDate("");
+      setRightTab("default");
+
     } catch (err) {
       console.error("Error saving transaction:", err);
       alert("Failed to add transaction.");
