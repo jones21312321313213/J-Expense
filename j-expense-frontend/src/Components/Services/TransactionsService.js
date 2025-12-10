@@ -39,18 +39,25 @@ export const transactionService = {
       let paymentMethod = "";
       let incomeType = "";
 
-      // ----------------------------
-      // ✅ If EXPENSE → Get payment method from expense object
-      // ----------------------------
+      // Get payment method for expenses
       if (!t.incomeFlag && t.expense) {
         paymentMethod = t.expense.payment_method || "";
       }
 
-      // ----------------------------
-      // ✅ If INCOME → Get type from income object
-      // ----------------------------
+      // Get type for income
       if (t.incomeFlag && t.income) {
         incomeType = t.income.type || "";
+      }
+
+      // Get recurring transaction data
+      let periodLength = 1;
+      let periodUnit = "Day";
+      let endDate = "";
+      
+      if (t.recurringTransaction) {
+        periodLength = t.recurringTransaction.periodLength || 1;
+        periodUnit = t.recurringTransaction.periodUnit || "Day";
+        endDate = t.recurringTransaction.endDate || "";
       }
 
       return {
@@ -63,7 +70,10 @@ export const transactionService = {
         categoryName: t.category?.name || "",
         isRecurring: t.recurringTransaction != null,
         paymentMethod,   // only for expenses
-        incomeType       // only for income
+        incomeType,      // only for income
+        periodLength,    // recurring transaction data
+        periodUnit,      // recurring transaction data
+        endDate          // recurring transaction data
       };
 
     } catch (error) {

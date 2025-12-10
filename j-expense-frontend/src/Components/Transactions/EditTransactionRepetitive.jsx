@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import DatePicker from "../DatePicker";
 import SetPeriod from "../SetPeriod";
@@ -30,8 +28,27 @@ function EditTransactionRepetitive({
 
   const formatDate = (date) => {
     if (!date) return "";
-    const options = { month: "short", day: "numeric", year: "numeric" };
-    return new Date(date).toLocaleDateString(undefined, options);
+    
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return "";
+      
+      const options = { month: "short", day: "numeric", year: "numeric" };
+      return dateObj.toLocaleDateString(undefined, options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "";
+    }
+  };
+
+  const normalizeDateForPicker = (date) => {
+    if (!date) return null;
+    try {
+      const dateObj = new Date(date);
+      return isNaN(dateObj.getTime()) ? null : dateObj;
+    } catch (error) {
+      return null;
+    }
   };
 
   return (
@@ -57,6 +74,7 @@ function EditTransactionRepetitive({
           value={periodLength || ""}
           onClick={() => setShowPeriodLengthModal(true)}
           style={inputStyle}
+          readOnly // Add this
         />
 
         <input
@@ -65,6 +83,7 @@ function EditTransactionRepetitive({
           value={periodUnit || ""}
           onClick={() => setShowPeriodModal(true)}
           style={{ ...inputStyle, width: "120px" }}
+          readOnly // Add this
         />
       </div>
 
@@ -84,6 +103,7 @@ function EditTransactionRepetitive({
           value={endDate ? formatDate(endDate) : ""}
           onClick={() => setShowDatePicker(true)}
           style={{ ...inputStyle, width: "150px" }}
+          readOnly // Add this
         />
       </div>
 
@@ -112,9 +132,16 @@ function EditTransactionRepetitive({
 
       {showDatePicker && (
         <DatePicker
-          selectedDate={endDate}
+          selectedDate={normalizeDateForPicker(endDate)}
           onDateSelect={(val) => {
-            setEndDate(val);
+            if (val) {
+              const dateObj = new Date(val);
+              if (!isNaN(dateObj.getTime())) {
+                setEndDate(dateObj.toISOString().split('T')[0]);
+              }
+            } else {
+              setEndDate("");
+            }
             setShowDatePicker(false);
           }}
           onClose={() => setShowDatePicker(false)}
