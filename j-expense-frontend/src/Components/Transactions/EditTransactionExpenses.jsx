@@ -31,11 +31,12 @@ function EditTransactionExpenses({
     background: "transparent"
   };
 
-  const formatDate = (date) => {
+const formatDate = (date) => {
     if (!date) return "";
-    const options = { month: "short", day: "numeric" };
+    const options = { month: "short", day: "numeric", year: "numeric" };
     return new Date(date).toLocaleDateString(undefined, options);
-  };
+};
+
 
   return (
     <div style={{ width: "100%", textAlign: "center" }}>
@@ -125,7 +126,6 @@ function EditTransactionExpenses({
             </label>
 
             <input
-            readOnly
             placeholder="Select Date"
             value={beginning ? formatDate(beginning) : ""}
             onClick={() => setShowDatePicker(true)}
@@ -191,15 +191,22 @@ function EditTransactionExpenses({
       {/* Date Picker Modal */}
       {showDatePicker && (
         <DatePicker
-        selectedDate={beginning}
-        onDateSelect={(dateStr) => {
-            setBeginning(dateStr);
-            setShowDatePicker(false);  // <-- FIX
-        }}
-        onClose={() => setShowDatePicker(false)}
+          selectedDate={beginning}
+          onDateSelect={(isoString) => {
+            // Ensure we get a proper date string
+            if (isoString) {
+              const date = new Date(isoString);
+              if (!isNaN(date.getTime())) {
+                // Store as ISO string (YYYY-MM-DD format)
+                setBeginning(date.toISOString().split('T')[0]);
+              }
+            }
+            setShowDatePicker(false);
+          }}
+          onClose={() => setShowDatePicker(false)}
         />
-
       )}
+
 
       {/* Amount Modal */}
       {showSetAmount && (

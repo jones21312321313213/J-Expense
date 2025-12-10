@@ -61,8 +61,14 @@ public class TransactionController {
 
     
     // U - update a transaction
+    // @PutMapping("/updateTransaction")
+    // public TransactionEntity updateTransaction(@RequestParam int tid, @RequestBody TransactionEntity newTransactionDetails) {
+    //     return tserv.updateTransaction(tid, newTransactionDetails);
+    // }
+
+    // U - update a transaction
     @PutMapping("/updateTransaction")
-    public TransactionEntity updateTransaction(@RequestParam int tid, @RequestBody TransactionEntity newTransactionDetails) {
+    public TransactionEntity updateTransaction(@RequestParam int tid, @RequestBody TransactionDTO newTransactionDetails) {
         return tserv.updateTransaction(tid, newTransactionDetails);
     }
 

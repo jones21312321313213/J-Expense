@@ -1,6 +1,3 @@
-
-
-
 import { useState } from "react";
 import DatePicker from "../DatePicker";
 import SetAmount from "../SetAmount";
@@ -37,6 +34,20 @@ function EditTransactionIncome({
     if (!date) return "";
     const options = { month: "short", day: "numeric" };
     return new Date(date).toLocaleDateString(undefined, options);
+  };
+
+  // Function to format date for display
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+      const options = { month: "short", day: "numeric", year: "numeric" };
+      return date.toLocaleDateString(undefined, options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "";
+    }
   };
 
   return (
@@ -126,7 +137,7 @@ function EditTransactionIncome({
           <input
             readOnly
             placeholder="Select Date"
-            value={beginning ? formatDate(beginning) : ""}
+            value={beginning ? formatDateForDisplay(beginning) : ""}
             onClick={() => setShowDatePicker(true)}
             style={{
               padding: "10px",
@@ -163,7 +174,6 @@ function EditTransactionIncome({
         }}
       />
 
-
       {/* TYPE */}
       <div style={{ textAlign: "left", width: "100%", marginTop: "20px" }}>
         <span style={{ fontSize: "1rem", fontWeight: "600" }}>Type</span>
@@ -186,12 +196,22 @@ function EditTransactionIncome({
         }}
       />
 
-
       {/* Date Picker Modal */}
       {showDatePicker && (
         <DatePicker
           selectedDate={beginning}
-          onDateSelect={(dateStr) => {
+          onDateSelect={(dateValue) => {
+            // Ensure we get a proper date string
+            let dateStr = "";
+            
+            if (dateValue instanceof Date) {
+              // If it's a Date object, convert to ISO string (YYYY-MM-DD format)
+              dateStr = dateValue.toISOString().split('T')[0];
+            } else if (typeof dateValue === 'string') {
+              // If it's already a string
+              dateStr = dateValue;
+            }
+            
             setBeginning(dateStr);
             setShowDatePicker(false);
           }}
