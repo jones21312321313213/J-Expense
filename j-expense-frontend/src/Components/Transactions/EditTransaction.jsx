@@ -57,7 +57,7 @@ function EditTransaction() {
         setDescription(data.description || "");
         setSelectedCategory(data.categoryName || "");
         setPaymentMethod(data.paymentMethod || "");
-        setIncomeType(data.type || "");
+        setIncomeType(data.incomeType || "");
         setPeriodLength(data.periodLength || 1);
         setPeriodUnit(data.periodUnit || "Day");
         setEndDate(data.endDate || "");
