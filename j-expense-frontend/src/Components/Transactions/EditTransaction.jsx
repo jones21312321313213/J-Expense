@@ -43,13 +43,14 @@ function EditTransaction() {
   const location = useLocation();
   const transaction = location.state?.transaction || null;
 
-    const transactionId = location.state?.transactionId;
+  const transactionId = location.state?.transactionId;
 
-    useEffect(() => {
+
+  useEffect(() => {
     if (!transactionId) return;
 
     transactionService.getTransactionById(transactionId)
-        .then(data => {
+      .then(data => {
         setName(data.name);
         setAmountValue(data.amount);
         setLeftTab(data.incomeFlag ? "income" : "expenses");
@@ -60,23 +61,43 @@ function EditTransaction() {
         setPeriodLength(data.periodLength || 1);
         setPeriodUnit(data.periodUnit || "Day");
         setEndDate(data.endDate || "");
-        });
-    }, [transactionId]);
 
-
+        // Ensure the date is in the correct format for display
+        if (data.creation_date) {
+          // Parse the database date string to ensure it's valid
+          try {
+            const dateObj = new Date(data.creation_date);
+            if (!isNaN(dateObj.getTime())) {
+              // Set as ISO string for consistency
+              setBeginning(dateObj.toISOString().split('T')[0]);
+            } else {
+              setBeginning("");
+            }
+          } catch (error) {
+            console.error("Error parsing date:", error);
+            setBeginning("");
+          }
+        } else {
+          setBeginning("");
+        }
+      });
+  }, [transactionId]);
 
 
   // --- Submit transaction ---
-const handleSubmit = async () => {
-  if (!transactionId) {
-    console.error("Transaction ID is missing");
-    return alert("Transaction ID is missing");
-  }
+  const handleSubmit = async () => {
+    if (!transactionId) {
+      console.error("Transaction ID is missing");
+      return alert("Transaction ID is missing");
+    }
+
+    // Format the date to match the database expected format
+
 
   const transactionData = {
     name,
     amount: amountValue,
-    creation_date: beginning,
+    creation_date: new Date(beginning).toISOString(),
     description,
     categoryID: categoryMap[selectedCategory] || 0,
     userID: 27,
@@ -90,7 +111,7 @@ const handleSubmit = async () => {
   };
 
   // --- Debugging logs ---
-  console.log("Submitting transaction with ID:", transactionId);
+  console.log("Formatted date sent to API:", transactionData.creation_date);
   console.log("Transaction payload:", transactionData);
 
   try {
@@ -100,7 +121,6 @@ const handleSubmit = async () => {
   } catch (err) {
     console.error("Failed to update transaction.", err);
 
-    // If the error has a response object (axios style), log it
     if (err.response) {
       console.error("Error response data:", err.response.data);
       console.error("Error response status:", err.response.status);
@@ -111,7 +131,6 @@ const handleSubmit = async () => {
     }
   }
 };
-
 
   // --- Styles ---
   const categoryContainerStyle = {
