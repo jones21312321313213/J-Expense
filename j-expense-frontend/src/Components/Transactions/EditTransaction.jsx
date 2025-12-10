@@ -46,7 +46,7 @@ function EditTransaction() {
   const transactionId = location.state?.transactionId;
 
 
-  useEffect(() => {
+useEffect(() => {
     if (!transactionId) return;
 
     transactionService.getTransactionById(transactionId)
@@ -58,17 +58,20 @@ function EditTransaction() {
         setSelectedCategory(data.categoryName || "");
         setPaymentMethod(data.paymentMethod || "");
         setIncomeType(data.incomeType || "");
+        
+        // Set repetitive transaction data
         setPeriodLength(data.periodLength || 1);
         setPeriodUnit(data.periodUnit || "Day");
         setEndDate(data.endDate || "");
+        
+        // Set the right tab based on whether it's recurring
+        setRightTab(data.isRecurring ? "repetitive" : "default");
 
         // Ensure the date is in the correct format for display
         if (data.creation_date) {
-          // Parse the database date string to ensure it's valid
           try {
             const dateObj = new Date(data.creation_date);
             if (!isNaN(dateObj.getTime())) {
-              // Set as ISO string for consistency
               setBeginning(dateObj.toISOString().split('T')[0]);
             } else {
               setBeginning("");
@@ -79,9 +82,11 @@ function EditTransaction() {
           }
         } else {
           setBeginning("");
-        }
-      });
-  }, [transactionId]);
+          }
+        });
+    }, [transactionId]);
+
+
 
 
   // --- Submit transaction ---
@@ -91,47 +96,44 @@ function EditTransaction() {
       return alert("Transaction ID is missing");
     }
 
-    // Format the date to match the database expected format
+    const transactionData = {
+      name,
+      amount: amountValue,
+      creation_date: new Date(beginning).toISOString(),
+      description,
+      categoryID: categoryMap[selectedCategory] || 0,
+      userID: 27,
+      isIncome: leftTab === "income",
+      type: leftTab === "income" ? incomeType : undefined,
+      paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
+      isRecurring: rightTab === "repetitive",
+      periodLength: rightTab === "repetitive" ? periodLength : undefined,
+      periodUnit: rightTab === "repetitive" ? periodUnit : undefined,
+      endDate: rightTab === "repetitive" ? endDate : undefined,
+    };
 
+    // --- Debugging logs ---
+    console.log("Formatted date sent to API:", transactionData.creation_date);
+    console.log("Transaction payload:", transactionData);
 
-  const transactionData = {
-    name,
-    amount: amountValue,
-    creation_date: new Date(beginning).toISOString(),
-    description,
-    categoryID: categoryMap[selectedCategory] || 0,
-    userID: 27,
-    isIncome: leftTab === "income",
-    type: leftTab === "income" ? incomeType : undefined,
-    paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
-    isRecurring: rightTab === "repetitive",
-    periodLength,
-    periodUnit,
-    endDate,
-  };
+    try {
+      const response = await transactionService.updateTransaction(transactionId, transactionData);
+      console.log("Update response:", response);
+      alert("Transaction updated successfully!");
+    } catch (err) {
+      console.error("Failed to update transaction.", err);
 
-  // --- Debugging logs ---
-  console.log("Formatted date sent to API:", transactionData.creation_date);
-  console.log("Transaction payload:", transactionData);
-
-  try {
-    const response = await transactionService.updateTransaction(transactionId, transactionData);
-    console.log("Update response:", response);
-    alert("Transaction updated successfully!");
-  } catch (err) {
-    console.error("Failed to update transaction.", err);
-
-    if (err.response) {
-      console.error("Error response data:", err.response.data);
-      console.error("Error response status:", err.response.status);
-      console.error("Error response headers:", err.response.headers);
-      alert(`Failed to update transaction: ${err.response.data?.message || 'Unknown error'}`);
-    } else {
-      alert(`Failed to update transaction: ${err.message || 'Unknown error'}`);
+      if (err.response) {
+        console.error("Error response data:", err.response.data);
+        console.error("Error response status:", err.response.status);
+        console.error("Error response headers:", err.response.headers);
+        alert(`Failed to update transaction: ${err.response.data?.message || 'Unknown error'}`);
+      } else {
+        alert(`Failed to update transaction: ${err.message || 'Unknown error'}`);
+      }
     }
-  }
-};
-
+  };
+  
   // --- Styles ---
   const categoryContainerStyle = {
     width: "80%",
