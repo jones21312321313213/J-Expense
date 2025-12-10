@@ -1,5 +1,6 @@
 package com.example.appdevf2.service;
 
+import com.example.appdevf2.entity.RecurringTransactionDTO;
 import com.example.appdevf2.entity.RecurringTransactionEntity;
 import com.example.appdevf2.entity.TransactionEntity;
 import com.example.appdevf2.repository.RecurringTransactionRepository;
@@ -22,6 +23,22 @@ public class RecurringTransactionService {
 
     public RecurringTransactionEntity create(RecurringTransactionEntity recurring) {
         return recurringRepo.save(recurring);
+    }
+
+
+    public RecurringTransactionEntity createRecurring(RecurringTransactionDTO dto) {
+
+        TransactionEntity t = transactionRepo.findById(dto.getTransactionId())
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        RecurringTransactionEntity rec = new RecurringTransactionEntity();
+        rec.setAmount(dto.getAmount());
+        rec.setRecurringDate(dto.getRecurringDate());
+        rec.setDescription(t.getDescription());
+        rec.setIntervalDays(dto.getIntervalDays());
+        rec.setTransaction(t);
+
+        return recurringRepo.save(rec);
     }
 
     public List<RecurringTransactionEntity> getAll() {

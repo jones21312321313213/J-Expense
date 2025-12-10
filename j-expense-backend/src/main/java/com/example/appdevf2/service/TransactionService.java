@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.appdevf2.entity.ExpenseEntity;
 import com.example.appdevf2.entity.IncomeEntity;
+import com.example.appdevf2.entity.RecurringTransactionEntity;
 import com.example.appdevf2.entity.TransactionDTO;
 import com.example.appdevf2.entity.TransactionEntity;
 import com.example.appdevf2.entity.UserEntity;
 import com.example.appdevf2.repository.CategoryRepository;
 import com.example.appdevf2.repository.ExpenseRepository;
 import com.example.appdevf2.repository.IncomeRepository;
+import com.example.appdevf2.repository.RecurringTransactionRepository;
 import com.example.appdevf2.repository.TransactionRepository;
 import com.example.appdevf2.repository.UserRepository;
 
@@ -36,6 +38,10 @@ public class TransactionService {
     @Autowired
     private IncomeRepository irepo;
 
+    @Autowired
+    private RecurringTransactionRepository rrepo;
+
+
     // C - Create or insert transaction record
     // public TransactionEntity insertTransaction(TransactionEntity transaction) {
     // return trepo.save(transaction);
@@ -46,10 +52,9 @@ public class TransactionService {
 
     public TransactionEntity insertTransaction(TransactionDTO dto) {
 
-        // 1. Fetch User (and Category if available)
+        // 1. Fetch User
         UserEntity user = urepo.findById(dto.getUserID())
                 .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + dto.getUserID()));
-        
 
         TransactionEntity t = new TransactionEntity();
         t.setAmount(dto.getAmount());
@@ -58,40 +63,60 @@ public class TransactionService {
         t.setName(dto.getName());
         t.setUser(user);
 
-       
-        t.setExpense(null);
-        t.setIncome(null);
+        // --- HANDLE INCOME / EXPENSE ---
+        if (dto.getIsIncome() == null)
+            throw new IllegalArgumentException("isIncome must be specified.");
 
-        
-        if (dto.getIsIncome() != null && dto.getIsIncome()) {
-            // --- IS INCOME ---
+        if (dto.getIsIncome()) {
+           
             t.setIncomeFlag(true);
 
             IncomeEntity income = new IncomeEntity();
-            income.setType(dto.getType()); 
-            
-            // Save the new income entity to get its auto-generated ID
-            IncomeEntity savedIncome = irepo.save(income); 
+            income.setType(dto.getType());
+
+            IncomeEntity savedIncome = irepo.save(income);
             t.setIncome(savedIncome);
-            
-        } else if (dto.getIsIncome() != null && !dto.getIsIncome()) {
-            // --- IS EXPENSE ---
+            t.setExpense(null);
+
+        } else {
+           
             t.setIncomeFlag(false);
-            
+
             ExpenseEntity expense = new ExpenseEntity();
-            expense.setPayment_method(dto.getPaymentMethod()); 
-            expense.setReccuring(dto.getIsRecurring()); 
-            
-            // Save the new expense entity to get its auto-generated ID
+            expense.setPayment_method(dto.getPaymentMethod());
+            expense.setReccuring(dto.getIsRecurring());
+
             ExpenseEntity savedExpense = erepo.save(expense);
             t.setExpense(savedExpense);
-        } else {
-            
-            throw new IllegalArgumentException("Transaction type (isIncome) must be specified.");
+            t.setIncome(null);
         }
-        
-        return trepo.save(t);
+
+        // --- SAVE TRANSACTION FIRST (WE NEED billID FOR RECURRING) ---
+        TransactionEntity saved = trepo.save(t);
+
+        // --- CREATE RECURRING ONLY IF: 
+        //     • NOT income 
+        //     • isRecurring == true
+        //     • recurring fields exist
+        if (!saved.getIncomeFlag() && Boolean.TRUE.equals(dto.getIsRecurring())) {
+
+            if (dto.getRecurringDate() == null || dto.getIntervalDays() == null) {
+                throw new IllegalArgumentException("Recurring expense must have recurringDate & intervalDays.");
+            }
+
+            RecurringTransactionEntity rec = new RecurringTransactionEntity();
+            rec.setTransaction(saved); // link to parent
+            rec.setAmount(saved.getAmount());
+            rec.setDescription(saved.getDescription());
+            rec.setRecurringDate(dto.getRecurringDate());
+            rec.setIntervalDays(dto.getIntervalDays());
+
+            rrepo.save(rec);
+        }
+
+        return saved;
     }
+    
 
     // R - Read all transaction records
     public List<TransactionEntity> getAllTransactions() {

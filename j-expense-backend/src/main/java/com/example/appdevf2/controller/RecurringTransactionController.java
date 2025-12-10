@@ -1,5 +1,6 @@
 package com.example.appdevf2.controller;
 
+import com.example.appdevf2.entity.RecurringTransactionDTO;
 import com.example.appdevf2.entity.RecurringTransactionEntity;
 import com.example.appdevf2.service.RecurringTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,14 @@ public class RecurringTransactionController {
     @Autowired
     private RecurringTransactionService service;
 
+    // @PostMapping
+    // public RecurringTransactionEntity create(@RequestBody RecurringTransactionEntity r) {
+    //     return service.create(r);
+    // }
+
     @PostMapping
-    public RecurringTransactionEntity create(@RequestBody RecurringTransactionEntity r) {
-        return service.create(r);
+    public RecurringTransactionEntity createRecurring(@RequestBody RecurringTransactionDTO dto) {
+        return service.createRecurring(dto);  // CALL SERVICE ONLY
     }
 
     @GetMapping
