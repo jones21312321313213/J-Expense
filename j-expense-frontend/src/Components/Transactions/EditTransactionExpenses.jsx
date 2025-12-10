@@ -171,6 +171,7 @@ const formatDate = (date) => {
       </div>
 
       <input
+        readOnly
         type="text"
         placeholder="e.g. Cash, GCash, Debit Card…"
         value={paymentMethod}

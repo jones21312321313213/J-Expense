@@ -28,12 +28,31 @@ export const transactionService = {
     }
   },
 
+  
   // Fetch a single transaction by ID
   getTransactionById: async (transactionId) => {
     try {
       const response = await fetch(`${API_BASE_URL}/getTransaction/${transactionId}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const t = await response.json();
+
+      let paymentMethod = "";
+      let incomeType = "";
+
+      // ----------------------------
+      // ✅ If EXPENSE → Get payment method from expense object
+      // ----------------------------
+      if (!t.incomeFlag && t.expense) {
+        paymentMethod = t.expense.payment_method || "";
+      }
+
+      // ----------------------------
+      // ✅ If INCOME → Get type from income object
+      // ----------------------------
+      if (t.incomeFlag && t.income) {
+        incomeType = t.income.type || "";
+      }
+
       return {
         id: t.billID,
         name: t.name,
@@ -43,14 +62,16 @@ export const transactionService = {
         incomeFlag: t.incomeFlag,
         categoryName: t.category?.name || "",
         isRecurring: t.recurringTransaction != null,
-        paymentMethod: t.paymentMethod || "",
-        incomeType: t.type || "",
+        paymentMethod,   // only for expenses
+        incomeType       // only for income
       };
+
     } catch (error) {
-      console.error('Error fetching transaction by ID:', error);
+      console.error("Error fetching transaction by ID:", error);
       throw error;
     }
   },
+
 
   // Create a new transaction (retain as-is)
   createTransaction: async (transactionData) => {

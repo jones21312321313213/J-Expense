@@ -25,5 +25,6 @@ public class ExpenseEntity
 
     @Column(name = "is_recurring")
     private boolean reccuring;
+    
 
 }
