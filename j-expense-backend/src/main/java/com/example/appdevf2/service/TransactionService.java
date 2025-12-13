@@ -128,6 +128,43 @@ public class TransactionService {
         return trepo.findById(id).orElse(null);
     }
 
+    public TransactionDTO getTransactionDTOById(int id) {
+        TransactionEntity t = trepo.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Transaction not found with ID: " + id));
+
+        TransactionDTO dto = new TransactionDTO();
+        dto.setAmount(t.getAmount());
+        dto.setCreation_date(t.getCreation_date());
+        dto.setDescription(t.getDescription());
+        dto.setName(t.getName());
+        dto.setUserID(t.getUser() != null ? t.getUser().getUserID() : 0);
+        dto.setCategoryID(t.getCategory() != null ? t.getCategory().getCategoryID() : 0);
+        dto.setIsIncome(t.getIncomeFlag());
+
+        // Income
+        if (t.getIncome() != null) {
+            dto.setType(t.getIncome().getType());
+        }
+
+        // Expense
+        if (t.getExpense() != null) {
+            dto.setPaymentMethod(t.getExpense().getPayment_method());
+        }
+
+        // 🔥 RECURRING (THIS IS WHAT WAS MISSING)
+        if (t.getRecurringTransactions() != null && !t.getRecurringTransactions().isEmpty()) {
+            RecurringTransactionEntity rec = t.getRecurringTransactions().get(0);
+            dto.setIsRecurring(true);
+            dto.setIntervalDays(rec.getIntervalDays());
+            dto.setRecurringDate(rec.getRecurringDate());
+        } else {
+            dto.setIsRecurring(false);
+        }
+
+        return dto;
+    }
+
+
     
     public List<TransactionEntity> getTransactionsByUser(int userId) {
         // Fetch all transactions
@@ -225,21 +262,107 @@ public class TransactionService {
             }
         }
 
-        // TODO: handle recurrence
+        //recurring trsnaction part
+        try {
+            // Only consider recurrence for expense transactions (not income)
+            if (Boolean.FALSE.equals(dto.getIsIncome())) {
+                boolean wantsRecurring = Boolean.TRUE.equals(dto.getIsRecurring());
+
+                // existing recurring list attached to t
+                List<RecurringTransactionEntity> existing = t.getRecurringTransactions();
+
+                if (wantsRecurring) {
+                    // must have intervalDays and recurringDate validated by caller
+                    RecurringTransactionEntity rec;
+                    if (existing != null && !existing.isEmpty()) {
+                        // update first recurring record
+                        rec = existing.get(0);
+                    } else {
+                        // create new recurring entity and link it
+                        rec = new RecurringTransactionEntity();
+                        rec.setTransaction(t);
+                    }
+
+                    rec.setAmount(dto.getAmount());
+                    rec.setDescription(dto.getDescription());
+                    rec.setIntervalDays(dto.getIntervalDays() != null ? dto.getIntervalDays() : 1);
+                    rec.setRecurringDate(dto.getRecurringDate());
+
+                    RecurringTransactionEntity savedRec = rrepo.save(rec);
+
+                    // ensure t.recurringTransactions contains the savedRec
+                    if (t.getRecurringTransactions() == null) t.setRecurringTransactions(new java.util.ArrayList<>());
+                    if (!t.getRecurringTransactions().contains(savedRec)) {
+                        t.getRecurringTransactions().clear();
+                        t.getRecurringTransactions().add(savedRec);
+                    }
+                } else {
+                    // user turned OFF recurring: delete existing recurring rows
+                    if (existing != null && !existing.isEmpty()) {
+                        for (RecurringTransactionEntity r : new java.util.ArrayList<>(existing)) {
+                            rrepo.deleteById(r.getRecID());
+                        }
+                        t.setRecurringTransactions(null);
+                    }
+                }
+            } else {
+                // If switched to income, remove any recurring entries linked
+                if (t.getRecurringTransactions() != null && !t.getRecurringTransactions().isEmpty()) {
+                    for (RecurringTransactionEntity r : new java.util.ArrayList<>(t.getRecurringTransactions())) {
+                        rrepo.deleteById(r.getRecID());
+                    }
+                    t.setRecurringTransactions(null);
+                }
+            }
+        } catch (Exception e) {
+            // log but don't fail silently — rethrow as runtime so controller returns error
+            throw new RuntimeException("Failed updating recurring transaction: " + e.getMessage(), e);
+        }
+
+        // ---- end recurrence handling ----
+
         return trepo.save(t);
     }
 
 
 
     // D - Delete a transaction
+    // public String deleteTransaction(int tid) {
+    //     String msg = "";
+    //     if (trepo.existsById(tid)) {
+    //         trepo.deleteById(tid);
+    //         msg = "Transaction: " + tid + " is successfully deleted!";
+    //     } else {
+    //         msg = "Transaction: " + tid + " does not exist.";
+    //     }
+    //     return msg;
+    // }
     public String deleteTransaction(int tid) {
-        String msg = "";
-        if (trepo.existsById(tid)) {
-            trepo.deleteById(tid);
-            msg = "Transaction: " + tid + " is successfully deleted!";
-        } else {
-            msg = "Transaction: " + tid + " does not exist.";
+
+        TransactionEntity t = trepo.findById(tid)
+            .orElseThrow(() -> new NoSuchElementException("Transaction not found with ID: " + tid));
+
+        // 1️⃣ DELETE RECURRING TRANSACTIONS FIRST
+        if (t.getRecurringTransactions() != null && !t.getRecurringTransactions().isEmpty()) {
+            for (RecurringTransactionEntity r : t.getRecurringTransactions()) {
+                rrepo.deleteById(r.getRecID());
+            }
         }
-        return msg;
+
+        // 2️⃣ DELETE EXPENSE OR INCOME (OPTIONAL BUT RECOMMENDED)
+        if (t.getExpense() != null) {
+            erepo.deleteById(t.getExpense().getExpenseID());
+        }
+
+        if (t.getIncome() != null) {
+            irepo.deleteById(t.getIncome().getIncomeID());
+        }
+
+        // 3️⃣ DELETE TRANSACTION ITSELF
+        trepo.deleteById(tid);
+
+        return "Transaction " + tid + " deleted successfully";
     }
+
+
 }

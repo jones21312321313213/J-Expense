@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -52,11 +53,12 @@ public class TransactionEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
     
-    @OneToOne(optional = true)
+    @OneToOne(optional = true, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "expense_id", nullable = true) 
     private ExpenseEntity expense;
 
-    @OneToOne(optional = true)
+
+    @OneToOne(optional = true, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "income_id", nullable = true) 
     private IncomeEntity income;
 

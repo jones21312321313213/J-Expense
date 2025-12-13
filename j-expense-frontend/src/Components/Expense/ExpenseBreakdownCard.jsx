@@ -1,6 +1,6 @@
 // import React from "react";
-// import { getCategorySummary } from "../../utils/expenseUtils.jsx";
-// import { categoryIcons } from "../../utils/utils/categoryIcons";
+import { getCategorySummary } from "../../utils/expenseUtils.jsx";
+// import { categoryIcons } from "../../utils/categoryIcons";
 // ako pani gi comment out for now
 export default function ExpenseBreakdownCard({ category, transactions = [] }) {
   const { total, changePercent, recent } = getCategorySummary(category, transactions);
@@ -24,7 +24,7 @@ export default function ExpenseBreakdownCard({ category, transactions = [] }) {
         gap: "12px",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div>{categoryIcons[category]}</div>
+          {/* <div>{categoryIcons[category]}</div> */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: "14px", color: "#6b7280" }}>{category}</div>
             <div style={{ fontSize: "20px", fontWeight: "700", color: "#111827" }}>
