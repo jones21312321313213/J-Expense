@@ -1,13 +1,19 @@
 package com.example.appdevf2.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -37,6 +43,10 @@ public class RecurringTransactionEntity {
     @JsonIgnoreProperties({"recurringTransactions"}) 
     private TransactionEntity transaction;
 
+
+    @ManyToOne
+    @JoinColumn(name = "user_id") // FK column
+    private UserEntity user; 
 
 
     // public RecurringTransactionEntity() {
