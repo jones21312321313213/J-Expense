@@ -26,6 +26,18 @@ function EditTransactionRepetitive({
     fontSize: "1rem",
   };
 
+    // Helper: convert any unit into days
+  const toDays = (length, unit) => {
+    switch (unit) {
+      case "Day": return length;
+      case "Week": return length * 7;
+      case "Month": return length * 30; // approximate
+      case "Year": return length * 365; // approximate
+      default: return length;
+    }
+  };
+
+
   const formatDate = (date) => {
     if (!date) return "";
     
