@@ -3,10 +3,12 @@ import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png"; 
 import { transactionService } from "../Services/TransactionsService";
 import { useNavigate } from "react-router-dom";
+import { useUser } from '../../context/UserContext';
 
 function IncomeTransactions() {
   const [data, setData] = useState([]);
-  const userId = 27;
+  const { currentUser } = useUser();
+  const userId = currentUser ? currentUser.userID : null;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +31,7 @@ function IncomeTransactions() {
         setData(incomes);
       })
       .catch((err) => console.error("Failed to fetch transactions:", err));
-  }, []);
+  }, [userId]);
 
   const containerStyle = {
     width: "100%",

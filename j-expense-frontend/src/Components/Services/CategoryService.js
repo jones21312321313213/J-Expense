@@ -36,7 +36,14 @@ export const categoryService = {
 			};
 
 			if (categoryData.icon) body.iconPath = categoryData.icon;
-			if (categoryData.userID) body.userID = categoryData.userID;
+			// If userID not provided explicitly, try localStorage fallback (dev-mode current user)
+			// Do not attach a user when creating default categories
+			if (!categoryData.isDefault) {
+				const stored = localStorage.getItem('jexpense_user');
+				const fallbackUserID = stored ? JSON.parse(stored).userID : undefined;
+				const resolvedUserID = (categoryData && categoryData.userID) ? categoryData.userID : fallbackUserID;
+				if (resolvedUserID) body.userID = resolvedUserID;
+			}
 			if (categoryData.isDefault === true) body.isDefault = true;
 
 			const response = await fetch(API_BASE_URL, {

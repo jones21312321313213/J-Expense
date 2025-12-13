@@ -2,6 +2,7 @@
 
 import { Routes, Route } from 'react-router-dom';
 import Base from './pages/Base'; 
+import { UserProvider } from './context/UserContext';
 import Login from './pages/Login';
 import Landing from './pages/Landing';
 import Register from './pages/Register'
@@ -31,7 +32,8 @@ import EditTransaction from './Components/Transactions/EditTransaction';
 
 function App() {
   return (
-    <Routes>
+    <UserProvider>
+      <Routes>
       {/* 1. Public Routes */}
       <Route path="/landing" element={<Landing />} /> {/*will change the path for this later*/}
       <Route path="/login" element={<Login />} />
@@ -65,7 +67,8 @@ function App() {
         <Route path="category-details" element={<CategoryDetails />} />
         <Route path="/edit-category" element={<EditCategory />} />
       </Route>
-    </Routes>
+      </Routes>
+    </UserProvider>
   );
 }
 

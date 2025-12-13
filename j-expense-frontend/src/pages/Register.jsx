@@ -1,8 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import UserService from '../Components/Services/UserService';
+import { useUser } from '../context/UserContext';
 import bgImage from '../assets/bgregister.jpg';
 
 function Register() {
   const [passwordShown, setPasswordShown] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { setUser } = useUser();
 
   // ------------------------------- STYLES -------------------------------
   const mainBox = {
@@ -85,7 +93,17 @@ function Register() {
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6">
             <div style={mainBox}>
-              <form>
+              <form onSubmit={async (e)=>{
+                e.preventDefault();
+                try{
+                  const created = await UserService.createUser({username,email,password});
+                  setUser(created);
+                  navigate('/');
+                }catch(err){
+                  console.error('Failed to register',err);
+                  alert('Failed to register the user');
+                }
+              }}>
                 <h1 style={titleStyle}>J-EXPENSE</h1>
 
                 <h6 className="text-center fw-normal mt-2">Create an account</h6>
@@ -98,6 +116,8 @@ function Register() {
                     className="form-control"
                     placeholder="Enter username"
                     style={inputStyle}
+                    value={username}
+                    onChange={(e)=>setUsername(e.target.value)}
                   />
                 </div>
 
@@ -111,6 +131,8 @@ function Register() {
                     className="form-control"
                     placeholder="Enter email"
                     style={inputStyle}
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
                   />
                 </div>
 
@@ -124,6 +146,8 @@ function Register() {
                     className="form-control"
                     placeholder="Enter your password"
                     style={inputStyle}
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                   />
                   <i
                     className={`bi ${passwordShown ? "bi-eye" : "bi-eye-slash"}`}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useUser } from '../../context/UserContext';
 import CategoryTile from "./CategoryTile"; 
 import { categoryService } from "../Services/CategoryService";
 import foodBg from "../../assets/foodCategory.png";
@@ -10,8 +11,8 @@ import miscellaneousBg from "../../assets/miscellaneousCategory.png";
 import add from "../../assets/addIcon.png";
 
 function SelectCategory({ onSelect, selectedCategory, budgetType }) {
-    // TODO: replace this with actual auth-driven user ID
-    const userId = 27;
+    const { currentUser } = useUser();
+    const userId = currentUser ? currentUser.userID : null;
     const [addClicked, setAddClicked] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [customCategories, setCustomCategories] = useState([]);
@@ -113,7 +114,7 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             const savedCategory = await categoryService.createCategory({
                 name: newCategoryName.trim(),
                 categoryType: categoryType,
-                userID: userId
+                ...(userId ? { userID: userId } : {})
             });
 
             // Update local state 

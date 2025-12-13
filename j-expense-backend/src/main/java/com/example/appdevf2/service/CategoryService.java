@@ -13,9 +13,13 @@ import java.util.Optional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class CategoryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CategoryService.class);
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -30,13 +34,14 @@ public class CategoryService {
 
     // CREATE FROM DTO - associates user by ID
     public CategoryEntity createCategory(CategoryDTO dto) {
+        logger.info("createCategory DTO - userID: {} category_name: {} category_type: {} is_default: {} iconPath: {}", dto.getUserID(), dto.getCategory_name(), dto.getCategory_type(), dto.getIs_default(), dto.getIconPath());
         CategoryEntity category = new CategoryEntity();
         category.setCategory_name(dto.getCategory_name());
         category.setCategory_type(dto.getCategory_type());
         category.setIs_default(dto.getIs_default() != null ? dto.getIs_default() : false);
         category.setIcon_path(dto.getIconPath());
 
-        if (dto.getUserID() != 0) {
+        if (dto.getUserID() != null && dto.getUserID() > 0) {
             UserEntity user = userRepository.findById(dto.getUserID())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + dto.getUserID()));
             category.setUser(user);

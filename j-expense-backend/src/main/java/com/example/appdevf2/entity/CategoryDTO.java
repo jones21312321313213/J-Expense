@@ -19,5 +19,6 @@ public class CategoryDTO {
     @JsonAlias({"iconPath", "icon_path"})
     private String iconPath;
 
-    private int userID; // user id to associate with category
+    @JsonAlias({"userID", "userId", "user_id"})
+    private Integer userID; // user id to associate with category
 }

@@ -1,9 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import bgImage from '../assets/bgLanding.jpg';
 
 
 function Login() {
   const [passwordShown, setPasswordShown] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { login } = useUser();
 
   // ------------------------------- STYLES -------------------------------
   const mainBox = {
@@ -85,7 +91,15 @@ function Login() {
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6">
             <div style={mainBox}>
-              <form>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                try{
+                  await login(username, password);
+                  navigate('/');
+                }catch(err){
+                  alert('Login failed');
+                }
+              }}>
                 <h1 style={titleStyle}>J-EXPENSE</h1>
 
                 
@@ -96,6 +110,8 @@ function Login() {
                     className="form-control"
                     placeholder="Enter username"
                     style={inputStyle}
+                    value={username}
+                    onChange={(e)=>setUsername(e.target.value)}
                   />
                 </div>
 
@@ -108,6 +124,8 @@ function Login() {
                     className="form-control"
                     placeholder="Enter your password"
                     style={inputStyle}
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                   />
                   <i
                     className={`bi ${passwordShown ? "bi-eye" : "bi-eye-slash"}`}

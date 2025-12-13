@@ -2,9 +2,15 @@ const API_BASE_URL = 'http://localhost:8080/api/transaction';
 
 
 export const transactionService = {
-  // Fetch all transactions for userId 27 if wala mo ani find ur own user in ur own db
-   getTransactionsByUser: async () => {
-    const userId = 27; // hardcoded
+  // Fetch all transactions for a given userId or the logged-in user (localStorage fallback)
+   getTransactionsByUser: async (userId) => {
+    // userId can be passed; otherwise use localStorage 'jexpense_user' for logged in user
+    if (!userId) {
+      try{
+        const stored = localStorage.getItem('jexpense_user');
+        if (stored) userId = JSON.parse(stored).userID;
+      }catch(e){}
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/getTransactionsByUser/${userId}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -120,7 +126,14 @@ export const transactionService = {
   // Create a new transaction (retain as-is)
   createTransaction: async (transactionData) => {
     try {
-      const dataWithUser = { ...transactionData, userID: 27 };
+      // If userID not present, try to obtain it from localStorage
+      const dataWithUser = { ...transactionData };
+      if (!dataWithUser.userID) {
+        try{
+          const stored = localStorage.getItem('jexpense_user');
+          if (stored) dataWithUser.userID = JSON.parse(stored).userID;
+        }catch(e){}
+      }
       const response = await fetch(`${API_BASE_URL}/insertTransaction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
