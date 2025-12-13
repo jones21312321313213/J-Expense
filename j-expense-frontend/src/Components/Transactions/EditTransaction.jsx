@@ -2,13 +2,15 @@
 import { useState, useEffect } from "react";
 import SelectCategory from "../Category/SelectCategory";
 import { transactionService } from "../Services/TransactionsService";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // --- Sub-components (from AddTransaction) ---
 import EditTransactionExpenses from "../Transactions/EditTransactionExpenses";
 import EditTransactionIncome from "../Transactions/EditTransactionIncome";
 import EditTransactionDefault from "../Transactions/EditTransactionDefault";
 import EditTransactionRepetitive from "../Transactions/EditTransactionRepetitive";
+import DeleteTransaction from "../Transactions/DeleteTransaction";
+
 
 function EditTransaction() {
   // --- Transaction State ---
@@ -21,6 +23,7 @@ function EditTransaction() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [incomeType, setIncomeType] = useState("");
   const [error, setError] = useState("");
+  const [showDelete, setShowDelete] = useState(false);
 
   // --- Repetitive Transaction State ---
   const [rightTab, setRightTab] = useState("default");
@@ -41,50 +44,53 @@ function EditTransaction() {
   };
 
   const location = useLocation();
+  const navigate = useNavigate();
   const transaction = location.state?.transaction || null;
 
   const transactionId = location.state?.transactionId;
 
 
 useEffect(() => {
-    if (!transactionId) return;
+  if (!transactionId) return;
 
-    transactionService.getTransactionById(transactionId)
-      .then(data => {
-        setName(data.name);
-        setAmountValue(data.amount);
-        setLeftTab(data.incomeFlag ? "income" : "expenses");
-        setDescription(data.description || "");
-        setSelectedCategory(data.categoryName || "");
-        setPaymentMethod(data.paymentMethod || "");
-        setIncomeType(data.incomeType || "");
-        
-        // Set repetitive transaction data
-        setPeriodLength(data.periodLength || 1);
-        setPeriodUnit(data.periodUnit || "Day");
-        setEndDate(data.endDate || "");
-        
-        // Set the right tab based on whether it's recurring
-        setRightTab(data.isRecurring ? "repetitive" : "default");
+  transactionService.getTransactionById(transactionId)
+    .then(data => {
+      setName(data.name);
+      setAmountValue(data.amount);
+      setLeftTab(data.incomeFlag ? "income" : "expenses");
+      setDescription(data.description || "");
+      setSelectedCategory(data.categoryName || "");
+      setPaymentMethod(data.paymentMethod || "");
+      setIncomeType(data.incomeType || "");
 
-        // Ensure the date is in the correct format for display
-        if (data.creation_date) {
-          try {
-            const dateObj = new Date(data.creation_date);
-            if (!isNaN(dateObj.getTime())) {
-              setBeginning(dateObj.toISOString().split('T')[0]);
-            } else {
-              setBeginning("");
-            }
-          } catch (error) {
-            console.error("Error parsing date:", error);
+      // Set repetitive transaction data FIRST
+      setPeriodLength(data.periodLength ?? 1);
+      setPeriodUnit(data.periodUnit ?? "Day");
+      setEndDate(data.endDate ?? "");
+
+      // Then set tab to repetitive if it's recurring
+      setRightTab(data.isRecurring ? "repetitive" : "default");
+
+      // Date for beginning
+      if (data.creation_date) {
+        try {
+          const dateObj = new Date(data.creation_date);
+          if (!isNaN(dateObj.getTime())) {
+            setBeginning(dateObj.toISOString().split('T')[0]);
+          } else {
             setBeginning("");
           }
-        } else {
+        } catch (error) {
+          console.error("Error parsing date:", error);
           setBeginning("");
-          }
-        });
-    }, [transactionId]);
+        }
+      } else {
+        setBeginning("");
+      }
+    })
+    .catch(err => console.error(err));
+}, [transactionId]);
+
 
 
 
@@ -96,21 +102,22 @@ useEffect(() => {
       return alert("Transaction ID is missing");
     }
 
-    const transactionData = {
-      name,
-      amount: amountValue,
-      creation_date: new Date(beginning).toISOString(),
-      description,
-      categoryID: categoryMap[selectedCategory] || 0,
-      userID: 27,
-      isIncome: leftTab === "income",
-      type: leftTab === "income" ? incomeType : undefined,
-      paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
-      isRecurring: rightTab === "repetitive",
-      periodLength: rightTab === "repetitive" ? periodLength : undefined,
-      periodUnit: rightTab === "repetitive" ? periodUnit : undefined,
-      endDate: rightTab === "repetitive" ? endDate : undefined,
-    };
+const transactionData = {
+  name,
+  amount: amountValue,
+  creation_date: new Date(beginning).toISOString(),
+  description,
+  categoryID: categoryMap[selectedCategory] || 0,
+  userID: 27,
+  isIncome: leftTab === "income",
+  type: leftTab === "income" ? incomeType : undefined,
+  paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
+  isRecurring: rightTab === "repetitive",
+  // Use backend DTO field names:
+  intervalDays: rightTab === "repetitive" ? periodLength : undefined,
+  recurringDate: rightTab === "repetitive" ? (endDate ? new Date(endDate) : undefined) : undefined,
+};
+
 
     // --- Debugging logs ---
     console.log("Formatted date sent to API:", transactionData.creation_date);
@@ -206,10 +213,52 @@ useEffect(() => {
         padding: "20px",
       }}
     >
+    {/* Top Bar: Back Arrow + Delete */}
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
       {/* Back Arrow */}
-      <div style={{ width: "100%", display: "flex", justifyContent: "flex-start" }}>
-        <i className="bi-chevron-left" style={{ fontSize: "1.5rem", cursor: "pointer" }}></i>
-      </div>
+      <i
+        className="bi bi-chevron-left"
+        style={{ fontSize: "1.5rem", cursor: "pointer" }}
+        onClick={() => window.history.back()}
+      ></i>
+
+      {/* Trash / Delete */}
+      <i
+        className="bi bi-trash"
+        style={{
+          fontSize: "1.4rem",
+          cursor: "pointer",
+          color: "#e74c3c",
+        }}
+         onClick={() => setShowDelete(true)}
+      ></i>
+    </div>
+
+  {showDelete && (
+    <DeleteTransaction
+      transactionName={name}   // ✅ FIXED
+      onClose={() => setShowDelete(false)}
+      onDelete={async () => {
+        try {
+          await transactionService.deleteTransaction(transactionId);
+          setShowDelete(false);
+          navigate("/transactions");
+        } catch (err) {
+          console.error("Delete failed", err);
+          alert("Failed to delete transaction");
+        }
+      }}
+    />
+  )}
+
+
 
       {/* Page Title */}
       <h1 style={{ margin: 0, textAlign: "center" }}>Edit Transaction</h1>
