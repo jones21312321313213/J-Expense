@@ -62,7 +62,7 @@ function AllTransactions() {
       {data.map((row, index) => (
         <div
           key={index}
-          onClick={() => navigate("/app/edit-transaction", { state: { transactionId: row.id } })}
+          onClick={() => navigate("/edit-transaction", { state: { transactionId: row.id } })}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 2fr 1fr",

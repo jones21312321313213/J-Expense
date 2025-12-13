@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import bgImage from '../assets/bgLanding.jpg';
 
+
 function Login() {
   const [passwordShown, setPasswordShown] = useState(false);
   const [username, setUsername] = useState('');
@@ -83,27 +84,25 @@ function Login() {
     justifyContent: "center",
     alignItems: "center",
   };
-
+  
   return (
     <div style={bgStyle}>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6">
             <div style={mainBox}>
-
-              {/* ORIGINAL FORM SUBMIT (COMMENTED OUT)
-              <form onSubmit={handleSubmit}>
-              */}
-
-              {/* TEMPORARY LOGIN → DASHBOARD */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault(); // prevent page refresh
-                  navigate("/app/dashboard"); // TEMP redirect
-                }}
-              >
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                try{
+                  await login(username, password);
+                  navigate('/');
+                }catch(err){
+                  alert('Login failed');
+                }
+              }}>
                 <h1 style={titleStyle}>J-EXPENSE</h1>
 
+                
                 <div className="mb-3 text-start">
                   <label style={labelStyle}>Username</label>
                   <input
@@ -116,6 +115,7 @@ function Login() {
                   />
                 </div>
 
+                
                 <div style={passwordContainer}>
                   <label style={labelStyle}>Password</label>
                   <input
@@ -134,6 +134,7 @@ function Login() {
                   ></i>
                 </div>
 
+                
                 <div className="mb-3 text-start">
                   <a
                     href="/forgot-password"
@@ -143,32 +144,30 @@ function Login() {
                   </a>
                 </div>
 
+                
                 <button type="submit" className="btn btn-dark w-100 mb-3">
                   Login
                 </button>
 
+                
                 <div style={dividerWrapper}>
                   <div style={dividerLine}></div>
                   <span style={dividerText}>OR</span>
                   <div style={dividerLine}></div>
                 </div>
 
+                
                 <div className="text-center">
                   <p>
                     <a
                       href="/register"
-                      style={{
-                        marginLeft: "5px",
-                        textDecoration: "none",
-                        color: "black",
-                      }}
+                      style={{ marginLeft: "5px", textDecoration: "none", color: "black" }}
                     >
                       Create an account
                     </a>
                   </p>
                 </div>
               </form>
-
             </div>
           </div>
         </div>

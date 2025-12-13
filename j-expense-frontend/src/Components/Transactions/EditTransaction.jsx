@@ -264,7 +264,7 @@ useEffect(() => {
         try {
           await transactionService.deleteTransaction(transactionId);
           setShowDelete(false);
-          navigate("/app/transactions");
+          navigate("/transactions");
         } catch (err) {
           console.error("Delete failed", err);
           alert("Failed to delete transaction");
