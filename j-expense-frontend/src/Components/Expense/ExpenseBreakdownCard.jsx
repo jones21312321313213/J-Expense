@@ -1,7 +1,7 @@
-import React from "react";
-import { getCategorySummary } from "../../utils/expenseUtils.jsx";
-import { categoryIcons } from "../../utils/utils/categoryIcons";
-
+// import React from "react";
+// import { getCategorySummary } from "../../utils/expenseUtils.jsx";
+// import { categoryIcons } from "../../utils/utils/categoryIcons";
+// ako pani gi comment out for now
 export default function ExpenseBreakdownCard({ category, transactions = [] }) {
   const { total, changePercent, recent } = getCategorySummary(category, transactions);
 

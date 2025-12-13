@@ -74,7 +74,7 @@ function EditTransactionRepetitive({
           value={periodLength || ""}
           onClick={() => setShowPeriodLengthModal(true)}
           style={inputStyle}
-          readOnly // Add this
+           
         />
 
         <input
@@ -83,7 +83,7 @@ function EditTransactionRepetitive({
           value={periodUnit || ""}
           onClick={() => setShowPeriodModal(true)}
           style={{ ...inputStyle, width: "120px" }}
-          readOnly // Add this
+           
         />
       </div>
 
@@ -103,7 +103,7 @@ function EditTransactionRepetitive({
           value={endDate ? formatDate(endDate) : ""}
           onClick={() => setShowDatePicker(true)}
           style={{ ...inputStyle, width: "150px" }}
-          readOnly // Add this
+         
         />
       </div>
 
