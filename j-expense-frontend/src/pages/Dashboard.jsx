@@ -106,7 +106,7 @@ function Dashboard() {
               <h3 style={{ margin: 0 }}>Upcoming Bill</h3>
 
               <Link
-                to="/bills"
+                to="/app/bills"
                 style={{
                   fontSize: "0.85rem",
                   textDecoration: "none",
@@ -140,7 +140,7 @@ function Dashboard() {
               <h3 style={{ margin: 0 }}>Recent Transactions</h3>
 
               <Link
-                to="/transactions"
+                to="/app/transactions"
                 style={{
                   fontSize: "0.9rem",
                   textDecoration: "none",

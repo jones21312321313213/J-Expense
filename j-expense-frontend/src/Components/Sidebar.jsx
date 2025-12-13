@@ -54,7 +54,7 @@ function Sidebar() {
         >
           {/* Sidebar Header */}
           <Link
-            to="/"
+            to="/app/dashboard"
             className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
           >
             <span className="fs-4 fw-bold">J-Expense</span>
@@ -67,9 +67,9 @@ function Sidebar() {
               
               <li>
                 <Link
-                    to="/"
-                    className={getLinkClass("/")}
-                    style={getLinkStyle("/")}
+                    to="/app/dashboard"
+                    className={getLinkClass("/app/dashboard")}
+                    style={getLinkStyle("/app/dashboard")}
                 >
                   {/* Dashboard Icon: Applied standard size */}
                   <i className="bi bi-grid me-2" style={iconSizeStyle}></i>
@@ -79,9 +79,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/budgets" 
-                    className={getLinkClass("/budgets")}
-                    style={getLinkStyle("/budgets")}
+                    to="/app/budgets" 
+                    className={getLinkClass("/app/budgets")}
+                    style={getLinkStyle("/app/budgets")}
                 >
                   {/* Budgets Icon */}
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  style ={{marginRight:"12px"}}>
@@ -98,9 +98,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/transactions" 
-                    className={getLinkClass("/transactions")}
-                    style={getLinkStyle("/transactions")}
+                    to="/app/transactions" 
+                    className={getLinkClass("/app/transactions")}
+                    style={getLinkStyle("/app/transactions")}
                 >
                   {/* Transactions */}
                   <i className="bi bi-arrow-left-right me-2" style={iconSizeStyle}></i>
@@ -110,9 +110,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/bills" 
-                    className={getLinkClass("/bills")}
-                    style={getLinkStyle("/bills")}
+                    to="/app/bills" 
+                    className={getLinkClass("/app/bills")}
+                    style={getLinkStyle("/app/bills")}
                 >
                   {/* Bills Icon:*/}
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style = {{marginRight:"13px"}}>
@@ -124,9 +124,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/expenses" 
-                    className={getLinkClass("/expenses")}
-                    style={getLinkStyle("/expenses")}
+                    to="/app/expenses" 
+                    className={getLinkClass("/app/expenses")}
+                    style={getLinkStyle("/app/expenses")}
                 >
                   {/* Expenses Icon: */}
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"13px"}}>
@@ -142,9 +142,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/goals" 
-                    className={getLinkClass("/goals")}
-                    style={getLinkStyle("/goals")}
+                    to="/app/goals" 
+                    className={getLinkClass("/app/goals")}
+                    style={getLinkStyle("/app/goals")}
                 >
                   {/* Goals Icon */}
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"12px"}}>
@@ -161,9 +161,9 @@ function Sidebar() {
 
               <li>
                 <Link
-                    to="/activity-log" 
-                    className={getLinkClass("/activity-log")}
-                    style={getLinkStyle("/activity-log")}
+                    to="/app/activity-log" 
+                    className={getLinkClass("/app/activity-log")}
+                    style={getLinkStyle("/app/activity-log")}
                 >
                   {/* Activity Log Icon*/}
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="me-2">
@@ -176,9 +176,9 @@ function Sidebar() {
 
               <li>
                 <Link 
-                    to="/settings" 
-                    className={getLinkClass("/settings")}
-                    style={getLinkStyle("/settings")}
+                    to="/app/settings" 
+                    className={getLinkClass("/app/settings")}
+                    style={getLinkStyle("/app/settings")}
                 >
                   {/* Settings Icon*/}
                   <i className="bi bi-gear me-2" style={iconSizeStyle}></i>
@@ -200,7 +200,7 @@ function Sidebar() {
                 {editOpen && (
                   <ul className="nav flex-column ms-4 mt-1">
                     <li>
-                      <Link to="/budget-details" className={getLinkClass("/budget-details")} style={getLinkStyle("/budget-details")}>
+                      <Link to="/app/budget-details" className={getLinkClass("/app/budget-details")} style={getLinkStyle("/app/budget-details")}>
                         {/* Budget Details Icon */}
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"12px"}}>
                           <path d="M10.4197 20.0001H6.00977V15.5901L19.0098 2.59009L23.4197 7.00006L10.4197 20.0001ZM8.00977 18.0001H9.58978L20.5898 7.00006L19.0098 5.41003L8.00977 16.41V18.0001Z" fill="#FFFFF4"/>
@@ -214,7 +214,7 @@ function Sidebar() {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/goals-details" className={getLinkClass("/goals-details")} style={getLinkStyle("/goals-details")}>
+                      <Link to="/app/goals-details" className={getLinkClass("/app/goals-details")} style={getLinkStyle("/app/goals-details")}>
                         {/* Goals Details Icon */}
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"12px"}}>
                             <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -227,7 +227,7 @@ function Sidebar() {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/category-details" className={getLinkClass("/category-details")} style={getLinkStyle("/category-details")}>
+                      <Link to="/app/category-details" className={getLinkClass("/app/category-details")} style={getLinkStyle("/app/category-details")}>
                         {/* Category Details Icon*/}
                         <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"12px"}}>
                         <path d="M10.0131 1.15224C9.64554 1.30448 9.31605 1.63397 8.65712 2.29289C7.99835 2.95167 7.66872 3.2813 7.5165 3.64879C7.31351 4.13885 7.31351 4.68953 7.5165 5.17958C7.66874 5.54713 7.99821 5.8766 8.65715 6.53554C9.31572 7.19411 9.64561 7.524 10.013 7.6762C10.5031 7.87918 11.0538 7.87918 11.5438 7.67619C11.9114 7.52395 12.2409 7.19448 12.8998 6.53554C13.5587 5.8766 13.8872 5.54713 14.0395 5.17958C14.2425 4.68953 14.2425 4.13885 14.0395 3.64879C13.8872 3.28125 13.5587 2.95183 12.8998 2.29289C12.2409 1.63396 11.9114 1.30448 11.5438 1.15224C11.0538 0.949253 10.5031 0.949253 10.0131 1.15224Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -247,7 +247,7 @@ function Sidebar() {
 
           {/* Logout */}
           <div className="mt-auto mb-3">
-            <Link to="/logout" className="nav-link d-flex align-items-center text-white" style={{ gap: "10px", paddingLeft: "12px" }}>
+            <Link to="/login" className="nav-link d-flex align-items-center text-white" style={{ gap: "10px", paddingLeft: "12px" }}>
               {/* Logout Icon: Applied standard size */}
               <i className="bi bi-box-arrow-right me-2" style={iconSizeStyle}></i>
               Logout

@@ -71,7 +71,7 @@ function ExpensesTransactions() {
           <div
             key={index}
             onClick={() =>
-              navigate("/edit-transaction", { state: { transactionId: row.id } })
+              navigate("/app/edit-transaction", { state: { transactionId: row.id } })
             }
             style={{
               display: "grid",
