@@ -102,25 +102,46 @@ useEffect(() => {
       return alert("Transaction ID is missing");
     }
 
-const transactionData = {
-  name,
-  amount: amountValue,
-  creation_date: new Date(beginning).toISOString(),
-  description,
-  categoryID: categoryMap[selectedCategory] || 0,
-  userID: 27,
-  isIncome: leftTab === "income",
-  type: leftTab === "income" ? incomeType : undefined,
-  paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
-  isRecurring: rightTab === "repetitive",
-  // Use backend DTO field names:
-  intervalDays: rightTab === "repetitive" ? periodLength : undefined,
-  recurringDate: rightTab === "repetitive" ? (endDate ? new Date(endDate) : undefined) : undefined,
-};
+    // Helper function to convert periodLength and periodUnit to intervalDays
+    const convertToIntervalDays = (length, unit) => {
+      switch (unit) {
+        case "Day":
+          return length;
+        case "Week":
+          return length * 7;
+        case "Month":
+          return length * 30; // Approximate
+        case "Year":
+          return length * 365; // Approximate
+        default:
+          return length;
+      }
+    };
 
+    // Convert periodLength and periodUnit to intervalDays
+    let intervalDays = 1;
+    if (rightTab === "repetitive" && periodLength && periodUnit) {
+      intervalDays = convertToIntervalDays(periodLength, periodUnit);
+    }
 
-    // --- Debugging logs ---
-    console.log("Formatted date sent to API:", transactionData.creation_date);
+    // Prepare the transaction data
+    const transactionData = {
+      name,
+      amount: amountValue,
+      creation_date: beginning ? new Date(beginning).toISOString() : null,
+      description,
+      categoryID: categoryMap[selectedCategory] || 0,
+      userID: 27,
+      isIncome: leftTab === "income",
+      type: leftTab === "income" ? incomeType : undefined,
+      paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
+      isRecurring: rightTab === "repetitive",
+      
+      // Recurring fields - converted to what backend expects
+      intervalDays: rightTab === "repetitive" ? intervalDays : undefined,
+      recurringDate: rightTab === "repetitive" && endDate ? new Date(endDate).toISOString() : undefined,
+    };
+
     console.log("Transaction payload:", transactionData);
 
     try {
@@ -129,15 +150,7 @@ const transactionData = {
       alert("Transaction updated successfully!");
     } catch (err) {
       console.error("Failed to update transaction.", err);
-
-      if (err.response) {
-        console.error("Error response data:", err.response.data);
-        console.error("Error response status:", err.response.status);
-        console.error("Error response headers:", err.response.headers);
-        alert(`Failed to update transaction: ${err.response.data?.message || 'Unknown error'}`);
-      } else {
-        alert(`Failed to update transaction: ${err.message || 'Unknown error'}`);
-      }
+      alert(`Failed to update transaction: ${err.message || 'Unknown error'}`);
     }
   };
   
