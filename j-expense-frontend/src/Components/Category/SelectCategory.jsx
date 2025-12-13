@@ -10,6 +10,8 @@ import miscellaneousBg from "../../assets/miscellaneousCategory.png";
 import add from "../../assets/addIcon.png";
 
 function SelectCategory({ onSelect, selectedCategory, budgetType }) {
+    // TODO: replace this with actual auth-driven user ID
+    const userId = 27;
     const [addClicked, setAddClicked] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [customCategories, setCustomCategories] = useState([]);
@@ -44,7 +46,7 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
                 
                 // 3. Identify which defaults are missing by comparing against existing DB entries
                 const existingDefaultNames = allCategories
-                    .filter(cat => cat.isDefault)
+                    .filter(cat => (cat.isDefault || cat.is_default))
                     // CRITICAL: Use category_name to match backend response structure
                     .map(cat => cat.category_name); 
 
@@ -82,7 +84,7 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             }
 
             // 7. Update component state with categories
-            const custom = finalCategories.filter(cat => !cat.isDefault);
+            const custom = finalCategories.filter(cat => !(cat.isDefault || cat.is_default));
             setCustomCategories(custom);
 
         } catch (error) {
@@ -110,8 +112,8 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             // Save to database
             const savedCategory = await categoryService.createCategory({
                 name: newCategoryName.trim(),
-                isDefault: false,
-                categoryType: categoryType
+                categoryType: categoryType,
+                userID: userId
             });
 
             // Update local state 
@@ -164,7 +166,7 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
                     <CategoryTile
                         key={cat.categoryID}
                         name={cat.category_name} 
-                        icon={cat.iconPath || miscellaneousBg} 
+                        icon={cat.iconPath || cat.icon_path || miscellaneousBg} 
                         bgColor={selectedCategory === cat.category_name ? '#bdbdbd' : '#D9D9D9'}
                         onClick={() => onSelect(cat.category_name)}
                     />
