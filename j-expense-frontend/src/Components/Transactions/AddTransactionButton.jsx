@@ -30,7 +30,7 @@ function AddTransactionButton() {
 
   const handleClick = () => {
     // Navigate to the Add Transaction page
-    navigate("/add-transaction");
+    navigate("/app/add-transaction");
   };
 
   const buttonStyle = {
