@@ -3,20 +3,20 @@ import CategoryTile from "../../Components/Category/CategoryTile";
 import foodBg from "../../assets/foodCategory.png"; // fallback icon
 import { transactionService } from '../Services/TransactionsService';
 import { useNavigate } from "react-router-dom";
+import { useUser } from '../../context/UserContext';
 
 function AllTransactions() {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
+  const { currentUser } = useUser();
 
   // Fetch transactions from backend
   useEffect(() => {
-    transactionService.getTransactionsByUser(27) // hardcoded userID
-      .then(mappedData => {
-        console.log("Fetched transactions:", mappedData); // Debug print
-        setData(mappedData);
-      })
+    const uid = currentUser?.userID;
+    transactionService.getTransactionsByUser(uid) // will use localStorage fallback if uid missing
+      .then(mappedData => setData(mappedData))
       .catch(err => console.error("Failed to fetch transactions:", err));
-  }, []);
+  }, [currentUser]);
 
   const containerStyle = {
     width: "100%",
@@ -62,7 +62,7 @@ function AllTransactions() {
       {data.map((row, index) => (
         <div
           key={index}
-          onClick={() => navigate("/app/edit-transaction", { state: { transactionId: row.id } })}
+          onClick={() => navigate("/edit-transaction", { state: { transactionId: row.id } })}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 2fr 1fr",

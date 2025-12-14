@@ -1,5 +1,6 @@
 // src/pages/AddTransactionPage.jsx
 import { useState } from "react";
+import { useUser } from '../context/UserContext';
 import AddTransaction from "../Components/Transactions/AddTransaction";
 import SelectCategory from "../Components/Category/SelectCategory";
 import { transactionService } from "../Components/Services/TransactionsService";
@@ -24,6 +25,7 @@ function AddTransactionPage() {
 
   // --- Selected category for submission ---
   const [selectedCategory, setSelectedCategory] = useState("");
+  const { currentUser } = useUser();
 
   // Map category names to IDs (example)
   const categoryMap = {
@@ -81,7 +83,7 @@ function AddTransactionPage() {
       creation_date: beginning,
       description,
       categoryID: categoryMap[selectedCategory] || 0,
-      userID: 27,
+      ...(currentUser ? { userID: currentUser.userID } : {}),
       isIncome: leftTab === "income",
       type: leftTab === "income" ? incomeType : undefined,
       paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,

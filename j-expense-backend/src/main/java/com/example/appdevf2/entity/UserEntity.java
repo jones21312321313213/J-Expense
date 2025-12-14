@@ -18,12 +18,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+
 
 @Getter
 @Setter
@@ -57,21 +55,29 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private List<TransactionEntity> transactions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<GoalEntity> goals = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<BudgetEntity> budgets = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<TransactionEntity> transactions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<BillReminderEntity> billReminders = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<GoalEntity> goals = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<RecurringTransactionEntity> recurringTransactions = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<BudgetEntity> budgets = new ArrayList<>();
+
+
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<BillReminderEntity> billReminders = new ArrayList<>();
+
+
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<RecurringTransactionEntity> recurringTransactions = new ArrayList<>();
+
 
     @OneToOne
     @JoinColumn(name = "activity_log_id")
