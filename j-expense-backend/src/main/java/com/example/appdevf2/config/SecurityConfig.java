@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/bills/**").hasAuthority("ROLE_USER")
                 .requestMatchers("/api/transaction/**").hasAuthority("ROLE_USER")
                 .requestMatchers("/api/recurring/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/api/goals/**").hasAuthority("ROLE_USER")
                 // endpoints requiring admin role
                 .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                 // all others need authentication
