@@ -29,6 +29,14 @@ public class CategoryService {
         return categoryRepository.findById(id);
     }
 
+        public List<CategoryEntity> getGlobalCategories() {
+        return categoryRepository.findGlobalCategories();
+    }
+
+    public List<CategoryEntity> getCategoriesByUserId(int userId) {
+        return categoryRepository.findByUserId(userId);
+    }
+
     // DELETE
     public void deleteCategory(int id) {
         categoryRepository.deleteById(id);

@@ -2,6 +2,10 @@ package com.example.appdevf2.controller;
 
 import com.example.appdevf2.entity.CategoryEntity;
 import com.example.appdevf2.service.CategoryService;
+import com.example.appdevf2.entity.UserEntity;
+import com.example.appdevf2.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +20,42 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // POST: Create a new Category
     @PostMapping
-    public ResponseEntity<CategoryEntity> createCategory(@RequestBody CategoryEntity category) {
+    public ResponseEntity<CategoryEntity> createCategory(@RequestBody java.util.Map<String,Object> payload) {
+        // Build category entity from payload
+        String name = payload.getOrDefault("category_name", "").toString();
+        String type = payload.getOrDefault("category_type", "expense").toString();
+        boolean isDefault = Boolean.parseBoolean(String.valueOf(payload.getOrDefault("isDefault", "false")));
+
+        if (name == null || name.isBlank()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        CategoryEntity category = new CategoryEntity();
+        category.setCategory_name(name);
+        category.setCategory_type(type);
+        category.setIs_global(isDefault);
+
+        // If marked as global, do not duplicate
+        if (isDefault) {
+            boolean exists = categoryService.getGlobalCategories().stream()
+                    .anyMatch(c -> c.getCategory_name().equalsIgnoreCase(name));
+            if (exists) return new ResponseEntity<>(HttpStatus.CONFLICT);
+            category.setIs_global(true);
+            category.setUser(null);
+            CategoryEntity savedCategory = categoryService.saveCategory(category);
+            return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+        }
+
+        // Otherwise attach current authenticated user if present
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            userRepository.findByUsername(auth.getName()).ifPresent(user -> category.setUser(user));
+        }
+        category.setIs_global(false);
+
         CategoryEntity savedCategory = categoryService.saveCategory(category);
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
@@ -26,8 +63,24 @@ public class CategoryController {
     // GET: Get all Categories
     @GetMapping
     public ResponseEntity<List<CategoryEntity>> getAllCategories() {
-        List<CategoryEntity> categories = categoryService.getAllCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        // Return global categories plus those owned by current user (if authenticated)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            var optUser = userRepository.findByUsername(auth.getName());
+            if (optUser.isPresent()) {
+                int uid = optUser.get().getUserID();
+                java.util.List<CategoryEntity> globals = categoryService.getGlobalCategories();
+                java.util.List<CategoryEntity> userCats = categoryService.getCategoriesByUserId(uid);
+                java.util.List<CategoryEntity> combined = new java.util.ArrayList<>();
+                combined.addAll(globals);
+                combined.addAll(userCats);
+                return new ResponseEntity<>(combined, HttpStatus.OK);
+            }
+        }
+
+        // unauthenticated: only return global categories
+        java.util.List<CategoryEntity> globals = categoryService.getGlobalCategories();
+        return new ResponseEntity<>(globals, HttpStatus.OK);
     }
 
     // GET: Get Category by ID
