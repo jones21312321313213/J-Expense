@@ -1,6 +1,5 @@
 package com.example.appdevf2.controller;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +114,9 @@ public class UserController {
     }
 
     @DeleteMapping("/user/delete/{uid}")
-    public String deleteUser(@PathVariable int uid) {
-        return userv.deleteUser(uid);
+    public ResponseEntity<String> deleteUser(@PathVariable int uid) {
+        userv.deleteUser(uid);
+        return ResponseEntity.ok("User deleted successfully");
     }
+
 }
