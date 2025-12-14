@@ -1,16 +1,17 @@
 package com.example.appdevf2.service;
 
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import com.example.appdevf2.entity.RecurringTransactionDTO;
 import com.example.appdevf2.entity.RecurringTransactionEntity;
 import com.example.appdevf2.entity.TransactionEntity;
 import com.example.appdevf2.repository.RecurringTransactionRepository;
 import com.example.appdevf2.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class RecurringTransactionService {
@@ -20,6 +21,8 @@ public class RecurringTransactionService {
 
     @Autowired
     private TransactionRepository transactionRepo;
+
+    
 
     public RecurringTransactionEntity create(RecurringTransactionEntity recurring) {
         return recurringRepo.save(recurring);
@@ -37,6 +40,7 @@ public class RecurringTransactionService {
         rec.setDescription(t.getDescription());
         rec.setIntervalDays(dto.getIntervalDays());
         rec.setTransaction(t);
+        rec.setUser(t.getUser());
 
         return recurringRepo.save(rec);
     }

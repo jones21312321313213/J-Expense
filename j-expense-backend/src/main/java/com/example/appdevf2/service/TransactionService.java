@@ -106,6 +106,7 @@ public class TransactionService {
 
             RecurringTransactionEntity rec = new RecurringTransactionEntity();
             rec.setTransaction(saved); // link to parent
+            rec.setUser(saved.getUser());
             rec.setAmount(saved.getAmount());
             rec.setDescription(saved.getDescription());
             rec.setRecurringDate(dto.getRecurringDate());
