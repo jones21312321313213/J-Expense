@@ -98,6 +98,21 @@ public class UserService implements UserDetailsService {
         return urepo.save(user);
     }
 
+    public void changePassword(int userId, String oldPassword, String newPassword) {
+        UserEntity user = urepo.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        if (!encoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
+
+        user.setPassword(encoder.encode(newPassword));
+
+
+        urepo.save(user);
+    }
+
+
     // ===================== DELETE =====================
 
     public void deleteUser(int uid) {
