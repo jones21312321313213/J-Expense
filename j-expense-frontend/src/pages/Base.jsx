@@ -1,11 +1,13 @@
 import Sidebar from "../Components/Sidebar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import bgImage from "../assets/dashbg.jpg";
 import AddTransactionButton from "../Components/Transactions/AddTransactionButton";
 
 
 function Base() {
+    const [notificationOpen, setNotificationOpen] = useState(false);
+
     // Zoom disabling useEffect 
     useEffect(() => {
         const handleZoomEvent = (e) => {
@@ -60,10 +62,10 @@ function Base() {
 
             {/* Background wrapper for all routed pages */}
             <div style={contentBgStyle}>
-                <Outlet />
+                <Outlet context={{ notificationOpen, setNotificationOpen }} />
 
-                {/* Floating Add Transaction Button */}
-                <AddTransactionButton />
+                {/* Floating Add Transaction Button - Hidden when notification panel is open */}
+                {!notificationOpen && <AddTransactionButton />}
             </div>
         </div>
     );
