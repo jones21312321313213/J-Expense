@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import GoalService from "../Components/Services/GoalService";
 
 const GoalsContext = createContext();
 
@@ -9,12 +9,12 @@ export const GoalsProvider = ({ children }) => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔎 Fetch all goals from backend
+  // 🔎 Fetch all goals for the logged-in user
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8080/api/goals/allGoals");
-      setGoals(res.data);
+      const data = await GoalService.getMyGoals();
+      setGoals(data); // only sets goals for the logged-in user
     } catch (err) {
       console.error("Error fetching goals:", err);
     } finally {
@@ -25,11 +25,8 @@ export const GoalsProvider = ({ children }) => {
   // ➕ Add new goal
   const addGoal = async (newGoal) => {
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/goals/addGoal",
-        newGoal
-      );
-      setGoals((prev) => [...prev, res.data]); // update local state
+      const createdGoal = await GoalService.addGoal(newGoal);
+      setGoals((prev) => [...prev, createdGoal]);
     } catch (err) {
       console.error("Error adding goal:", err);
     }
@@ -38,12 +35,9 @@ export const GoalsProvider = ({ children }) => {
   // ✏️ Update goal
   const updateGoal = async (id, updatedGoal) => {
     try {
-      const res = await axios.put(
-        `http://localhost:8080/api/goals/updateGoal/${id}`,
-        updatedGoal
-      );
+      const updated = await GoalService.updateGoal(id, updatedGoal);
       setGoals((prev) =>
-        prev.map((goal) => (goal.goalID === id ? res.data : goal))
+        prev.map((goal) => (goal.goalID === id ? updated : goal))
       );
     } catch (err) {
       console.error("Error updating goal:", err);
@@ -53,21 +47,36 @@ export const GoalsProvider = ({ children }) => {
   // ❌ Delete goal
   const deleteGoal = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/goals/deleteGoal/${id}`);
+      await GoalService.deleteGoal(id);
       setGoals((prev) => prev.filter((goal) => goal.goalID !== id));
     } catch (err) {
       console.error("Error deleting goal:", err);
     }
   };
 
-  // Load goals on mount
+  // 🧹 Clear goals (call on logout)
+  const clearGoals = () => {
+    setGoals([]);
+  };
+
+  // Load goals on mount if token exists
   useEffect(() => {
-    fetchGoals();
+    if (localStorage.getItem("token")) {
+      fetchGoals();
+    }
   }, []);
 
   return (
     <GoalsContext.Provider
-      value={{ goals, addGoal, updateGoal, deleteGoal, loading }}
+      value={{
+        goals,
+        addGoal,
+        updateGoal,
+        deleteGoal,
+        clearGoals, // expose clearGoals
+        loading,
+        fetchGoals, // optionally expose fetchGoals to refresh manually
+      }}
     >
       {children}
     </GoalsContext.Provider>
