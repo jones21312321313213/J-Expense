@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import UserService from '../Components/Services/UserService';
+import { useUser } from '../context/UserContext';
 import bgImage from '../assets/bgregister.jpg';
 
 function Register() {

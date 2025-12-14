@@ -1,5 +1,6 @@
 // src/pages/EditTransaction.jsx
 import { useState, useEffect } from "react";
+import { useUser } from '../../context/UserContext';
 import SelectCategory from "../Category/SelectCategory";
 import { transactionService } from "../Services/TransactionsService";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ function EditTransaction() {
   const transaction = location.state?.transaction || null;
 
   const transactionId = location.state?.transactionId;
+  const { currentUser } = useUser();
 
 
 useEffect(() => {
@@ -131,7 +133,7 @@ useEffect(() => {
       creation_date: beginning ? new Date(beginning).toISOString() : null,
       description,
       categoryID: categoryMap[selectedCategory] || 0,
-      userID: 27,
+      ...(currentUser ? { userID: currentUser.userID } : {}),
       isIncome: leftTab === "income",
       type: leftTab === "income" ? incomeType : undefined,
       paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
@@ -262,7 +264,7 @@ useEffect(() => {
         try {
           await transactionService.deleteTransaction(transactionId);
           setShowDelete(false);
-          navigate("/app/transactions");
+          navigate("/transactions");
         } catch (err) {
           console.error("Delete failed", err);
           alert("Failed to delete transaction");

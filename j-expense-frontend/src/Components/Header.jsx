@@ -1,7 +1,6 @@
-import { useNavigate } from "react-router-dom";
 
+// header in landingpage
 function Header() {
-  const navigate = useNavigate();
 
   const baseButtonStyle = {
     borderRadius: "8px",
@@ -26,13 +25,9 @@ function Header() {
 
   return (
     <nav className="navbar navbar-expand-lg px-3">
-      <span
-        className="navbar-brand"
-        style={{ cursor: "pointer" }}
-        onClick={() => navigate("/")}
-      >
+      <a className="navbar-brand" href="#">
         J-Expense
-      </span>
+      </a>
 
       <button
         className="navbar-toggler"
@@ -47,18 +42,14 @@ function Header() {
 
           <li className="nav-item">
             <button
-              style={{ ...baseButtonStyle, backgroundColor: "#28a745" }}
-              onClick={() => navigate("/login")}
-            >
+              style={{...baseButtonStyle,backgroundColor: "#28a745"}}>
               Log in
             </button>
           </li>
 
           <li className="nav-item">
             <button
-              style={{ ...baseButtonStyle, backgroundColor: "#000000" }}
-              onClick={() => navigate("/register")}
-            >
+              style={{...baseButtonStyle,backgroundColor: "#000000"}}>
               Create Account
             </button>
           </li>

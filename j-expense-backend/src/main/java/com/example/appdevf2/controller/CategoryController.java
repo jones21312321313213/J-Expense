@@ -1,6 +1,7 @@
 package com.example.appdevf2.controller;
 
 import com.example.appdevf2.entity.CategoryEntity;
+import com.example.appdevf2.entity.CategoryDTO;
 import com.example.appdevf2.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,16 @@ public class CategoryController {
 
     // POST: Create a new Category
     @PostMapping
-    public ResponseEntity<CategoryEntity> createCategory(@RequestBody CategoryEntity category) {
-        CategoryEntity savedCategory = categoryService.saveCategory(category);
+    public ResponseEntity<CategoryEntity> createCategory(@RequestBody CategoryDTO categoryDto) {
+        CategoryEntity savedCategory = categoryService.createCategory(categoryDto);
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+    }
+
+    // GET: Get Categories for a specific user
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CategoryEntity>> getCategoriesByUser(@PathVariable int userId) {
+        List<CategoryEntity> categories = categoryService.getCategoriesByUser(userId);
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     // GET: Get all Categories
@@ -46,6 +54,8 @@ public class CategoryController {
                     // Update fields
                     existingCategory.setCategory_name(categoryDetails.getCategory_name());
                     existingCategory.setCategory_type(categoryDetails.getCategory_type());
+                    existingCategory.setIs_default(categoryDetails.getIs_default());
+                    existingCategory.setIcon_path(categoryDetails.getIcon_path());
                     
                     CategoryEntity updatedCategory = categoryService.saveCategory(existingCategory);
                     return new ResponseEntity<>(updatedCategory, HttpStatus.OK);

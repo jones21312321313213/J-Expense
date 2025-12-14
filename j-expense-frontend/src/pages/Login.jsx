@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/bgLanding.jpg";
 
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +45,7 @@ function Login() {
       setError("Invalid username or password");
     }
   };
-
+  
   return (
     <div
       style={{
@@ -79,6 +81,7 @@ function Login() {
                   </div>
                 )}
 
+                
                 <div className="mb-3 text-start">
                   <label className="form-label">Username</label>
                   <input
