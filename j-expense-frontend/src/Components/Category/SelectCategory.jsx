@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useUser } from '../../context/UserContext';
 import CategoryTile from "./CategoryTile"; 
 import { categoryService } from "../Services/CategoryService";
 import foodBg from "../../assets/foodCategory.png";
@@ -11,12 +10,15 @@ import miscellaneousBg from "../../assets/miscellaneousCategory.png";
 import add from "../../assets/addIcon.png";
 
 function SelectCategory({ onSelect, selectedCategory, budgetType }) {
-    const { currentUser } = useUser();
-    const userId = currentUser ? currentUser.userID : null;
+    const getUserId = () => localStorage.getItem("userId");
+    const userId = getUserId();
     const [addClicked, setAddClicked] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [customCategories, setCustomCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+
+ 
+
 
     // Default categories definition
     const defaultCategories = [
