@@ -12,4 +12,6 @@ public class RecurringTransactionDTO {
     private Date recurringDate;
     private int intervalDays;
     private int transactionId;
+
+    private int userId;
 }

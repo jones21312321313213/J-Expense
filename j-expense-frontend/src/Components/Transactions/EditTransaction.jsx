@@ -55,6 +55,7 @@ useEffect(() => {
 
   transactionService.getTransactionById(transactionId)
     .then(data => {
+      console.log("Fetched transaction:", data);
       setName(data.name);
       setAmountValue(data.amount);
       setLeftTab(data.incomeFlag ? "income" : "expenses");
