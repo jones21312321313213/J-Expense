@@ -1,171 +1,131 @@
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
-import bgImage from '../assets/bgLanding.jpg';
+import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/bgLanding.jpg";
 
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useUser();
 
-  // ------------------------------- STYLES -------------------------------
-  const mainBox = {
-    border: "2px solid #ffffff",
-    borderRadius: "8px",
-    padding: "40px 30px",
-    backgroundColor: "white",
-    color: "#000",
-    boxSizing: "border-box",
-    width: "100%",
-    maxWidth: "500px",
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  const labelStyle = {
-    marginBottom: "6px",
-    display: "block",
-  };
+    try {
+      const res = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-  const inputStyle = {
-    height: "40px",
-  };
+      if (!res.ok) {
+        throw new Error("Invalid username or password");
+      }
 
-  const passwordContainer = {
-    marginBottom: "1.5rem",
-    position: "relative",
-  };
+      const data = await res.json();
 
-  const eyeIcon = {
-    position: "absolute",
-    top: "38%",
-    right: "10px",
-    cursor: "pointer",
-    transform: "translateY(10px)",
-    fontSize: "1.2rem",
-  };
+      // ✅ SAVE LOGIN SESSION
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("username", data.username);
 
-  const dividerWrapper = {
-    display: "flex",
-    alignItems: "center",
-    textAlign: "center",
-    margin: "20px 0",
-  };
-
-  const dividerLine = {
-    flex: 1,
-    height: "1px",
-    backgroundColor: "#ccc",
-  };
-
-  const dividerText = {
-    margin: "0 10px",
-    color: "#666",
-    fontSize: "14px",
-    fontWeight: "bold",
-  };
-
-  const titleStyle = {
-    fontWeight: "bold",
-    fontSize: "24px",
-    textAlign: "center",
-    marginBottom: "20px",
-  };
-
-  const bgStyle = {
-    minHeight: "100vh",
-    padding: "20px",
-    backgroundImage: `url(${bgImage})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+      // ✅ Redirect after login
+      navigate("/app/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Invalid username or password");
+    }
   };
   
   return (
-    <div style={bgStyle}>
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: "20px",
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6">
-            <div style={mainBox}>
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                try{
-                  await login(username, password);
-                  navigate('/');
-                }catch(err){
-                  alert('Login failed');
-                }
-              }}>
-                <h1 style={titleStyle}>J-EXPENSE</h1>
+            <div
+              style={{
+                border: "2px solid #ffffff",
+                borderRadius: "8px",
+                padding: "40px 30px",
+                backgroundColor: "white",
+                maxWidth: "500px",
+                width: "100%",
+              }}
+            >
+              <form onSubmit={handleSubmit}>
+                <h1 className="text-center mb-4 fw-bold">J-EXPENSE</h1>
+
+                {error && (
+                  <div className="alert alert-danger text-center">
+                    {error}
+                  </div>
+                )}
 
                 
                 <div className="mb-3 text-start">
-                  <label style={labelStyle}>Username</label>
+                  <label className="form-label">Username</label>
                   <input
-                    name="username"
                     className="form-control"
-                    placeholder="Enter username"
-                    style={inputStyle}
                     value={username}
-                    onChange={(e)=>setUsername(e.target.value)}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
                   />
                 </div>
 
-                
-                <div style={passwordContainer}>
-                  <label style={labelStyle}>Password</label>
+                <div className="mb-3 position-relative">
+                  <label className="form-label">Password</label>
                   <input
                     type={passwordShown ? "text" : "password"}
-                    name="password"
                     className="form-control"
-                    placeholder="Enter your password"
-                    style={inputStyle}
                     value={password}
-                    onChange={(e)=>setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                   <i
-                    className={`bi ${passwordShown ? "bi-eye" : "bi-eye-slash"}`}
-                    style={eyeIcon}
+                    className={`bi ${
+                      passwordShown ? "bi-eye" : "bi-eye-slash"
+                    }`}
+                    style={{
+                      position: "absolute",
+                      top: "38px",
+                      right: "10px",
+                      cursor: "pointer",
+                    }}
                     onClick={() => setPasswordShown(!passwordShown)}
                   ></i>
                 </div>
 
-                
-                <div className="mb-3 text-start">
-                  <a
-                    href="/forgot-password"
-                    style={{ textDecoration: "none", color: "black" }}
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-
-                
                 <button type="submit" className="btn btn-dark w-100 mb-3">
                   Login
                 </button>
 
-                
-                <div style={dividerWrapper}>
-                  <div style={dividerLine}></div>
-                  <span style={dividerText}>OR</span>
-                  <div style={dividerLine}></div>
-                </div>
-
-                
                 <div className="text-center">
-                  <p>
-                    <a
-                      href="/register"
-                      style={{ marginLeft: "5px", textDecoration: "none", color: "black" }}
-                    >
-                      Create an account
-                    </a>
-                  </p>
+                  <a
+                    href="/register"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Create an account
+                  </a>
                 </div>
               </form>
             </div>

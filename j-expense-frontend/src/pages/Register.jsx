@@ -6,11 +6,45 @@ import bgImage from '../assets/bgregister.jpg';
 
 function Register() {
   const [passwordShown, setPasswordShown] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const { setUser } = useUser();
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: ""
+  });
+
+  // ✅ handle input change
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // ✅ handle submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error);
+      }
+
+      alert("Registration successful!");
+      window.location.href = "/login";
+
+    } catch (err) {
+      alert(err.message || "Registration failed");
+    }
+  };
 
   // ------------------------------- STYLES -------------------------------
   const mainBox = {
@@ -24,14 +58,8 @@ function Register() {
     maxWidth: "500px",
   };
 
-  const labelStyle = {
-    marginBottom: "6px",
-    display: "block",
-  };
-
-  const inputStyle = {
-    height: "40px",
-  };
+  const labelStyle = { marginBottom: "6px", display: "block" };
+  const inputStyle = { height: "40px" };
 
   const passwordContainer = {
     marginBottom: "1.5rem",
@@ -54,18 +82,8 @@ function Register() {
     margin: "20px 0",
   };
 
-  const dividerLine = {
-    flex: 1,
-    height: "1px",
-    backgroundColor: "#ccc",
-  };
-
-  const dividerText = {
-    margin: "0 10px",
-    color: "#666",
-    fontSize: "14px",
-    fontWeight: "bold",
-  };
+  const dividerLine = { flex: 1, height: "1px", backgroundColor: "#ccc" };
+  const dividerText = { margin: "0 10px", color: "#666", fontSize: "14px", fontWeight: "bold" };
 
   const titleStyle = {
     fontWeight: "bold",
@@ -93,19 +111,9 @@ function Register() {
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6">
             <div style={mainBox}>
-              <form onSubmit={async (e)=>{
-                e.preventDefault();
-                try{
-                  const created = await UserService.createUser({username,email,password});
-                  setUser(created);
-                  navigate('/');
-                }catch(err){
-                  console.error('Failed to register',err);
-                  alert('Failed to register the user');
-                }
-              }}>
+              {/* ✅ attach submit */}
+              <form onSubmit={handleSubmit}>
                 <h1 style={titleStyle}>J-EXPENSE</h1>
-
                 <h6 className="text-center fw-normal mt-2">Create an account</h6>
 
                 {/* Username */}
@@ -116,11 +124,11 @@ function Register() {
                     className="form-control"
                     placeholder="Enter username"
                     style={inputStyle}
-                    value={username}
-                    onChange={(e)=>setUsername(e.target.value)}
+                    value={formData.username}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
-
 
                 {/* Email */}
                 <div className="mb-3 text-start">
@@ -131,11 +139,11 @@ function Register() {
                     className="form-control"
                     placeholder="Enter email"
                     style={inputStyle}
-                    value={email}
-                    onChange={(e)=>setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
-
 
                 {/* Password */}
                 <div style={passwordContainer}>
@@ -146,14 +154,15 @@ function Register() {
                     className="form-control"
                     placeholder="Enter your password"
                     style={inputStyle}
-                    value={password}
-                    onChange={(e)=>setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
                   />
                   <i
                     className={`bi ${passwordShown ? "bi-eye" : "bi-eye-slash"}`}
                     style={eyeIcon}
                     onClick={() => setPasswordShown(!passwordShown)}
-                  ></i>
+                  />
                 </div>
 
                 {/* Register Button */}
@@ -172,11 +181,8 @@ function Register() {
                 <div className="text-center">
                   <p>
                     Already have an account?
-                    <a
-                      href="/login"
-                      style={{ color: "black",  marginLeft:"10px"}}
-                    >
-                     Login
+                    <a href="/login" style={{ color: "black", marginLeft: "10px" }}>
+                      Login
                     </a>
                   </p>
                 </div>
