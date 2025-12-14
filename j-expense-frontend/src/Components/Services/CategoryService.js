@@ -1,91 +1,95 @@
 // src/Components/Services/categoryService.js
 const API_BASE_URL = 'http://localhost:8080/api/categories';
 
+// Helper to get token from localStorage
+const getToken = () => localStorage.getItem('token');
+
+// Helper to build auth headers
+const authHeaders = () => ({
+  Authorization: `Bearer ${getToken()}`,
+  'Content-Type': 'application/json'
+});
+
 export const categoryService = {
-  // Get all categories
-  getAllCategories: async () => {
-    try {
-      const response = await fetch(API_BASE_URL);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      throw error;
-    }
-  },
+  // Get all categories
+  getAllCategories: async () => {
+    try {
+      const response = await fetch(API_BASE_URL, {
+        headers: authHeaders()
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  },
 
-	// Get categories for a specific user (includes default categories)
-	getCategoriesByUser: async (userId) => {
-		try {
-			const response = await fetch(`${API_BASE_URL}/user/${userId}`);
-			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-			return await response.json();
-		} catch (error) {
-			console.error('Error fetching categories for user:', error);
-			throw error;
-		}
-	},
+  // Get categories for a specific user (includes default categories)
+  getCategoriesByUser: async (userId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+        headers: authHeaders()
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching categories for user:', error);
+      throw error;
+    }
+  },
 
-  // Create a new category
-	createCategory: async (categoryData) => {
-    try {
-			// Build the request body, only include fields that are present
-			const body = {
-				category_name: categoryData.name,
-				category_type: categoryData.categoryType || 'Expense'
-			};
+  // Create a new category
+  createCategory: async (categoryData) => {
+    try {
+      const body = {
+        category_name: categoryData.name,
+        category_type: categoryData.categoryType || 'Expense'
+      };
 
-			if (categoryData.icon) body.iconPath = categoryData.icon;
-			// If userID not provided explicitly, try localStorage fallback (dev-mode current user)
-			// Do not attach a user when creating default categories
-			if (!categoryData.isDefault) {
-				const stored = localStorage.getItem('jexpense_user');
-				const fallbackUserID = stored ? JSON.parse(stored).userID : undefined;
-				const resolvedUserID = (categoryData && categoryData.userID) ? categoryData.userID : fallbackUserID;
-				if (resolvedUserID) body.userID = resolvedUserID;
-			}
-			if (categoryData.isDefault === true) body.isDefault = true;
+      if (categoryData.icon) body.iconPath = categoryData.icon;
 
-			const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-		body: JSON.stringify(body),
-      });
-      
-      if (response.status === 409) {
-        throw new Error('Category already exists');
-			}
+      if (!categoryData.isDefault) {
+        const stored = localStorage.getItem('jexpense_user');
+        const fallbackUserID = stored ? JSON.parse(stored).userID : undefined;
+        const resolvedUserID = categoryData.userID || fallbackUserID;
+        if (resolvedUserID) body.userID = resolvedUserID;
+      }
 
-			if (response.status === 400) {
-				// Invalid user supplied
-				const text = await response.text();
-				throw new Error(`Invalid request: ${text || 'Bad request (400)'}`);
-			}
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating category:', error);
-      throw error;
-    }
-  },
+      if (categoryData.isDefault === true) body.isDefault = true;
 
-  // Delete a category
-  deleteCategory: async (categoryID) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/${categoryID}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      return true;
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      throw error;
-    }
-  },
+      const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+
+      if (response.status === 409) throw new Error('Category already exists');
+      if (response.status === 400) {
+        const text = await response.text();
+        throw new Error(`Invalid request: ${text || 'Bad request (400)'}`);
+      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating category:', error);
+      throw error;
+    }
+  },
+
+  // Delete a category
+  deleteCategory: async (categoryID) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${categoryID}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+  },
 };
