@@ -1,45 +1,90 @@
-const API_BASE_URL = 'http://localhost:8080/api/transaction';
+const API_BASE_URL = "http://localhost:8080/api/transaction";
 
+/* =======================
+   AUTH HELPERS
+======================= */
+const getUserId = () => {
+  return localStorage.getItem("userId");
+};
 
+const getToken = () => {
+  return localStorage.getItem("token");
+};
+
+const authHeaders = () => ({
+  Authorization: `Bearer ${getToken()}`,
+});
+
+/* =======================
+   TRANSACTION SERVICE
+======================= */
 export const transactionService = {
-  // Fetch all transactions for userId 27 if wala mo ani find ur own user in ur own db
-   getTransactionsByUser: async () => {
-    const userId = 27; // hardcoded
+  /* -----------------------
+     GET ALL TRANSACTIONS
+  ----------------------- */
+  getTransactionsByUser: async () => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not logged in");
+
     try {
-      const response = await fetch(`${API_BASE_URL}/getTransactionsByUser/${userId}`);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${API_BASE_URL}/getTransactionsByUser/${userId}`,
+        {
+          headers: authHeaders(),
+        }
+      );
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
       const transactions = await response.json();
 
-      // IMPORTANT: return amount as number here (don't format with currency)
       return transactions.map((t) => ({
         id: t.billID || t.id,
         item: t.name,
-        date: t.creation_date?.split('T')[0] || "",
+        date: t.creation_date?.split("T")[0] || "",
         description: t.description || "-",
         amount: Number(t.amount) || 0,
-        type: t.incomeFlag ? 'income' : 'expense',
+        type: t.incomeFlag ? "income" : "expense",
         categoryName: t.category?.name || "",
-        isRecurring: !!(t.recurringTransactions && t.recurringTransactions.length > 0) || !!t.isRecurring,
-        recurringRaw: (t.recurringTransactions && t.recurringTransactions[0]) || t.recurringTransaction || null,
-        paymentMethod: t.paymentMethod || (t.expense ? t.expense.payment_method : "") || "",
+        isRecurring:
+          !!(
+            t.recurringTransactions &&
+            t.recurringTransactions.length > 0
+          ) || !!t.isRecurring,
+        recurringRaw:
+          (t.recurringTransactions && t.recurringTransactions[0]) ||
+          t.recurringTransaction ||
+          null,
+        paymentMethod:
+          t.paymentMethod ||
+          (t.expense ? t.expense.payment_method : "") ||
+          "",
         incomeType: t.type || (t.income ? t.income.type : "") || "",
       }));
-
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error("Error fetching transactions:", error);
       throw error;
     }
   },
 
-  // Fetch a single transaction by ID (returns cleaned shape used by EditTransaction)
-// transactionService.getTransactionById
+  /* -----------------------
+     GET SINGLE TRANSACTION
+  ----------------------- */
   getTransactionById: async (transactionId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/getTransaction/${transactionId}`);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${API_BASE_URL}/getTransaction/${transactionId}`,
+        {
+          headers: authHeaders(),
+        }
+      );
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
       const t = await response.json();
 
-      // payment method / income type
       let paymentMethod = "";
       if (!t.isIncome && t.expense) {
         paymentMethod = t.expense.payment_method || "";
@@ -54,43 +99,20 @@ export const transactionService = {
         incomeType = t.type;
       }
 
-      // Recurrence: support DTO (t.isRecurring, t.intervalDays, t.recurringDate)
-      // or Entity with recurringTransactions array
       let periodLength = 1;
       let periodUnit = "Day";
       let endDate = "";
 
-      if (t.isRecurring) {
-        periodLength = t.intervalDays ?? periodLength;
-        if (t.recurringDate) {
-          try {
-            const d = new Date(t.recurringDate);
-            if (!isNaN(d.getTime())) endDate = d.toISOString().split('T')[0];
-          } catch (e) {
-            endDate = t.recurringDate;
-          }
-        }
-      } else if (t.recurringTransactions && t.recurringTransactions.length > 0) {
-        const rec = t.recurringTransactions[0];
+      const rec =
+        (t.recurringTransactions && t.recurringTransactions[0]) ||
+        t.recurringTransaction;
+
+      if (rec) {
         periodLength = rec.intervalDays ?? periodLength;
         if (rec.recurringDate) {
-          try {
-            const d = new Date(rec.recurringDate);
-            if (!isNaN(d.getTime())) endDate = d.toISOString().split('T')[0];
-          } catch (e) {
-            endDate = rec.recurringDate;
-          }
-        }
-      } else if (t.recurringTransaction) {
-        // in case older property name existed
-        periodLength = t.recurringTransaction.intervalDays ?? periodLength;
-        if (t.recurringTransaction.recurringDate) {
-          try {
-            const d = new Date(t.recurringTransaction.recurringDate);
-            if (!isNaN(d.getTime())) endDate = d.toISOString().split('T')[0];
-          } catch (e) {
-            endDate = t.recurringTransaction.recurringDate;
-          }
+          const d = new Date(rec.recurringDate);
+          if (!isNaN(d.getTime()))
+            endDate = d.toISOString().split("T")[0];
         }
       }
 
@@ -101,14 +123,14 @@ export const transactionService = {
         creation_date: t.creation_date,
         description: t.description || "",
         incomeFlag: t.isIncome ?? t.incomeFlag,
-        categoryName: (t.category && t.category.name) || t.categoryName || "",
-        isRecurring: !!(t.isRecurring || (t.recurringTransactions && t.recurringTransactions.length > 0)),
+        categoryName: t.category?.name || "",
+        isRecurring: !!rec,
         paymentMethod,
         incomeType,
         periodLength,
         periodUnit,
         endDate,
-        recurringRaw: t.recurringTransactions ? t.recurringTransactions[0] : (t.recurringTransaction || null),
+        recurringRaw: rec || null,
       };
     } catch (error) {
       console.error("Error fetching transaction by ID:", error);
@@ -116,52 +138,85 @@ export const transactionService = {
     }
   },
 
-
-  // Create a new transaction (retain as-is)
+  /* -----------------------
+     CREATE TRANSACTION
+  ----------------------- */
   createTransaction: async (transactionData) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not logged in");
+
     try {
-      const dataWithUser = { ...transactionData, userID: 27 };
-      const response = await fetch(`${API_BASE_URL}/insertTransaction`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataWithUser),
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${API_BASE_URL}/insertTransaction`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders(),
+          },
+          body: JSON.stringify({
+            ...transactionData,
+            userID: userId,
+          }),
+        }
+      );
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
       return await response.json();
     } catch (error) {
-      console.error('Error creating transaction:', error);
+      console.error("Error creating transaction:", error);
       throw error;
     }
   },
 
-  
-  // Update a transaction
+  /* -----------------------
+     UPDATE TRANSACTION
+  ----------------------- */
   updateTransaction: async (transactionId, transactionData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/updateTransaction?tid=${transactionId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transactionData),
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${API_BASE_URL}/updateTransaction?tid=${transactionId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders(),
+          },
+          body: JSON.stringify(transactionData),
+        }
+      );
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
       return await response.json();
     } catch (error) {
-      console.error('Error updating transaction:', error);
+      console.error("Error updating transaction:", error);
       throw error;
     }
-    
   },
 
-  // Delete a transaction
+  /* -----------------------
+     DELETE TRANSACTION
+  ----------------------- */
   deleteTransaction: async (transactionId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteTransaction/${transactionId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${API_BASE_URL}/deleteTransaction/${transactionId}`,
+        {
+          method: "DELETE",
+          headers: authHeaders(),
+        }
+      );
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
       return true;
     } catch (error) {
-      console.error('Error deleting transaction:', error);
+      console.error("Error deleting transaction:", error);
       throw error;
     }
   },

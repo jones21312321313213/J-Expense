@@ -25,10 +25,13 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom"; 
+import LogoutModal from "./LogoutModal";
 
 function Sidebar() {
     const [editOpen, setEditOpen] = useState(false);
+    const [showLogout, setShowLogout] = useState(false);
     const location = useLocation(); 
+    
 
     // Define a standard style for all icons (SVGs and Bootstrap icons)
     const iconSizeStyle = { width: "24px", height: "24px", minWidth: "24px", minHeight: "24px" };
@@ -247,12 +250,20 @@ function Sidebar() {
 
           {/* Logout */}
           <div className="mt-auto mb-3">
-            <Link to="/login" className="nav-link d-flex align-items-center text-white" style={{ gap: "10px", paddingLeft: "12px" }}>
-              {/* Logout Icon: Applied standard size */}
+            <div
+              className="nav-link d-flex align-items-center text-white"
+              style={{ gap: "10px", paddingLeft: "12px", cursor: "pointer" }}
+              onClick={() => setShowLogout(true)}
+            >
               <i className="bi bi-box-arrow-right me-2" style={iconSizeStyle}></i>
               Logout
-            </Link>
+            </div>
           </div>
+
+          {showLogout && (
+            <LogoutModal onClose={() => setShowLogout(false)} />
+          )}
+
 
           {/* Profile */}
           <hr className="mt-3 mb-3"/>
@@ -273,6 +284,9 @@ function Sidebar() {
               </div>
             </div>
           </div>
+
+
+
         </div>
     );
 }

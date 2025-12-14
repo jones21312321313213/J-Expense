@@ -1,70 +1,104 @@
 package com.example.appdevf2.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.appdevf2.entity.UserEntity;
 import com.example.appdevf2.repository.UserRepository;
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
+
+    private final UserRepository urepo;
+    private final PasswordEncoder encoder;
+
     @Autowired
-    UserRepository urepo;
-    
+    public UserService(UserRepository urepo, @Lazy PasswordEncoder encoder) {
+        this.urepo = urepo;
+        this.encoder = encoder;
+    }
 
-    // C - Create or insert user record in tbl_user (including transactions)
-    public UserEntity insertUser(UserEntity user) {
-        // If POST request includes transactions, set FK back-reference
-        // if (user.getTransactions() != null) {
-        //     user.getTransactions().forEach(t -> t.setUser(user));
-        // }
+    // ===================== SPRING SECURITY =====================
 
-        // Saving user will automatically save transactions (cascade)
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return urepo.findByUsername(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + username));
+    }
+
+    // ===================== REGISTER USER =====================
+
+    public UserEntity registerUser(UserEntity user) {
+
+        if (user.getUsername() == null || user.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
+        // Encode password
+        user.setPassword(encoder.encode(user.getPassword()));
+
+        // Default role
+        user.setRoles("ROLE_USER");
+
+        // Creation date
+        user.setCreation_date(new Date());
+
         return urepo.save(user);
     }
 
+    // ===================== READ =====================
 
-    //R - read all user records in tbluser
-    public List<UserEntity> getAllUsers(){
+    public List<UserEntity> getAllUsers() {
         return urepo.findAll();
     }
 
-    //R - read user by id in tbluser
     public UserEntity getUserById(int id) {
-        return urepo.findById(id).orElse(null);
+        return urepo.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
+    // ===================== UPDATE =====================
 
-    //U - update a user
-    @SuppressWarnings("finally")
-    public UserEntity updateUser(int uid, UserEntity newUserDetails){
-        UserEntity u = new UserEntity();
-        try{
-            //1) Search the id number of the user that will be updated
-            u = urepo.findById(uid).get();
-            //2) upddate the record
-            u.setUsername(newUserDetails.getUsername());
-            u.setEmail(newUserDetails.getEmail());
-            u.setPassword(newUserDetails.getPassword());
-        }catch(NoSuchElementException e){
-            throw new NoSuchElementException("User: " +  uid + " is not found");
-        }finally{
-            return urepo.save(u);
+    public UserEntity updateUser(int uid, UserEntity newUserDetails) {
+
+        UserEntity user = urepo.findById(uid)
+                .orElseThrow(() ->
+                        new NoSuchElementException("User " + uid + " not found"));
+
+        user.setUsername(newUserDetails.getUsername());
+        user.setEmail(newUserDetails.getEmail());
+
+        // ONLY encode if password was changed
+        if (newUserDetails.getPassword() != null &&
+            !newUserDetails.getPassword().isBlank()) {
+
+            user.setPassword(encoder.encode(newUserDetails.getPassword()));
         }
+
+        return urepo.save(user);
     }
 
+    // ===================== DELETE =====================
 
-    // D - delete a user
-    public String deleteUser(int uid){
-        String msg = "";
-        if(urepo.existsById(uid)){
-            urepo.deleteById(uid);
-            msg = "User: " + uid + " is successfully deleted!";
-        }else{
-            msg = "User: " + uid + " does not exist.";
+    public void deleteUser(int uid) {
+        if (!urepo.existsById(uid)) {
+            throw new NoSuchElementException("User not found");
         }
-        return msg;
+        urepo.deleteById(uid);
     }
 }
+

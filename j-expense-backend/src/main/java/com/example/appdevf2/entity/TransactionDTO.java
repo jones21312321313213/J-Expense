@@ -14,6 +14,7 @@ public class TransactionDTO {
     private Date creation_date;
     private String description;
     private String name;
+    
     private int userID;
     private int categoryID; // Also include category ID if needed
 

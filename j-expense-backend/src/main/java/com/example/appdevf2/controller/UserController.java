@@ -1,5 +1,6 @@
 package com.example.appdevf2.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,114 +23,94 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.appdevf2.entity.AuthRequest;
 import com.example.appdevf2.entity.UserEntity;
-import com.example.appdevf2.entity.UserInfo;
-import com.example.appdevf2.repository.UserInfoRepository;
+import com.example.appdevf2.repository.UserRepository;
 import com.example.appdevf2.service.JwtService;
 import com.example.appdevf2.service.UserService;
 
 @RestController
-@RequestMapping("/auth") // Base endpoint for login and registration
+@RequestMapping("/auth")
 public class UserController {
 
     private final UserService userv;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
 
-    @Autowired //this method is in ssecurity config
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserInfoRepository userInfoRepository;
-
-    @Autowired
-    public UserController(UserService userv, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public UserController(UserService userv,
+                          JwtService jwtService,
+                          AuthenticationManager authenticationManager,
+                          UserRepository userRepository) {
         this.userv = userv;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
     }
 
-    // =========================
-    // LOGIN ENDPOINT
-    // =========================
+    // LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-            );
+    public ResponseEntity<Map<String, Object>> login(@RequestBody AuthRequest authRequest) {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                authRequest.getUsername(),
+                authRequest.getPassword()
+            )
+        );
 
-            String token = jwtService.generateToken(authRequest.getUsername());
+        UserEntity user = userRepository.findByUsername(authRequest.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login successful");
-            response.put("token", token);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login failed: " + ex.getMessage());
-            return ResponseEntity.status(401).body(response);
-        }
-    }
-
-
-    // =========================
-    // LOGOUT ENDPOINT
-    // =========================
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        // Clear security context
-        SecurityContextHolder.clearContext();
+        String token = jwtService.generateToken(user);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Logout successful. Please delete token on client.");
+        response.put("token", token);
+        response.put("userId", user.getUserID());
+        response.put("username", user.getUsername());
 
         return ResponseEntity.ok(response);
     }
 
-
-    // =========================
-    // GENERATE TOKEN ENDPOINT
-    // =========================
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
-        }
-    }
-
-    // =========================
-    // REGISTER / CREATE USER
-    // =========================
     @PostMapping("/register")
-    public ResponseEntity<?> createUser(@RequestBody UserInfo user) {
-        // encode first
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        UserInfo savedUser = userInfoRepository.save(user);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<?> register(@RequestBody UserEntity user) {
+
+        System.out.println("USERNAME = " + user.getUsername());
+        System.out.println("PASSWORD = " + user.getPassword());
+
+
+        user.setRoles("USER"); // auto role
+        userv.registerUser(user);
+        return ResponseEntity.ok("User registered successfully");
     }
 
-    // =========================
-    // OTHER ENDPOINTS (JWT required)
-    // =========================
+
+
+
+
+    // LOGOUT (client-side token deletion is enough)
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // clear context (stateless) - optional
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Logout successful. Please delete token on client.");
+        return ResponseEntity.ok(response);
+    }
+
+    // other user endpoints still call UserService (unchanged)
     @GetMapping("/user/all")
-    public List<UserEntity> getAllUsers() {
+    public List<?> getAllUsers() {
         return userv.getAllUsers();
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable int id) {
-        UserEntity user = userv.getUserById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> getUserById(@PathVariable int id) {
+        return userv.getUserById(id) != null ? ResponseEntity.ok(userv.getUserById(id)) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/user/update")
-    public UserEntity updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
+    public Object updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
         return userv.updateUser(uid, newUserDetails);
     }
 

@@ -1,6 +1,5 @@
 package com.example.appdevf2.service;
 
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.example.appdevf2.entity.UserInfo;
+import com.example.appdevf2.entity.UserEntity;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,22 +23,15 @@ public class JwtService {
     public static final String SECRET =
         "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
 
-
-    public String generateToken(String username) {
-        return createToken(new HashMap<>(), username);
-    }
-
-    public String generateToken(UserInfo user) { // Use email as username
+    public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, user.getUsername());
-    }
-
-    private String createToken(Map<String, Object> claims, String email) {
+        claims.put("userId", user.getUserID());
+        claims.put("role", user.getRoles() == null ? "ROLE_USER" : user.getRoles());
         return Jwts.builder()
             .setClaims(claims)
-            .setSubject(email)
+            .setSubject(user.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h or change
             .signWith(getSignKey(), SignatureAlgorithm.HS256)
             .compact();
     }
@@ -49,9 +41,21 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
     public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> {
+            Object id = claims.get("userId");
+            if (id instanceof Number) {
+                return ((Number) id).intValue();
+            } else if (id instanceof String) {
+                return Integer.parseInt((String) id);
+            } else {
+                return null;
+            }
+        });
     }
 
     public Date extractExpiration(String token) {
@@ -79,6 +83,4 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
-
 }
