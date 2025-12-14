@@ -16,4 +16,8 @@ const UserService = {
   }
 };
 
+<<<<<<< HEAD
 export default UserService;
+=======
+export default UserService;
+>>>>>>> f0c7b21fe9de39716c4d55a1949f41df63e9f8a6

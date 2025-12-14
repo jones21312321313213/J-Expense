@@ -41,4 +41,8 @@ export const UserProvider = ({ children }) => {
   );
 };
 
+<<<<<<< HEAD
 export default UserContext;
+=======
+export default UserContext;
+>>>>>>> f0c7b21fe9de39716c4d55a1949f41df63e9f8a6
