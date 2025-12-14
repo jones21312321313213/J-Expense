@@ -1,6 +1,8 @@
 // src/main/java/com/example/appdevf2/config/SecurityConfig.java
 package com.example.appdevf2.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,14 +17,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-
-import com.example.appdevf2.filter.JwtAuthFilter;
-
-import java.util.List;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.example.appdevf2.filter.JwtAuthFilter;
 
 
 @Configuration
@@ -68,6 +67,9 @@ public class SecurityConfig {
                 ).permitAll()
                 // endpoints requiring user role
                 .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/api/bills/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/api/transaction/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/api/recurring/**").hasAuthority("ROLE_USER")
                 // endpoints requiring admin role
                 .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                 // all others need authentication

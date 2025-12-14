@@ -36,6 +36,12 @@ public class UserService implements UserDetailsService {
                         new UsernameNotFoundException("User not found: " + username));
     }
 
+
+    public UserEntity getByUsername(String username) {
+        return urepo.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
+
     // ===================== REGISTER USER =====================
 
     public UserEntity registerUser(UserEntity user) {

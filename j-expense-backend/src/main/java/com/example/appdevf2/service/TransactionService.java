@@ -1,11 +1,13 @@
 package com.example.appdevf2.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.appdevf2.entity.ExpenseEntity;
 import com.example.appdevf2.entity.IncomeEntity;
@@ -113,6 +115,9 @@ public class TransactionService {
             rec.setIntervalDays(dto.getIntervalDays());
 
             rrepo.save(rec);
+
+            if (saved.getRecurringTransactions() == null) saved.setRecurringTransactions(new ArrayList<>());
+            saved.getRecurringTransactions().add(rec);
         }
 
         return saved;
@@ -129,6 +134,7 @@ public class TransactionService {
         return trepo.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true) // ensure lazy fields are loaded
     public TransactionDTO getTransactionDTOById(int id) {
         TransactionEntity t = trepo.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Transaction not found with ID: " + id));
