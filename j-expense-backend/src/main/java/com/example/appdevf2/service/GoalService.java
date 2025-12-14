@@ -6,10 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.appdevf2.entity.GoalEntity;
+import com.example.appdevf2.entity.UserEntity;
 import com.example.appdevf2.repository.GoalRepository;
 
 @Service
 public class GoalService {
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private GoalRepository goalRepository;
@@ -28,6 +32,18 @@ public class GoalService {
     public GoalEntity getGoalById(int id) {
         return goalRepository.findById(id).orElse(null);
     }
+
+    public List<GoalEntity> getGoalsByUser(int userId) {
+        return goalRepository.findByUser_UserID(userId);
+    }
+
+    public GoalEntity saveGoal(GoalEntity goal, int userId) {
+        UserEntity user = userService.getUserById(userId);
+        goal.setUser(user);
+        return goalRepository.save(goal);
+    }
+
+    
 
     // Update Goal
     public GoalEntity updateGoal(int id, GoalEntity updatedGoal) {

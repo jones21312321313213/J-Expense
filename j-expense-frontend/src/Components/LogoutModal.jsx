@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useGoals } from "../Components/context/GoalsContext";
 function LogoutModal({ onClose }) {
   const navigate = useNavigate();
 
@@ -91,6 +91,8 @@ function LogoutModal({ onClose }) {
   const logoutHandler = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user"); // if you stored it
+    const { clearGoals } = useGoals();
+    clearGoals();
     navigate("/login");
   };
 

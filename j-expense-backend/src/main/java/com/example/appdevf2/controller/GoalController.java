@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.appdevf2.entity.GoalEntity;
 import com.example.appdevf2.service.GoalService;
+import com.example.appdevf2.service.JwtService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/goals")
@@ -24,12 +27,36 @@ public class GoalController {
     @Autowired
     private GoalService goalService;
 
-    // Create Goal
+    @Autowired
+    private JwtService jwtService;
+
+
     @PostMapping("/addGoal")
-    public GoalEntity addGoal(@RequestBody GoalEntity goal) {
-        // goalType and progress are included in the request body
-        return goalService.saveGoal(goal);
+    public GoalEntity addGoal(@RequestBody GoalEntity goal, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing token");
+        }
+
+        String token = authHeader.substring(7);
+        int userId = jwtService.extractUserId(token);
+        return goalService.saveGoal(goal, userId); // <-- link goal to user
     }
+
+
+    @GetMapping("/my-goals")
+    public List<GoalEntity> getMyGoals(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing token");
+        }
+
+        String token = authHeader.substring(7);
+        int userId = jwtService.extractUserId(token); // get userId from JWT
+        return goalService.getGoalsByUser(userId); // fetch only goals for this user
+    }
+
+
 
     // Get All Goals
     @GetMapping("/allGoals")
@@ -55,5 +82,11 @@ public class GoalController {
     public String deleteGoal(@PathVariable int id) {
         boolean deleted = goalService.deleteGoal(id);
         return deleted ? "Goal deleted successfully." : "Goal not found.";
+    }
+
+    private static class jwtService {
+
+        public jwtService() {
+        }
     }
 }

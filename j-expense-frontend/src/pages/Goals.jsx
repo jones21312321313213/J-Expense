@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Add from "../Components/Add";
 import SelectGoalType from "../Components/Goals/SelectGoalType";
 import GoalProgressCard from "../Components/Goals/GoalProgressCard";
@@ -11,12 +11,19 @@ function Goals() {
     return <div style={{ padding: "20px", color: "red" }}>GoalsContext not available</div>;
   }
 
-  const { goals, addGoal } = goalsContext;
+  const { goals, addGoal, loading } = goalsContext;
   const [showSelectGoalType, setShowSelectGoalType] = useState(false);
 
+  // ✅ Fetch goals when component mounts, only if token exists
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      goalsContext.fetchGoals?.(); // Make sure fetchGoals exists in context
+    }
+  }, []); 
+
   const containerStyle = {
-    marginLeft: "280px",              
-    width: "calc(100% - 280px)",      
+    marginLeft: "280px",
+    width: "calc(100% - 280px)",
     height: "80vh",
     display: "flex",
     flexDirection: "column",
@@ -51,8 +58,8 @@ function Goals() {
   const overlayStyle = {
     position: "fixed",
     top: 0,
-    left: "280px",                   
-    width: "calc(100vw - 280px)",     
+    left: "280px",
+    width: "calc(100vw - 280px)",
     height: "100vh",
     backgroundColor: "rgba(0,0,0,0.4)",
     display: "flex",
@@ -74,7 +81,7 @@ function Goals() {
   };
 
   const handleAddGoal = (newGoal) => {
-    addGoal(newGoal); 
+    addGoal(newGoal);
     setShowSelectGoalType(false);
   };
 
@@ -85,10 +92,11 @@ function Goals() {
       {/* Scroll area */}
       <div style={scrollAreaStyle}>
         <div style={gridStyle}>
-          {/* Render all goals */}
-          {goals.map((goal) => (
-            <GoalProgressCard key={goal.id} data={goal} />
-          ))}
+          {loading ? (
+            <p>Loading goals...</p>
+          ) : (
+            goals.map((goal) => <GoalProgressCard key={goal.goalID} data={goal} />)
+          )}
 
           {/* Add Button */}
           <div
