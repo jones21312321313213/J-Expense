@@ -28,6 +28,7 @@ import EditCategory from './Components/Category/EditCategory';
 import EditTransaction from './Components/Transactions/EditTransaction';
 
 function App() {
+  // hihi
   return (
     <Routes>
       {/* ================= PUBLIC ROUTES ================= */}
