@@ -1,12 +1,18 @@
-// Accept the onSave prop from the parent
-function EditSettingsSecurity({ onSave }) { 
+import { useState } from "react";
+import UserService from "../Services/UserService";
+
+function EditSettingsSecurity({ onSave }) {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+
   const container = {
     display: "flex",
     flexDirection: "column",
     gap: "25px",
     padding: "20px",
     maxWidth: "500px",
-    margin: "0",
     minHeight: "550px",
   };
 
@@ -18,92 +24,105 @@ function EditSettingsSecurity({ onSave }) {
     fontSize: "15px",
   };
 
-  const updateBtn = {
-    marginBottom: "30px",
-    marginTop: "50px",
+  const buttonStyle = {
     padding: "12px",
     background: "#299D91",
-    border:"none",
+    border: "none",
     color: "#fff",
     fontWeight: "600",
-    width: "30%", 
+    width: "30%",
     cursor: "pointer",
   };
 
   const buttonContainer = {
     display: "flex",
     justifyContent: "center",
+    gap: "20px",
     marginTop: "40px",
-    gap: "20px", 
   };
 
-  // Handler to simulate saving and switch back to view mode
-  const handleSaveClick = () => {
-    // TODO ADD THE SAVE LOGIC HERE
-    console.log("Saving security settings..."); 
-    if (onSave) {
-        onSave(); 
+  /* =========================
+     SAVE PASSWORD
+  ========================= */
+  const handleSaveClick = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      alert("All password fields are required");
+      return;
     }
-  };
-  
-  const handleCancelClick = () => {
-    if (onSave) {
-        onSave(); 
+
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      await UserService.changePassword({
+        oldPassword,
+        newPassword,
+        phone,
+      });
+
+      alert("Password updated successfully");
+      onSave(); // return to view mode
+    } catch (err) {
+      alert(err.message || "Failed to update password");
     }
   };
 
   return (
-    <div style={{ backgroundColor: "white", padding: "20px", minHeight: "550px" }}>
-      
-      {/* Inputs container */}
+    <div style={{ backgroundColor: "white", padding: "20px" }}>
       <div style={container}>
-        
-        {/* Old Password */}
         <div>
           <label>Old Password</label>
           <input
             style={inputStyle}
             type="password"
-            placeholder="Enter old password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
           />
         </div>
 
-        {/* New Password */}
         <div>
           <label>New Password</label>
           <input
             style={inputStyle}
             type="password"
-            placeholder="Enter new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label>Confirm Password</label>
           <input
             style={inputStyle}
             type="password"
-            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
 
-        {/* Phone Number */}
         <div>
           <label>Phone Number</label>
           <input
             style={inputStyle}
             type="text"
-            placeholder="Enter phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Buttons outside input container but inside white wrapper */}
       <div style={buttonContainer}>
-        <button style={updateBtn} onClick={handleSaveClick}>Save Changes</button>
-        <button style={{ ...updateBtn, background: "#ccc", color: "#333", width: "30%" }} onClick={handleCancelClick}>Cancel</button>
-        
+        <button style={buttonStyle} onClick={handleSaveClick}>
+          Save Changes
+        </button>
+        <button
+          style={{ ...buttonStyle, background: "#ccc", color: "#333" }}
+          onClick={onSave}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

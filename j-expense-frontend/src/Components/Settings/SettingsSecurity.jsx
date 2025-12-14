@@ -1,4 +1,3 @@
-// 1. Accept the onEditClick prop
 function SettingsSecurity({ onEditClick }) {
   const container = {
     display: "flex",
@@ -35,24 +34,23 @@ function SettingsSecurity({ onEditClick }) {
     justifyContent: "center",
     marginTop: "40px",
   };
-  
-  // 2. Define the handler function
+
+  // Handler when user clicks Edit
   const handleEditClick = () => {
     if (onEditClick) {
-        onEditClick();
+        onEditClick(); // parent component can open a password change form
     }
   };
 
   return (
     <div style={{ backgroundColor: "white", padding: "20px", minHeight: "550px" }}>
-      {/* Inputs container */}
       <div style={container}>
         <div>
           <label>Password</label>
           <input
             style={inputStyle}
             type="password"
-            placeholder="Enter password"
+            placeholder="********"  // <-- do NOT show actual password
             readOnly
           />
         </div>
@@ -68,10 +66,8 @@ function SettingsSecurity({ onEditClick }) {
         </div>
       </div>
 
-      {/* Buttons outside input container but inside white wrapper */}
       <div style={buttonContainer}>
-        {/* 3. Attach the handler to the button */}
-        <button style={updateBtn} onClick={handleEditClick}>Edit</button>
+        <button style={updateBtn} onClick={handleEditClick}>Change Password</button>
       </div>
     </div>
   );

@@ -26,6 +26,8 @@ import com.example.appdevf2.repository.UserRepository;
 import com.example.appdevf2.service.JwtService;
 import com.example.appdevf2.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/auth")
 public class UserController {
@@ -72,6 +74,29 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/user/change-password")
+        public ResponseEntity<String> changePassword(
+                @RequestBody Map<String, String> payload,
+                HttpServletRequest request
+        ) {
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest().body("Missing token");
+            }
+
+            String token = authHeader.substring(7);
+            int userId = jwtService.extractUserId(token);
+
+            userv.changePassword(
+                    userId,
+                    payload.get("oldPassword"),
+                    payload.get("newPassword")
+            );
+
+            return ResponseEntity.ok("Password updated");
+        }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserEntity user) {
 
@@ -84,6 +109,17 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
 
+    @GetMapping("/user/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        UserEntity user = userv.getByUsername(username);
+        return ResponseEntity.ok(user);
+    }
 
 
 
@@ -109,9 +145,22 @@ public class UserController {
     }
 
     @PutMapping("/user/update")
-    public Object updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
-        return userv.updateUser(uid, newUserDetails);
+    public ResponseEntity<?> updateUser(
+            @RequestParam int uid,
+            @RequestBody UserEntity newUserDetails
+    ) {
+        UserEntity updatedUser = userv.updateUser(uid, newUserDetails);
+
+        // 🔑 Generate NEW token after update
+        String newToken = jwtService.generateToken(updatedUser);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", updatedUser);
+        response.put("token", newToken);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @DeleteMapping("/user/delete/{uid}")
     public ResponseEntity<String> deleteUser(@PathVariable int uid) {

@@ -1,10 +1,23 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import UserService from "../Services/UserService"; // import your service
 import pfp from "/src/assets/pfp.png";
 
-
 function SettingsAccount({ onEditClick }) {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState({ username: "", email: "", profilePicURL: "" });
 
-  const navigate = useNavigate(); 
+  useEffect(() => {
+    UserService.getLoggedInUser()
+      .then((user) => setCurrentUser(user))
+      .catch((err) => console.error(err));
+  }, []);
+
+
+  const handleEditClick = () => {
+    if (onEditClick) onEditClick();
+  };
+
   const container = {
     display: "flex",
     justifyContent: "space-between",
@@ -46,70 +59,61 @@ function SettingsAccount({ onEditClick }) {
     fontSize: "18px",
   };
 
-  const profilePic = {
-    width: "220px",
-    height: "220px",
-    borderRadius: "50%",
-    background: "#eee",
-    objectFit: "cover",
-    border: "5px solid white",
-  };
+
 
   const updateBtn = {
     marginBottom: "30px",
     marginTop: "50px",
     padding: "12px",
     background: "#299D91",
-    border:"none",
+    border: "none",
     color: "#fff",
     fontWeight: "600",
     width: "20%",
     cursor: "pointer",
   };
 
-const handleEditClick = () => {
-    // Call the prop function provided by the parent (Settings)
-    if (onEditClick) {
-      onEditClick(); 
-    }
-  };
-
   return (
-    <div style={{ backgroundColor: "white", margin: "0", padding: "0" }}>
-
+    <div style={{ backgroundColor: "white", margin: 0, padding: 0 }}>
       <div style={container}>
         {/* LEFT SIDE */}
         <div style={leftSide}>
           <div>
             <label>Username</label>
-            <input style={inputStyle} type="text" placeholder="doejohn123" readOnly />
-          </div>
-
-          <div>
-            <label>Full Name</label>
-            <input style={inputStyle} type="text" placeholder="John DOe" readOnly/>
+            <input style={inputStyle} type="text" value={currentUser.username} readOnly />
           </div>
 
           <div>
             <label>Email</label>
-            <input style={inputStyle} type="email" placeholder="johndoe@gmail.com" readOnly/>
+            <input style={inputStyle} type="email" value={currentUser.email} readOnly />
           </div>
-
-
         </div>
 
         {/* RIGHT SIDE */}
         <div style={rightSide}>
-          <div style={{ color: "black", fontWeight: "bold", fontSize:"34px", marginBottom:"50px"}}>Profile Picture</div>
-            <img  src={pfp} alt="Profile" />
+          <div
+            style={{
+              color: "black",
+              fontWeight: "bold",
+              fontSize: "34px",
+              marginBottom: "50px",
+            }}
+          >
+            Profile Picture
+          </div>
+          <img
+            src={currentUser.profilePicURL || pfp}
+            alt="Profile"
+          
+          />
         </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
-        {/* The onClick now uses the new handler */}
-        <button style={updateBtn} onClick={handleEditClick}>Edit</button>
+        <button style={updateBtn} onClick={handleEditClick}>
+          Edit
+        </button>
       </div>
-
     </div>
   );
 }
