@@ -13,20 +13,44 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.example.appdevf2.entity.BudgetEntity;
+import com.example.appdevf2.entity.UserEntity;
+import com.example.appdevf2.repository.UserRepository;
 import com.example.appdevf2.service.BudgetService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/budgets")
+@CrossOrigin(origins = "http://localhost:5173") // allow React dev server
 public class BudgetController {
 
     @Autowired
     private BudgetService budgetService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // POST: Create a new Budget
     @PostMapping
     public ResponseEntity<BudgetEntity> createBudget(@RequestBody BudgetEntity budget) {
+        // Ensure the request is authenticated and associate the budget with the current user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = auth.getName();
+        var optUser = userRepository.findByUsername(username);
+        if (optUser.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        UserEntity user = optUser.get();
+        budget.setUser(user);
+
         BudgetEntity savedBudget = budgetService.saveBudget(budget);
         return new ResponseEntity<>(savedBudget, HttpStatus.CREATED);
     }
