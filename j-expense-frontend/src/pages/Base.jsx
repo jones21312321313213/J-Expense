@@ -40,12 +40,23 @@ function Base() {
         backgroundRepeat: "no-repeat",
         overflow: "auto",
         position: "relative", // important for positioning the FAB
-        padding: "20px"
+        padding: "20px",
+        marginLeft: "280px" // Offset by sidebar width
+    };
+
+    const sidebarStyle = {
+        position: "fixed",
+        left: 0,
+        top: 0,
+        height: "100vh",
+        zIndex: 1000 // Ensure sidebar stays on top
     };
 
     return (
         <div style={{ display: "flex" }}>
-            <Sidebar />
+            <div style={sidebarStyle}>
+                <Sidebar />
+            </div>
 
             {/* Background wrapper for all routed pages */}
             <div style={contentBgStyle}>
