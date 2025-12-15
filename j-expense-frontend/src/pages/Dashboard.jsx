@@ -7,6 +7,8 @@ import Navbar from "../Components/Navbar";
 import { Link } from "react-router-dom";
 
 import { transactionService } from "../Components/Services/TransactionsService";
+import { useGoals } from "../context/GoalsContext";
+import LatestGoalCard from "../Components/Goals/LatestGoalCard";
 
 function Dashboard() {
 
@@ -78,6 +80,9 @@ function Dashboard() {
     rowRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const { goals } = useGoals();
+  const latestGoal = goals.length > 0 ? goals[goals.length - 1] : null;
+
   return (
     <div style={{ width: "100%" }}>
       <div style={bgStyle}>
@@ -103,8 +108,30 @@ function Dashboard() {
           {/* Goals */}
           <div style={sectionStyle}>
             <h3 style={{ alignSelf: "flex-start" }}>Goals</h3>
-            <Addcard />
+            {latestGoal ? (
+              <LatestGoalCard goal={latestGoal} />
+            ) : (
+              <div
+                style={{
+                  backgroundColor: "white",
+                  marginTop: "20px",
+                  borderRadius: "12px",
+                  padding: "40px",
+                  width: "500px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "280px",
+                  fontSize: "1rem",
+                  color: "#6b7280",
+                }}
+              >
+                No goals added
+              </div>
+            )}
           </div>
+
 
           {/* Upcoming Bill */}
           <div style={sectionStyle}>
