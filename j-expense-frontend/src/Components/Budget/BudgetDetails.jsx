@@ -175,26 +175,6 @@ export default function BudgetDetails({ budget, onClose }) {
                 </h1>
               )}
             </div>
-            
-            <button 
-              onClick={() => setIsEditing(true)}
-              style={{
-                width: '48px',
-                height: '48px',
-                border: '2px solid #1f2937',
-                backgroundColor: '#fff',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-            >
-              <Edit2 size={24} color="#1f2937" />
-            </button>
           </div>
 
           {/* Budget Summary */}

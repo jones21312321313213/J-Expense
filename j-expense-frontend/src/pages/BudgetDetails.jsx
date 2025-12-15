@@ -1,36 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BudgetCard from "../Components/Budget/BudgetCard";
 import EditBudget from "../Components/Budget/EditBudget";
 import DeleteBudget from "../Components/Budget/DeleteBudget";
+import { budgetService } from "../Components/Services/budgetService";
 
 function BudgetDetails() {
-  const [budgets, setBudgets] = useState([
-    { budgetName: "Food Budget", amount: 3000, period: "yearly", dateRange: "Dec 1 - Dec 31", categories: "Food Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Transportation Budget", amount: 1500, period: "month", dateRange: "Dec 1 - Dec 31", categories: "Commute Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Entertainment Budget", amount: 500, period: "weekly", dateRange: "Dec 1 - Dec 7", categories: "Entertainment Category", beginning: "2024-12-01", until: "2024-12-07" },
-    { budgetName: "Shopping Budget", amount: 2000, period: "monthly", dateRange: "Dec 1 - Dec 31", categories: "Shopping Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Grocery Budget", amount: 800, period: "daily", dateRange: "Dec 1", categories: "Grocery Category", beginning: "2024-12-01", until: "2024-12-01" },
-    { budgetName: "Miscellaneous Budget", amount: 1200, period: "monthly", dateRange: "Dec 1 - Dec 31", categories: "Miscellaneous Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Weekend Food Budget", amount: 400, period: "weekly", dateRange: "Dec 1 - Dec 7", categories: "Food Category", beginning: "2024-12-01", until: "2024-12-07" },
-    { budgetName: "Holiday Shopping", amount: 3500, period: "yearly", dateRange: "Dec 1 - Dec 31", categories: "Shopping Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Movie Nights", amount: 300, period: "monthly", dateRange: "Dec 1 - Dec 31", categories: "Entertainment Category", beginning: "2024-12-01", until: "2024-12-31" },
-    { budgetName: "Daily Commute", amount: 50, period: "daily", dateRange: "Dec 1", categories: "Commute Category", beginning: "2024-12-01", until: "2024-12-01" },
-  ]);
+  const [budgets, setBudgets] = useState([]);
 
   const [editingBudget, setEditingBudget] = useState(null);
-  const [deleteModal, setDeleteModal] = useState({ open: false, budgetName: "" });
+  const [deleteModal, setDeleteModal] = useState({ open: false, budgetId: null, budgetName: "" });
 
   const handleCardClick = (budget) => {
-    const cleanCategory = budget.categories.replace(/\s*category?$/i, "").trim();
+    const cleanCategory = (budget.categories || '').toString().replace(/\s*category?$/i, "").trim();
     setEditingBudget({
+      id: budget.id,
       name: budget.budgetName,
       amountValue: budget.amount,
-      frequency: 1,
+      frequency: budget.frequency || 1,
       periodUnit: budget.period,
       beginning: budget.beginning,
       until: budget.until,
       category: cleanCategory,
     });
+  };
+
+  // load current user's budgets on mount
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const list = await budgetService.getAllBudgets();
+        if (!mounted) return;
+        const cards = list.map(formatBackendBudget);
+        setBudgets(cards);
+      } catch (err) {
+        console.error('Error loading budgets:', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  // format backend budget object into shape expected by BudgetCard
+  const formatBackendBudget = (b) => {
+    // b: { id, type, name, category, amount, period, beginning, frequency }
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const today = new Date();
+
+    const periodRaw = b.period || '';
+    let frequency = b.frequency || 1;
+    let periodUnit = 'Month';
+    if (periodRaw) {
+      const parts = periodRaw.toString().trim().split(/\s+/);
+      if (parts.length >= 2) {
+        frequency = parseInt(parts[0], 10) || frequency;
+        periodUnit = parts[1];
+      }
+    }
+
+    const parseBeginning = (val) => {
+      if (!val) return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      if (/^\d{4}-\d{2}-\d{2}/.test(val)) {
+        const [y,m,d] = val.split('-').map(x => parseInt(x,10));
+        return new Date(Date.UTC(y, m-1, d));
+      }
+      const iso = new Date(val);
+      if (!isNaN(iso)) return iso;
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    };
+
+    const start = parseBeginning(b.beginning);
+    let end = new Date(start.getTime());
+    const unit = (periodUnit || 'month').toString().toLowerCase();
+    if (unit.indexOf('day') !== -1) end.setDate(end.getDate() + Math.max(1, frequency));
+    else if (unit.indexOf('week') !== -1) end.setDate(end.getDate() + Math.max(1, frequency) * 7);
+    else if (unit.indexOf('month') !== -1) end.setMonth(end.getMonth() + Math.max(1, frequency));
+    else if (unit.indexOf('year') !== -1) end.setFullYear(end.getFullYear() + Math.max(1, frequency));
+    else end.setMonth(end.getMonth() + 1);
+
+    const formatShort = (d) => `${monthNames[d.getMonth()]} ${d.getDate()}`;
+
+    return {
+      id: b.id,
+      budgetName: b.name || b.type || 'Budget',
+      amount: b.amount || b.total_amount || 0,
+      period: periodUnit,
+      dateRange: `${formatShort(start)} - ${formatShort(end)}`,
+      categories: b.category || b.category_name || 'Uncategorized',
+      beginning: b.beginning,
+      until: end.toISOString().split('T')[0],
+      frequency: b.frequency || frequency
+    };
   };
 
   const handleCloseEdit = () => setEditingBudget(null);
@@ -62,23 +121,34 @@ function BudgetDetails() {
               `}
             </style>
 
-            {budgets.map((budget, idx) => (
-              <BudgetCard
-                key={idx}
-                {...budget}
-                onClick={() => handleCardClick(budget)}
-                onDelete={() => setDeleteModal({ open: true, budgetName: budget.budgetName })}
-              />
-            ))}
+            {budgets.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>No budgets yet.</div>
+            ) : (
+              budgets.map((budget) => (
+                <BudgetCard
+                  key={budget.id}
+                  {...budget}
+                  onClick={() => handleCardClick(budget)}
+                  onDelete={() => setDeleteModal({ open: true, budgetId: budget.id, budgetName: budget.budgetName })}
+                />
+              ))
+            )}
           </div>
 
           {deleteModal.open && (
             <DeleteBudget
               name={deleteModal.budgetName}
-              onClose={() => setDeleteModal({ open: false, budgetName: "" })}
-              onDelete={() => {
-                setBudgets(prev => prev.filter(b => b.budgetName !== deleteModal.budgetName));
-                setDeleteModal({ open: false, budgetName: "" });
+              onClose={() => setDeleteModal({ open: false, budgetId: null, budgetName: "" })}
+              onDelete={async () => {
+                try {
+                  if (deleteModal.budgetId) await budgetService.deleteBudget(deleteModal.budgetId);
+                  setBudgets(prev => prev.filter(b => b.id !== deleteModal.budgetId));
+                } catch (err) {
+                  console.error('Failed to delete budget:', err);
+                  alert('Failed to delete budget. Please try again.');
+                } finally {
+                  setDeleteModal({ open: false, budgetId: null, budgetName: "" });
+                }
               }}
             />
           )}
