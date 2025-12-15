@@ -14,10 +14,11 @@ function BudgetDetails() {
     const cleanCategory = (budget.categories || '').toString().replace(/\s*category?$/i, "").trim();
     setEditingBudget({
       id: budget.id,
-      name: budget.budgetName,
-      amountValue: budget.amount,
+      type: budget.type || '',
+      name: budget.budgetName || '',
+      amountValue: budget.amount || 0,
       frequency: budget.frequency || 1,
-      periodUnit: budget.period,
+      periodUnit: budget.period || 'Month',
       beginning: budget.beginning,
       until: budget.until,
       category: cleanCategory,
@@ -81,6 +82,7 @@ function BudgetDetails() {
 
     return {
       id: b.id,
+      type: b.type || '',
       budgetName: b.name || b.type || 'Budget',
       amount: b.amount || b.total_amount || 0,
       period: periodUnit,
@@ -93,6 +95,30 @@ function BudgetDetails() {
   };
 
   const handleCloseEdit = () => setEditingBudget(null);
+
+  // Save edits from EditBudget
+  const handleSaveChanges = async (vals) => {
+    if (!editingBudget || !editingBudget.id) return;
+    try {
+      const payload = {
+        type: editingBudget.type || null,
+        name: vals.name,
+        category_name: vals.category,
+        total_amount: parseFloat(vals.amountValue) || 0,
+        period: `${vals.frequency} ${vals.periodUnit}`,
+        beginning: vals.beginning ? (new Date(vals.beginning).toISOString().split('T')[0]) : null,
+        frequency: parseInt(vals.frequency, 10) || 1
+      };
+      const updated = await budgetService.updateBudget(editingBudget.id, payload);
+      // updated is expected to be the mapped budget object
+      const updatedCard = formatBackendBudget(updated);
+      setBudgets(prev => prev.map(b => b.id === editingBudget.id ? updatedCard : b));
+      setEditingBudget(null);
+    } catch (err) {
+      console.error('Failed to save changes:', err);
+      alert('Failed to save changes. Please try again.');
+    }
+  };
 
   return (
     <div style={{ width: "100%", padding: "20px", boxSizing: "border-box" }}>
@@ -159,7 +185,7 @@ function BudgetDetails() {
           setName={(v) => setEditingBudget(prev => ({ ...prev, name: v }))}
           amountValue={editingBudget.amountValue}
           setAmountValue={(v) => setEditingBudget(prev => ({ ...prev, amountValue: v }))}
-          onRequestSetAmount={() => {}}
+          onRequestSetAmount={handleSaveChanges}
           frequency={editingBudget.frequency}
           setFrequency={(v) => setEditingBudget(prev => ({ ...prev, frequency: v }))}
           periodUnit={editingBudget.periodUnit}

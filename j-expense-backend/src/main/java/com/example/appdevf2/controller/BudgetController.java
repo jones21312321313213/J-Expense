@@ -71,19 +71,48 @@ public class BudgetController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    // GET: Get Budget by ID
+    // GET: Get Budget by ID (only owner allowed)
     @GetMapping("/{budgetID}")
     public ResponseEntity<java.util.Map<String,Object>> getBudgetById(@PathVariable int budgetID) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = auth.getName();
+        var optUser = userRepository.findByUsername(username);
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        int currentUserId = optUser.get().getUserID();
+
         return budgetService.getBudgetById(budgetID)
-                .map(budget -> new ResponseEntity<>(mapToMap(budget), HttpStatus.OK))
+                .map(budget -> {
+                    if (budget.getUser() == null || budget.getUser().getUserID() != currentUserId) {
+                        return new ResponseEntity<java.util.Map<String,Object>>(HttpStatus.FORBIDDEN);
+                    }
+                    return new ResponseEntity<>(mapToMap(budget), HttpStatus.OK);
+                })
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // PUT: Update an existing Budget
+    // PUT: Update an existing Budget (only owner may update)
     @PutMapping("/{budgetID}")
-    public ResponseEntity<BudgetEntity> updateBudget(@PathVariable int budgetID, @RequestBody BudgetEntity budgetDetails) {
+    public ResponseEntity<java.util.Map<String,Object>> updateBudget(@PathVariable int budgetID, @RequestBody BudgetEntity budgetDetails) {
+        // ensure authenticated
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = auth.getName();
+        var optUser = userRepository.findByUsername(username);
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        int currentUserId = optUser.get().getUserID();
+
         return budgetService.getBudgetById(budgetID)
                 .map(existingBudget -> {
+                    // check ownership
+                    if (existingBudget.getUser() == null || existingBudget.getUser().getUserID() != currentUserId) {
+                        return new ResponseEntity<java.util.Map<String,Object>>(HttpStatus.FORBIDDEN);
+                    }
+
                     // Update fields
                     existingBudget.setType(budgetDetails.getType());
                     existingBudget.setName(budgetDetails.getName());
@@ -92,9 +121,9 @@ public class BudgetController {
                     existingBudget.setPeriod(budgetDetails.getPeriod());
                     existingBudget.setBeginning(budgetDetails.getBeginning());
                     existingBudget.setFrequency(budgetDetails.getFrequency());
-                    
+
                     BudgetEntity updatedBudget = budgetService.saveBudget(existingBudget);
-                    return new ResponseEntity<>(updatedBudget, HttpStatus.OK);
+                    return new ResponseEntity<>(mapToMap(updatedBudget), HttpStatus.OK);
                 })
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
