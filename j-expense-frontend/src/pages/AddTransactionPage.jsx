@@ -87,7 +87,7 @@ function AddTransactionPage() {
       amount: amountValue,
       creation_date: beginning,
       description,
-      categoryID: selectedCategory?.categoryID || null,
+      categoryID: selectedCategoryObj?.categoryID || null,
       userID: 27,
       isIncome: leftTab === "income",
       type: leftTab === "income" ? incomeType : undefined,
