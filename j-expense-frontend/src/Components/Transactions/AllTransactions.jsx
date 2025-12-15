@@ -82,7 +82,7 @@ function AllTransactions() {
               bgColor="#f1f1f1"
               textColor="black"
             />
-            <span>{row.item}</span>
+            <span>{row.name}</span>
           </div>
 
           <span>{row.date}</span>
