@@ -1,14 +1,7 @@
-// para makita expenses recent transactions sa dashboard 
-function RtExpenses(){
+import RtAll from "./RtAll";
 
-    return(
-            <div
-            className="d-flex justify-content-center align-items-center"
-            style={{height: "705px", backgroundColor: "white", marginTop:"-20px", borderRadius:"10px"  }}
-            >
-            <span style={{ fontSize: "1.5rem", color: "gray" }}>None - Expenses</span>
-            </div>
-    );
+function RtExpenses() {
+  return <RtAll typeFilter="expense" />;
 }
 
-export default RtExpenses
+export default RtExpenses;
