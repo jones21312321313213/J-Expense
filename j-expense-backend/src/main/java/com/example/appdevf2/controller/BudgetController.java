@@ -35,7 +35,7 @@ public class BudgetController {
 
     // POST: Create a new Budget
     @PostMapping
-    public ResponseEntity<BudgetEntity> createBudget(@RequestBody BudgetEntity budget) {
+    public ResponseEntity<java.util.Map<String,Object>> createBudget(@RequestBody BudgetEntity budget) {
         // Ensure the request is authenticated and associate the budget with the current user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
@@ -52,21 +52,30 @@ public class BudgetController {
         budget.setUser(user);
 
         BudgetEntity savedBudget = budgetService.saveBudget(budget);
-        return new ResponseEntity<>(savedBudget, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapToMap(savedBudget), HttpStatus.CREATED);
     }
 
-    // GET: Get all Budgets
+    // GET: Get budgets for current authenticated user
     @GetMapping
-    public ResponseEntity<List<BudgetEntity>> getAllBudgets() {
-        List<BudgetEntity> budgets = budgetService.getAllBudgets();
-        return new ResponseEntity<>(budgets, HttpStatus.OK);
+    public ResponseEntity<java.util.List<java.util.Map<String,Object>>> getAllBudgets() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = auth.getName();
+        var optUser = userRepository.findByUsername(username);
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        int userId = optUser.get().getUserID();
+        var budgets = budgetService.getBudgetsByUserId(userId);
+        List<java.util.Map<String,Object>> dtos = budgets.stream().map(this::mapToMap).toList();
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
     // GET: Get Budget by ID
     @GetMapping("/{budgetID}")
-    public ResponseEntity<BudgetEntity> getBudgetById(@PathVariable int budgetID) {
+    public ResponseEntity<java.util.Map<String,Object>> getBudgetById(@PathVariable int budgetID) {
         return budgetService.getBudgetById(budgetID)
-                .map(budget -> new ResponseEntity<>(budget, HttpStatus.OK))
+                .map(budget -> new ResponseEntity<>(mapToMap(budget), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -88,6 +97,21 @@ public class BudgetController {
                     return new ResponseEntity<>(updatedBudget, HttpStatus.OK);
                 })
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // --- Helper: map entity to DTO used by frontend ---
+    private java.util.Map<String,Object> mapToMap(BudgetEntity b) {
+        String beginning = b.getBeginning() != null ? b.getBeginning().toString() : null; // YYYY-MM-DD
+        java.util.Map<String,Object> m = new java.util.HashMap<>();
+        m.put("id", b.getBudgetID());
+        m.put("type", b.getType());
+        m.put("name", b.getName());
+        m.put("category", b.getCategory_name());
+        m.put("amount", b.getTotal_amount());
+        m.put("period", b.getPeriod());
+        m.put("beginning", beginning);
+        m.put("frequency", b.getFrequency());
+        return m;
     }
 
     // DELETE: Delete Budget by ID
