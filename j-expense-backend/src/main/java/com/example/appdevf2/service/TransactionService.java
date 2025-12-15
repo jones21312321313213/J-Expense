@@ -146,38 +146,41 @@ public class TransactionService {
 
     @Transactional(readOnly = true) // ensure lazy fields are loaded
     public TransactionDTO getTransactionDTOById(int id) {
-        TransactionEntity t = trepo.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Transaction not found with ID: " + id));
-
+        TransactionEntity entity = getTransactionById(id);
+        if (entity == null) return null;
+        
         TransactionDTO dto = new TransactionDTO();
-        dto.setAmount(t.getAmount());
-        dto.setCreation_date(t.getCreation_date());
-        dto.setDescription(t.getDescription());
-        dto.setName(t.getName());
-        dto.setUserID(t.getUser() != null ? t.getUser().getUserID() : 0);
-        dto.setCategoryID(t.getCategory() != null ? t.getCategory().getCategoryID() : 0);
-        dto.setIsIncome(t.getIncomeFlag());
-
-        // Income
-        if (t.getIncome() != null) {
-            dto.setType(t.getIncome().getType());
+        dto.setAmount(entity.getAmount());
+        dto.setCreation_date(entity.getCreation_date());
+        dto.setDescription(entity.getDescription());
+        dto.setName(entity.getName());
+        
+        if (entity.getUser() != null) {
+            dto.setUserID(entity.getUser().getUserID());
         }
-
-        // Expense
-        if (t.getExpense() != null) {
-            dto.setPaymentMethod(t.getExpense().getPayment_method());
+        
+        if (entity.getCategory() != null) {
+            dto.setCategoryID(entity.getCategory().getCategoryID());
         }
-
-        // 🔥 RECURRING (THIS IS WHAT WAS MISSING)
-        if (t.getRecurringTransactions() != null && !t.getRecurringTransactions().isEmpty()) {
-            RecurringTransactionEntity rec = t.getRecurringTransactions().get(0);
-            dto.setIsRecurring(true);
+        
+        dto.setIsIncome(entity.getIncomeFlag());
+        
+        if (entity.getIncome() != null) {
+            dto.setType(entity.getIncome().getType());
+        }
+        
+        if (entity.getExpense() != null) {
+            dto.setPaymentMethod(entity.getExpense().getPayment_method());
+            dto.setIsRecurring(entity.getExpense().isReccuring());
+        }
+        
+        // Add recurring transaction data if exists
+        if (entity.getRecurringTransactions() != null && !entity.getRecurringTransactions().isEmpty()) {
+            RecurringTransactionEntity rec = entity.getRecurringTransactions().get(0);
             dto.setIntervalDays(rec.getIntervalDays());
             dto.setRecurringDate(rec.getRecurringDate());
-        } else {
-            dto.setIsRecurring(false);
         }
-
+        
         return dto;
     }
 
