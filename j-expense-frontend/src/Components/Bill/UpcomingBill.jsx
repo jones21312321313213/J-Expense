@@ -11,15 +11,15 @@ function UpcomingBill() {
       try {
         const bills = await billService.getBills();
 
-        // Sort by dueDate ascending (soonest first)
-        const sortedBills = bills.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+        const sortedBills = bills.sort(
+          (a, b) => new Date(a.dueDate) - new Date(b.dueDate)
+        );
 
-        // Take only top 3
         const top3Bills = sortedBills.slice(0, 3);
 
         setUpcomingBills(top3Bills);
       } catch (error) {
-        console.error("Error fetching bills:", error);
+        console.error('Error fetching bills:', error);
       } finally {
         setLoading(false);
       }
@@ -28,41 +28,49 @@ function UpcomingBill() {
     fetchRecentBills();
   }, []);
 
-// UpcomingBill.jsx
-const containerStyle = {
-  padding: '0', // remove extra top/bottom padding
-  minHeight: 'auto', // don't force full viewport height
-  marginTop:"26px"
-};
+  const containerStyle = {
+    padding: 0,
+    minHeight: 'auto',
+    marginTop: '26px',
+    display: 'flex',
+    justifyContent: 'center',
+  };
 
-const listContainerStyle = {
-  width: "500px",
-  height: "280px", // optional: just to limit height if needed
-  backgroundColor: "white",
-  borderRadius: '15px',
-  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-  overflowY: "auto", // scroll if more than maxHeight
-  padding: "10px",
-};
-
+  const listContainerStyle = {
+    width: '500px',
+    height: '280px',
+    backgroundColor: 'white',
+    borderRadius: '15px',
+    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+    padding: '10px',
+    overflowY: 'scroll',
+    scrollbarWidth: 'none', // Firefox
+    msOverflowStyle: 'none', // IE 10+
+  };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading bills...</div>;
+    return (
+      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        Loading bills...
+      </div>
+    );
   }
 
   return (
     <div style={containerStyle}>
-      <div style={listContainerStyle}>
+      <div style={listContainerStyle} className="hide-scrollbar">
         {upcomingBills.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#666' }}>No upcoming bills</div>
+          <div style={{ textAlign: 'center', color: '#666' }}>
+            No upcoming bills
+          </div>
         ) : (
-          upcomingBills.map(bill => {
+          upcomingBills.map((bill) => {
             const due = new Date(bill.dueDate);
             const formattedDate = due.toLocaleDateString('en-US', {
               day: 'numeric',
               month: 'short',
-              year: 'numeric'
-            }); // e.g., "15 May, 2025"
+              year: 'numeric',
+            });
 
             return (
               <UpcomingBillCard
@@ -77,6 +85,16 @@ const listContainerStyle = {
           })
         )}
       </div>
+
+      {/* Global style to hide scrollbars in Webkit browsers */}
+      <style>
+        {`
+          .hide-scrollbar::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+          }
+        `}
+      </style>
     </div>
   );
 }
