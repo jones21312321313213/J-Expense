@@ -83,6 +83,27 @@ public class CategoryController {
         return new ResponseEntity<>(globals, HttpStatus.OK);
     }
 
+    // GET: Get categories for a specific user (includes global defaults)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CategoryEntity>> getCategoriesForUser(@PathVariable int userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        var optUser = userRepository.findByUsername(auth.getName());
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (optUser.get().getUserID() != userId) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        java.util.List<CategoryEntity> globals = categoryService.getGlobalCategories();
+        java.util.List<CategoryEntity> userCats = categoryService.getCategoriesByUserId(userId);
+        java.util.List<CategoryEntity> combined = new java.util.ArrayList<>();
+        combined.addAll(globals);
+        combined.addAll(userCats);
+        return new ResponseEntity<>(combined, HttpStatus.OK);
+    }
+
     // GET: Get Category by ID
     @GetMapping("/{id}")
     public ResponseEntity<CategoryEntity> getCategoryById(@PathVariable int id) {

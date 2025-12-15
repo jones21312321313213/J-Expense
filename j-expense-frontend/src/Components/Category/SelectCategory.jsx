@@ -41,8 +41,8 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             const hasInitialized = sessionStorage.getItem('categoriesInitialized');
             let needsDatabaseCheck = !hasInitialized;
             
-            // 2. Fetch ALL existing categories
-            const allCategories = await categoryService.getAllCategories();
+            // 2. Fetch categories for this user (includes defaults) when we have a userId, otherwise fetch all (unauthenticated returns defaults)
+            const allCategories = userId ? await categoryService.getCategoriesByUser(userId) : await categoryService.getAllCategories();
             let finalCategories = allCategories;
 
             if (needsDatabaseCheck) {
