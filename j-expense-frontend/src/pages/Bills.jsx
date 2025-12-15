@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { billService } from "../Components/Services/BillService";
 import { FaTrash } from "react-icons/fa";
-import BillReminderDeleteModal from "../Components/BillReminderDeleteModal";
+import BillReminderDeleteModal from "../Components/Bill/BillReminderDeleteModal";
 
 function Bills() {
   const [bills, setBills] = useState([]);
