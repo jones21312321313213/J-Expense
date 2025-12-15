@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 import { transactionService } from "../Components/Services/TransactionsService";
 import UpcomingBill from "../Components/Bill/UpcomingBill";
+import BudgetTracker from "../Components/BudgetTracker";
 
 function Dashboard() {
 
@@ -104,7 +105,7 @@ const rowStyle = {
           {/* Budgets */}
           <div style={sectionStyle}>
             <h3 style={{ alignSelf: "flex-start" }}>Budgets</h3>
-            <Addcard />
+            <BudgetTracker />
           </div>
 
           {/* Goals */}
