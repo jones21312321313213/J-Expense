@@ -45,8 +45,8 @@ function RtAll({ typeFilter }) { // accept typeFilter prop
         transactions.map((t) => (
           <TransactionCard
             key={t.id}
-            title={t.item}
-            category={t.categoryName}
+            title={t.name}
+            category={t.category}
             amount={t.amount}
             date={t.date}
             iconName={getIconName(t.type, t.categoryName)}

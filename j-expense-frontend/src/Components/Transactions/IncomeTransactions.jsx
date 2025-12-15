@@ -17,7 +17,7 @@ function IncomeTransactions() {
           .filter((t) => t.type === "income")
           .map((t) => ({
             id: t.id, // ⭐ MUST KEEP SO WE CAN EDIT
-            item: t.item,
+            name: t.name,
             date: t.date,
             description: t.description || "-",
             amount: t.amount,
@@ -94,7 +94,7 @@ function IncomeTransactions() {
                 bgColor="#f1f1f1"
                 textColor="black"
               />
-              <span>{row.item}</span>
+              <span>{row.name}</span>
             </div>
 
             <span>{row.date}</span>
