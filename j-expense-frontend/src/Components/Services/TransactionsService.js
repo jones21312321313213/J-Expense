@@ -41,12 +41,14 @@ export const transactionService = {
 
       return transactions.map((t) => ({
         id: t.billID || t.id,
-        item: t.name,
+        name: t.name,
         date: t.creation_date?.split("T")[0] || "",
         description: t.description || "-",
         amount: Number(t.amount) || 0,
         type: t.incomeFlag ? "income" : "expense",
-        categoryName: t.category?.name || "",
+        // ✅ FIX: map backend category_name into category
+        category: t.category?.category_name || "",
+        categoryId: t.category?.categoryID || null,
         isRecurring:
           !!(
             t.recurringTransactions &&
@@ -123,7 +125,8 @@ export const transactionService = {
         creation_date: t.creation_date,
         description: t.description || "",
         incomeFlag: t.isIncome ?? t.incomeFlag,
-        categoryName: t.category?.name || "",
+        category: t.category?.category_name || "",
+        categoryId: t.category?.categoryID || null,
         isRecurring: !!rec,
         paymentMethod,
         incomeType,

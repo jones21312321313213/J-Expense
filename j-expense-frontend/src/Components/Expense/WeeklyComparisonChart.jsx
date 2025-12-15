@@ -16,6 +16,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function WeeklyComparisonChart({ transactions = [] }) {
   const [view, setView] = useState("weekly");
 
+  // Compute weekly or monthly data
   const { thisWeek, lastWeek, labels } =
     view === "weekly" ? getWeekData(transactions) : getMonthData(transactions);
 
@@ -75,15 +76,17 @@ export default function WeeklyComparisonChart({ transactions = [] }) {
   };
 
   return (
-    <div style={{
-      backgroundColor: "#fff",
-      borderRadius: "16px",
-      padding: "20px",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-      display: "flex",
-      flexDirection: "column",
-      gap: "10px",
-    }}>
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: "16px",
+        padding: "20px",
+        boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "flex-start" }}>
         <select
           value={view}

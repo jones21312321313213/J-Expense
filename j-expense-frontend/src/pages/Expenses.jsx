@@ -19,7 +19,7 @@ export default function Expenses() {
   const categories = ["Food", "Transportation", "Shopping", "Entertainment", "Grocery", "Miscellaneous"];
 
   return (
-    <div style={{ marginLeft: "280px", width: "calc(100% - 280px)", padding: "30px" }}>
+    <div>
       <h2>Expenses Comparison</h2>
       <WeeklyComparisonChart transactions={transactions} />
 
