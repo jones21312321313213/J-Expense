@@ -3,6 +3,7 @@ package com.example.appdevf2.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,11 +79,13 @@ public class GoalController {
     }
 
     // Delete Goal
-    @DeleteMapping("/deleteGoal/{id}")
-    public String deleteGoal(@PathVariable int id) {
+    @DeleteMapping("/api/goals/{id}")
+    public ResponseEntity<Void> deleteGoal(@PathVariable int id) {
         boolean deleted = goalService.deleteGoal(id);
-        return deleted ? "Goal deleted successfully." : "Goal not found.";
+        return deleted ? ResponseEntity.noContent().build()
+                    : ResponseEntity.notFound().build();
     }
+
 
     private static class jwtService {
 

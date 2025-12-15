@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGoals } from "../context/GoalsContext";
-import { FaArrowLeft, FaTrash, FaEdit } from "react-icons/fa";
+import { ChevronLeft, Edit2 } from "lucide-react";
+import { FaTrash } from "react-icons/fa";
+import axios from "axios";
 
-function GoalsDetails() {
+export default function GoalsDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { goals, deleteGoal } = useGoals();
+  const { goals, updateGoal, deleteGoal } = useGoals();
 
   const goal = goals.find((g) => g.goalID === parseInt(id));
   if (!goal) return <p>Goal not found.</p>;
@@ -20,214 +22,424 @@ function GoalsDetails() {
     endDate,
   } = goal;
 
-  const saved = currentAmount;
-  const remaining = targetAmount - saved;
+  // Local state
+  const [saved, setSaved] = useState(currentAmount);
+  const [addAmount, setAddAmount] = useState("");
+  const [history, setHistory] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(goalName);
+  const [editTarget, setEditTarget] = useState(targetAmount);
+
+  const remaining = editTarget - saved;
   const progressPercentage =
-    targetAmount === 0 ? 0 : Math.min((saved / targetAmount) * 100, 100);
+    editTarget === 0 ? 0 : Math.min((saved / editTarget) * 100, 100);
 
   const today = new Date();
   const end = new Date(endDate);
   const daysLeft = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-  const dailySuggestion =
-    remaining > 0 && daysLeft > 0
-      ? `Save ₱${(remaining / daysLeft).toFixed(2)}/day for ${daysLeft} days`
-      : "Goal period ended";
+
+  // Suggestion / surplus message
+  let suggestionMessage = "";
+  if (saved >= editTarget) {
+    const surplus = saved - editTarget;
+    suggestionMessage =
+      surplus > 0
+        ? `🎉 Goal reached! You saved ₱${surplus} extra.`
+        : "🎉 Goal reached!";
+  } else {
+    suggestionMessage =
+      remaining > 0 && daysLeft > 0
+        ? `Save ₱${(remaining / daysLeft).toFixed(2)}/day for ${daysLeft} days`
+        : "Goal period ended";
+  }
+
+  const getFormattedDate = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  };
+
+  const handleDelete = (e) => {
+    if (window.confirm("Are you sure you want to delete this goal?")) {
+      deleteGoal(goalID);
+    }
+  };
+
+  // Fetch history on mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/goals/${goalID}/history`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setHistory(res.data);
+      } catch (err) {
+        console.error("Error fetching history:", err);
+      }
+    };
+  
+    fetchHistory();
+  }, [goalID]);
+  
+  // Save edits
+  const saveEdits = async () => {
+    const updatedGoal = {
+      ...goal,
+      goalName: editName,
+      targetAmount: editTarget,
+    };
+    try {
+      await updateGoal(goalID, updatedGoal);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Error updating goal:", err);
+    }
+  };
+
+  const handleAddAmount = async () => {
+    const amount = parseFloat(addAmount);
+    if (!isNaN(amount) && amount > 0) {
+      try {
+        const res = await axios.post(
+          `http://localhost:8080/api/goals/${goalID}/history`,
+          null,
+          {
+            params: { amount },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // 👈 include JWT
+            },
+          }
+        );
+  
+        console.log("New history entry:", res.data);
+  
+        setHistory((prev) => [res.data, ...prev]);
+        setSaved(saved + amount);
+        setAddAmount("");
+        updateGoalInContext(res.data);
+      } catch (err) {
+        console.error("Error adding history:", err);
+      }
+    }
+  };
+  
 
   return (
-    <div style={{ marginLeft: "280px", width: "calc(100% - 280px)" }}>
-      <div
-        style={{
-          flex: "1 1 0%",
-          minHeight: "100vh",
-          overflow: "auto",
-          position: "relative",
-          padding: "40px 20px",
-          fontFamily: "Arial, sans-serif",
-          color: "#000",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {/* 🔙 Back Icon */}
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            background: "transparent",
-            border: "none",
-            fontSize: "1.2rem",
-            color: "#000",
-            cursor: "pointer",
-            zIndex: 9999,
-          }}
-          title="Back"
-        >
-          <FaArrowLeft />
-        </button>
-
-        {/* ✏️ Edit + 🗑️ Trash Icons */}
+    <div
+      style={{
+        background: "linear-gradient(to bottom right, #a8d8ea, #d4e9f7, #f5e6d3)",
+        minHeight: "100vh",
+        padding: "24px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        {/* Header */}
         <div
           style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
             display: "flex",
-            gap: "12px",
-            zIndex: 9999,
-          }}
-        >
-          {/* Edit Button */}
-          <button
-            onClick={() => navigate(`/goals/edit/${goalID}`)}
-            style={{
-              background: "transparent",
-              border: "none",
-              fontSize: "1.2rem",
-              color: "#333",
-              cursor: "pointer",
-            }}
-            title="Edit Goal"
-          >
-            <FaEdit />
-          </button>
-
-          {/* Delete Button */}
-          <button
-            onClick={() => {
-              if (window.confirm("Delete this goal?")) {
-                deleteGoal(goalID);
-                navigate("/goals");
-              }
-            }}
-            style={{
-              background: "transparent",
-              border: "none",
-              fontSize: "1.2rem",
-              color: "#ef4444",
-              cursor: "pointer",
-            }}
-            title="Delete Goal"
-          >
-            <FaTrash />
-          </button>
-        </div>
-
-        {/* 🏁 Header + Goal Name at Top */}
-        <h1 style={{ fontSize: "2rem", marginTop: "40px", marginBottom: "10px" }}>
-          Goals
-        </h1>
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: "700",
-            marginBottom: "60px",
-            textAlign: "center",
-          }}
-        >
-          {goalName || "Untitled Goal"}
-        </h2>
-
-        {/* Centered Progress Section */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
             alignItems: "center",
-            width: "100%",
-            maxWidth: "600px",
+            justifyContent: "space-between",
+            marginBottom: "48px",
           }}
         >
-          {/* 💰 Amount above progress bar */}
-          <p style={{ fontSize: "1.2rem", fontWeight: "600", marginBottom: "20px" }}>
-            ₱{saved} / ₱{targetAmount}
-          </p>
-
-          {/* 📊 Progress Bar */}
-          <div
+          <button
             style={{
-              width: "100%",
-              height: "40px",
-              background: "#ccc",
-              borderRadius: "20px",
-              overflow: "hidden",
-              position: "relative",
-              marginBottom: "10px",
+              width: "48px",
+              height: "48px",
+              border: "2px solid #1f2937",
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
             }}
+            onClick={() => navigate(-1)}
           >
-            <div
-              style={{
-                height: "100%",
-                width: `${progressPercentage}%`,
-                background: "#4ade80",
-                transition: "0.3s",
-              }}
-            ></div>
+            <ChevronLeft size={24} color="#1f2937" />
+          </button>
 
-            <span
+          <div style={{ flex: 1, textAlign: "center", margin: "0 16px" }}>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={saveEdits}
+                onKeyDown={(e) => e.key === "Enter" && saveEdits()}
+                style={{
+                  border: "none",
+                  borderBottom: "2px solid #1f2937",
+                  background: "transparent",
+                  outline: "none",
+                  fontSize: "1.875rem",
+                  fontWeight: "600",
+                  color: "#1f2937",
+                  textAlign: "center",
+                }}
+              />
+            ) : (
+              <h1
+                style={{
+                  fontSize: "1.875rem",
+                  fontWeight: "600",
+                  color: "#1f2937",
+                  margin: 0,
+                }}
+              >
+                {editName || "Untitled Goal"}
+              </h1>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button
+              onClick={() => setIsEditing(true)}
               style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                color: "#000",
-                fontWeight: "600",
-                fontSize: "1rem",
+                width: "48px",
+                height: "48px",
+                border: "2px solid #1f2937",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
               }}
             >
-              {Math.round(progressPercentage)}%
-            </span>
+              <Edit2 size={20} color="#1f2937" />
+            </button>
+
+            <button
+              onClick={handleDelete} 
+              style={{
+                width: "48px",
+                height: "48px",
+                border: "2px solid #ef4444",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+            >
+              <FaTrash size={20} color="#ef4444" />
+            </button>
+          </div>
+        </div>
+
+        {/* Goal Summary */}
+        <div style={{ marginBottom: "64px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <p
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "500",
+                color: "#374151",
+                margin: 0,
+              }}
+            >
+              ₱{saved} saved of{" "}
+              {isEditing ? (
+                <input
+                  type="number"
+                  value={editTarget}
+                  onChange={(e) => setEditTarget(parseFloat(e.target.value))}
+                  onBlur={saveEdits}
+                  onKeyDown={(e) => e.key === "Enter" && saveEdits()}
+                  style={{
+                    border: "none",
+                    borderBottom: "2px solid #374151",
+                    background: "transparent",
+                    outline: "none",
+                    fontSize: "1.5rem",
+                    fontWeight: "500",
+                    color: "#374151",
+                    width: "100px",
+                    textAlign: "center",
+                  }}
+                />
+              ) : (
+                editTarget
+              )}
+            </p>
           </div>
 
-          {/* 📅 Dates aligned to tips of progress bar */}
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "5px",
-              marginBottom: "40px",
-            }}
-          >
-            <div style={{ textAlign: "left" }}>
-              <p style={{ fontSize: "1rem", fontWeight: "600" }}>
-                {new Date(startDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
-              <p style={{ fontSize: "0.85rem", color: "#888" }}>Today</p>
+          {/* Progress Bar */}
+          <div style={{ marginBottom: "32px" }}>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: "#374151",
+                fontWeight: "500",
+                marginBottom: "16px",
+              }}
+            >
+              Progress
+            </p>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "48px",
+                backgroundColor: "#e5e7eb",
+                borderRadius: "24px",
+                overflow: "hidden",
+                marginBottom: "16px",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${progressPercentage}%`,
+                  backgroundColor: "#4ade80",
+                  transition: "width 0.5s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    color: "#fff",
+                    fontWeight: "600",
+                    fontSize: "1.125rem",
+                  }}
+                >
+                  {Math.round(progressPercentage)}%
+                </span>
+              </div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: "1rem", fontWeight: "600" }}>
-                {new Date(endDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "1rem",
+                color: "#374151",
+              }}
+            >
+              <span>{getFormattedDate(startDate)}</span>
+              <span>{getFormattedDate(endDate)}</span>
             </div>
           </div>
 
-          {/* 💡 Suggestion */}
+          {/* Suggestion / Surplus */}
           <p
             style={{
               textAlign: "center",
-              fontSize: "1.2rem",
-              fontWeight: "600",
-              color: "#333",
-              marginTop: "20px",
+              color: "#374151",
+              fontSize: "1rem",
+              marginBottom: "24px",
             }}
           >
-            {dailySuggestion}
+            {suggestionMessage}
           </p>
+
+          {/* Add Amount Section */}
+          <div style={{ textAlign: "center", marginTop: "32px" }}>
+            <p
+              style={{
+                fontSize: "1rem",
+                fontWeight: "500",
+                color: "#1f2937",
+                marginBottom: "12px",
+              }}
+            >
+              Hey, do you have progress on your goal today? Add amount below.
+            </p>
+            <input
+              type="number"
+              value={addAmount}
+              onChange={(e) => setAddAmount(e.target.value)}
+              placeholder="Enter amount"
+              style={{
+                padding: "8px 12px",
+                border: "2px solid #1f2937",
+                borderRadius: "8px",
+                marginRight: "12px",
+                width: "150px",
+              }}
+            />
+            <button
+              onClick={handleAddAmount}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#4ade80",
+                color: "#fff",
+                fontWeight: "600",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              Add Amount
+            </button>
+          </div>
+
+          {/* History Section */}
+          <div style={{ marginTop: "40px" }}>
+            <h3
+              style={{
+                textAlign: "center",
+                fontSize: "1.25rem",
+                fontWeight: "600",
+                marginBottom: "16px",
+              }}
+            >
+              History
+            </h3>
+            {history.length === 0 ? (
+              <p style={{ textAlign: "center", color: "#6b7280" }}>
+                No amounts added yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {history.map((entry) => (
+  <div
+    key={entry.historyID || `${entry.date}-${entry.amount}`}
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "12px",
+      backgroundColor: "rgba(255,255,255,0.6)",
+      borderRadius: "8px",
+    }}
+  >
+    <span style={{ fontWeight: "500", color: "#1f2937" }}>
+      +₱{Number(entry.amount).toFixed(2)}
+    </span>
+    <span style={{ fontSize: "0.875rem", color: "#4b5563" }}>
+      {entry.date
+        ? new Date(entry.date).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : ""}
+    </span>
+  </div>
+))}
+
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default GoalsDetails;

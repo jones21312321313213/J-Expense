@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoals } from "../../context/GoalsContext";
-import { FaTrash } from "react-icons/fa"; // install: npm install react-icons
+import { FaTrash } from "react-icons/fa"; 
 
 function GoalProgressCard({ data }) {
   const { deleteGoal } = useGoals();
@@ -30,7 +30,7 @@ function GoalProgressCard({ data }) {
   };
 
   const handleClick = () => {
-    navigate(`/goals/${goalID}`);
+    navigate(`/app/goals/${goalID}`);
   };
 
   return (
@@ -91,7 +91,11 @@ function GoalProgressCard({ data }) {
             fontWeight: "600",
           }}
         >
-          Save ₱{(goalAmount - saved).toFixed(2)} remaining
+          {saved >= goalAmount
+            ? saved > goalAmount
+              ? `Goal reached! You saved ₱${(saved - goalAmount).toFixed(2)} extra.`
+              : "Goal reached!"
+            : `Save ₱${(goalAmount - saved).toFixed(2)} remaining`}
         </p>
       </div>
 
@@ -102,19 +106,18 @@ function GoalProgressCard({ data }) {
           padding: "18px 20px",
         }}
       >
-        {/* Transactions + Amount */}
+        {/* Amount */}
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             marginBottom: "10px",
             fontSize: "0.95rem",
             fontWeight: "600",
           }}
         >
-          <span>{progress} transactions</span>
           <span>
-            ₱{saved}/₱{goalAmount}
+            ₱{saved.toFixed(2)}/₱{goalAmount.toFixed(2)}
           </span>
         </div>
 
@@ -153,7 +156,7 @@ function GoalProgressCard({ data }) {
               style={{
                 height: "100%",
                 width: `${progressPercentage}%`,
-                background: "#444",
+                background: progressPercentage === 100 ? "#22c55e" : "#444", 
                 transition: "0.3s",
               }}
             ></div>
@@ -169,7 +172,9 @@ function GoalProgressCard({ data }) {
                 fontWeight: "600",
               }}
             >
-              {Math.round(progressPercentage)}%
+              {progressPercentage === 100
+                ? "Goal reached!"
+                : `${Math.round(progressPercentage)}%`}
             </span>
           </div>
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useGoals } from "../Components/context/GoalsContext";
+import { useGoals } from "../context/GoalsContext";
 function LogoutModal({ onClose }) {
   const navigate = useNavigate();
 
