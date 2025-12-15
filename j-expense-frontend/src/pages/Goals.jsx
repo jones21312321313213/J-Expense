@@ -11,19 +11,19 @@ function Goals() {
     return <div style={{ padding: "20px", color: "red" }}>GoalsContext not available</div>;
   }
 
-  const { goals, addGoal, loading, fetchGoals } = goalsContext;
+  const { goals, addGoal, loading } = goalsContext;
   const [showSelectGoalType, setShowSelectGoalType] = useState(false);
 
-
+  // ✅ Fetch goals when component mounts, only if token exists
   useEffect(() => {
     if (localStorage.getItem("token")) {
-      fetchGoals?.();
+      goalsContext.fetchGoals?.(); // Make sure fetchGoals exists in context
     }
-  }, []);
-
+  }, []); 
 
   const containerStyle = {
-
+    marginLeft: "280px",
+    width: "calc(100% - 280px)",
     height: "80vh",
     display: "flex",
     flexDirection: "column",

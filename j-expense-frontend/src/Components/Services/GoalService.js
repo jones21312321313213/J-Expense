@@ -3,18 +3,27 @@ const API_BASE = "http://localhost:8080/api/goals";
 // Helper to get Authorization headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
-  if (!token) throw new Error("No auth token found");
-  return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  return token
+    ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+    : { "Content-Type": "application/json" };
 };
+
 
 const GoalService = {
   getMyGoals: async () => {
     const res = await fetch(`${API_BASE}/my-goals`, {
       headers: getAuthHeaders(),
     });
+
+    if (res.status === 401) {
+      console.warn("Unauthorized — keeping existing goals");
+      return [];
+    }
+
     if (!res.ok) throw new Error("Failed to fetch goals");
     return res.json();
   },
+
 
   addGoal: async (goal) => {
     const res = await fetch(`${API_BASE}/addGoal`, {
