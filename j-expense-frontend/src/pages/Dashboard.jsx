@@ -10,6 +10,9 @@ import { transactionService } from "../Components/Services/TransactionsService";
 import UpcomingBill from "../Components/Bill/UpcomingBill";
 import BudgetTracker from "../Components/BudgetTracker";
 
+import { useGoals } from "../context/GoalsContext";
+import LatestGoalCard from "../Components/Goals/LatestGoalCard";
+
 function Dashboard() {
 
   const rowRef = useRef(null);
@@ -18,6 +21,9 @@ function Dashboard() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [transactions, setTransactions] = useState([]);
+
+  const { goals } = useGoals();
+  const latestGoal = goals.length > 0 ? goals[goals.length - 1] : null;
 
   useEffect(() => {
     transactionService.getTransactionsByUser()
@@ -111,7 +117,28 @@ const rowStyle = {
           {/* Goals */}
           <div style={sectionStyle}>
             <h3 style={{ alignSelf: "flex-start" }}>Goals</h3>
-            <Addcard />
+            {latestGoal ? (
+              <LatestGoalCard goal={latestGoal} />
+            ) : (
+              <div
+                style={{
+                  backgroundColor: "white",
+                  marginTop: "20px",
+                  borderRadius: "12px",
+                  padding: "40px",
+                  width: "500px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "280px",
+                  fontSize: "1rem",
+                  color: "#6b7280",
+                }}
+              >
+                No goals added
+              </div>
+            )}
           </div>
 
           {/* Upcoming Bill */}
