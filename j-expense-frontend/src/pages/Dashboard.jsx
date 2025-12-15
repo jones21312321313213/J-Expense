@@ -7,6 +7,8 @@ import Navbar from "../Components/Navbar";
 import { Link } from "react-router-dom";
 
 import { transactionService } from "../Components/Services/TransactionsService";
+import { useGoals } from "../context/GoalsContext";
+import LatestGoalCard from "../Components/Goals/LatestGoalCard";
 import UpcomingBill from "../Components/Bill/UpcomingBill";
 import BudgetTracker from "../Components/BudgetTracker";
 
@@ -92,6 +94,9 @@ const rowStyle = {
     rowRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const { goals } = useGoals();
+  const latestGoal = goals.length > 0 ? goals[goals.length - 1] : null;
+
   return (
     <div style={{ width: "100%" }}>
       <div style={bgStyle}>
@@ -140,6 +145,7 @@ const rowStyle = {
               </div>
             )}
           </div>
+
 
           {/* Upcoming Bill */}
           <div style={sectionStyle}>
