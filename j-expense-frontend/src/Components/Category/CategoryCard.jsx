@@ -1,13 +1,21 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function CategoryCard({ icon, name, type, onDelete }) {
+function CategoryCard({ icon, name, type, onDelete, onClick, id, isDefault }) {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate("/edit-category", {
-            state: { name, icon }
-        });
+        // allow parent to override navigation if provided via props
+        if (typeof onClick === 'function') {
+            onClick();
+            return;
+        }
+        // include full payload so the editor has the id and flags it needs
+        if (id) {
+            navigate(`../edit-category/${id}`, { state: { id, name, type, isDefault, icon } });
+        } else {
+            navigate("../edit-category", { state: { name, type, icon } });
+        }
     };
 
     const cardContainerStyle = {
@@ -40,14 +48,16 @@ function CategoryCard({ icon, name, type, onDelete }) {
                 </div>
             </div>
 
-            <i 
-                className="bi bi-trash3-fill" 
-                style={deleteBtnStyle}
-                onClick={(e) => {
-                    e.stopPropagation();   // prevents triggering edit navigation
-                    onDelete({ name });
-                }}
-            ></i>
+                    {typeof onDelete === 'function' && (
+                <i 
+                    className="bi bi-trash3-fill" 
+                    style={deleteBtnStyle}
+                    onClick={(e) => {
+                        e.stopPropagation();   // prevents triggering edit navigation
+                        onDelete();
+                    }}
+                ></i>
+            )}
         </div>
     );
 }

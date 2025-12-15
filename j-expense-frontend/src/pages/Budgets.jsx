@@ -97,13 +97,14 @@ function Budgets() {
     const dayProgress = Math.min(100, Math.max(0, progressPercentage));
 
     const newBudget = {
-      id: budgetData.id ?? (idx != null ? idx : (Math.floor(Math.random() * 1000000))),
+      id: idx != null ? idx : (Math.floor(Math.random() * 1000000)),
       name: name || category || type,
       type,
       category,
       amount: amount || 0,
       periodUnit,
-      currentAmount: Math.floor(Math.random() * (amount || 1000)),
+      // Start budgets with 0 spent/used by default; remove random initial values
+      currentAmount: 0,
       startDate: startDateStr,
       endDate: endDateStr,
       startDateISO: startDate.toISOString(),
@@ -113,14 +114,13 @@ function Budgets() {
       frequency,
       beginning
     };
-      return newBudget;
+    return newBudget;
     };
 
-    // called when the backend returns the saved budget object
-    const handleCreateBudget = (savedBudget) => {
-      const newBudget = formatBudgetToCard(savedBudget);
-      setBudgets((b) => [...b, newBudget]);
-      closeModal();
+    const handleCreateBudget = (budgetData) => {
+    const newBudget = formatBudgetToCard(budgetData, budgets.length + 1);
+    setBudgets((b) => [...b, newBudget]);
+    closeModal();
     };
 
     // fetch budgets for current user on mount

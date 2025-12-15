@@ -92,4 +92,38 @@ export const categoryService = {
       throw error;
     }
   },
+
+  // Get single category by id
+  getCategoryById: async (categoryID) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${categoryID}`, { headers: authHeaders() });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching category by id:', error);
+      throw error;
+    }
+  },
+
+  // Update a category
+  updateCategory: async (categoryID, categoryData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${categoryID}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(categoryData),
+      });
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`HTTP error! status: ${response.status} ${text}`);
+      }
+      // Some responses may not return a body; handle both
+      const ct = response.headers.get('content-type') || '';
+      if (ct.includes('application/json')) return await response.json();
+      return true;
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
+  },
 };
