@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.appdevf2.entity.CategoryEntity;
 import com.example.appdevf2.entity.ExpenseEntity;
 import com.example.appdevf2.entity.IncomeEntity;
 import com.example.appdevf2.entity.RecurringTransactionEntity;
@@ -68,6 +69,15 @@ public class TransactionService {
         // --- HANDLE INCOME / EXPENSE ---
         if (dto.getIsIncome() == null)
             throw new IllegalArgumentException("isIncome must be specified.");
+
+        if (dto.getCategoryID() > 0) {
+            CategoryEntity category = crepo.findById(dto.getCategoryID())
+                    .orElseThrow(() ->
+                            new NoSuchElementException("Category not found with ID: " + dto.getCategoryID())
+                    );
+            t.setCategory(category);
+        }
+
 
         if (dto.getIsIncome()) {
            

@@ -170,13 +170,13 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
 
                 {/* Custom Categories from Database */}
                 {customCategories.map(cat => (
-                    <CategoryTile
-                        key={cat.categoryID}
-                        name={cat.category_name} 
-                        icon={cat.iconPath || cat.icon_path || miscellaneousBg} 
-                        bgColor={selectedCategory === cat.category_name ? '#bdbdbd' : '#D9D9D9'}
-                        onClick={() => onSelect(cat.category_name)}
-                    />
+                <CategoryTile
+                    key={cat.categoryID}
+                    name={cat.category_name} 
+                    icon={cat.iconPath || cat.icon_path || miscellaneousBg} 
+                    bgColor={selectedCategory?.categoryID === cat.categoryID ? '#bdbdbd' : '#D9D9D9'}
+                    onClick={() => onSelect({ name: cat.category_name, categoryID: cat.categoryID })}
+                />
                 ))}
 
                 {/* Add Button */}
