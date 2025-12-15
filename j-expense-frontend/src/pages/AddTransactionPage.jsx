@@ -90,7 +90,7 @@ function AddTransactionPage() {
       categoryID: selectedCategoryObj?.categoryID || null,
       userID: 27,
       isIncome: leftTab === "income",
-      type: leftTab === "income" ? incomeType : undefined,
+      incomeType: leftTab === "income" ? incomeType : undefined,
       paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
 
       // RECURRING FIELDS

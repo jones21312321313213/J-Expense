@@ -84,7 +84,7 @@ public class TransactionService {
             t.setIncomeFlag(true);
 
             IncomeEntity income = new IncomeEntity();
-            income.setType(dto.getType());
+            income.setType(dto.getIncomeType());
 
             IncomeEntity savedIncome = irepo.save(income);
             t.setIncome(savedIncome);
@@ -166,7 +166,7 @@ public class TransactionService {
         dto.setIsIncome(entity.getIncomeFlag());
         
         if (entity.getIncome() != null) {
-            dto.setType(entity.getIncome().getType());
+            dto.setIncomeType(entity.getIncome().getType());
         }
         
         if (entity.getExpense() != null) {
@@ -231,7 +231,7 @@ public class TransactionService {
         dto.setIsIncome(entity.getIncomeFlag());
         
         if (entity.getIncome() != null) {
-            dto.setType(entity.getIncome().getType());
+            dto.setIncomeType(entity.getIncome().getType());
         }
         if (entity.getExpense() != null) {
             dto.setPaymentMethod(entity.getExpense().getPayment_method());
@@ -269,7 +269,7 @@ public class TransactionService {
             if (dto.getIsIncome()) {
                 IncomeEntity income = t.getIncome();
                 if (income == null) income = new IncomeEntity();
-                income.setType(dto.getType());
+                income.setType(dto.getIncomeType());
                 t.setIncome(irepo.save(income));
                 t.setExpense(null);
             } else {

@@ -13,8 +13,8 @@ function EditTransactionIncome({
   setError,
   description,
   setDescription,
-  type,
-  setType
+  incomeType,
+  setIncomeType
 }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSetAmount, setShowSetAmount] = useState(false);
@@ -30,13 +30,6 @@ function EditTransactionIncome({
     background: "transparent"
   };
 
-  const formatDate = (date) => {
-    if (!date) return "";
-    const options = { month: "short", day: "numeric" };
-    return new Date(date).toLocaleDateString(undefined, options);
-  };
-
-  // Function to format date for display
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return "";
     try {
@@ -174,7 +167,7 @@ function EditTransactionIncome({
         }}
       />
 
-      {/* TYPE */}
+      {/* Income Type */}
       <div style={{ textAlign: "left", width: "100%", marginTop: "20px" }}>
         <span style={{ fontSize: "1rem", fontWeight: "600" }}>Type</span>
       </div>
@@ -182,8 +175,8 @@ function EditTransactionIncome({
       <input
         type="text"
         placeholder="e.g. Salary, Bonus, Allowance..."
-        value={type}
-        onChange={(e) => setType(e.target.value)}
+        value={incomeType}
+        onChange={(e) => setIncomeType(e.target.value)}
         style={{
           padding: "10px",
           border: "none",
@@ -201,23 +194,21 @@ function EditTransactionIncome({
         <DatePicker
           selectedDate={beginning}
           onDateSelect={(dateValue) => {
-            // Ensure we get a proper date string
             let dateStr = "";
-            
             if (dateValue instanceof Date) {
-              // If it's a Date object, convert to ISO string (YYYY-MM-DD format)
-              dateStr = dateValue.toISOString().split('T')[0];
-            } else if (typeof dateValue === 'string') {
-              // If it's already a string
+              dateStr = dateValue.toISOString().split("T")[0];
+            } else if (typeof dateValue === "string") {
               dateStr = dateValue;
             }
-            
             setBeginning(dateStr);
             setShowDatePicker(false);
           }}
           onClose={() => setShowDatePicker(false)}
         />
       )}
+
+   
+
 
       {/* Amount Modal */}
       {showSetAmount && (

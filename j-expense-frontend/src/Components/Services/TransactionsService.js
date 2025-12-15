@@ -95,8 +95,8 @@ export const transactionService = {
       }
 
       let incomeType = "";
-      if (t.isIncome && t.income) {
-        incomeType = t.income.type || "";
+      if (t.income) {
+         incomeType = (t.income && t.income.type) || t.type || "";
       } else if (t.type) {
         incomeType = t.type;
       }

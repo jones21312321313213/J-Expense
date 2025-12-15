@@ -30,6 +30,7 @@ public class TransactionController {
     // C - create a transaction
     @PostMapping("/insertTransaction")
     public TransactionEntity insertTransaction(@RequestBody TransactionDTO transaction) {
+        System.out.println("insertTransaction DTO: " + transaction); // uses @ToString
         return tserv.insertTransaction(transaction);
     }
 

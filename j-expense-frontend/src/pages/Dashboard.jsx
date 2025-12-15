@@ -12,8 +12,6 @@ import LatestGoalCard from "../Components/Goals/LatestGoalCard";
 import UpcomingBill from "../Components/Bill/UpcomingBill";
 import BudgetTracker from "../Components/BudgetTracker";
 
-import { useGoals } from "../context/GoalsContext";
-import LatestGoalCard from "../Components/Goals/LatestGoalCard";
 
 function Dashboard() {
 
@@ -94,8 +92,6 @@ const rowStyle = {
     rowRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const { goals } = useGoals();
-  const latestGoal = goals.length > 0 ? goals[goals.length - 1] : null;
 
   return (
     <div style={{ width: "100%" }}>
