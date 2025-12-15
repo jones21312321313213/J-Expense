@@ -12,6 +12,9 @@ import LatestGoalCard from "../Components/Goals/LatestGoalCard";
 import UpcomingBill from "../Components/Bill/UpcomingBill";
 import BudgetTracker from "../Components/BudgetTracker";
 
+import { useGoals } from "../context/GoalsContext";
+import LatestGoalCard from "../Components/Goals/LatestGoalCard";
+
 function Dashboard() {
 
   const rowRef = useRef(null);
@@ -20,6 +23,9 @@ function Dashboard() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [transactions, setTransactions] = useState([]);
+
+  const { goals } = useGoals();
+  const latestGoal = goals.length > 0 ? goals[goals.length - 1] : null;
 
   useEffect(() => {
     transactionService.getTransactionsByUser()
