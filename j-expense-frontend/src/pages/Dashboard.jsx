@@ -2,9 +2,11 @@ import { useRef, useState, useEffect } from "react";
 import Addcard from "../Components/Addcard";
 import RecentTransaction from "../Components/RecentTransactions/RecentTransaction";
 import Statistics from "../Components/Statistics";
-import ExpensesBreakdown from "../Components/ExpensesBreakdown";
+import DashboardExpenseSummary from "../Components/Expense/DashboardExpenseSummary";
 import Navbar from "../Components/Navbar";
 import { Link } from "react-router-dom";
+
+import { transactionService } from "../Components/Services/TransactionsService";
 
 function Dashboard() {
 
@@ -13,6 +15,17 @@ function Dashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    transactionService.getTransactionsByUser()
+      .then(data => {
+        const expensesOnly = data.filter(tx => tx.type?.toLowerCase() === "expense");
+        console.log("Fetched expenses for Dashboard:", expensesOnly); // Debug log
+        setTransactions(expensesOnly);
+      })
+      .catch(err => console.error("Failed to fetch transactions:", err));
+  }, []);
 
   const bgStyle = {
     padding: "20px 20px",
@@ -172,7 +185,7 @@ function Dashboard() {
 
             <div>
               <h3 style={{ marginBottom: "10px" }}>Expenses Breakdown</h3>
-              <ExpensesBreakdown />
+              <DashboardExpenseSummary transactions={transactions} />
             </div>
 
           </div>

@@ -133,7 +133,12 @@ export function getCategorySummary(category, transactions = []) {
     }
 
     const txCategory = tx.category || "Uncategorized";
-    if (txCategory !== category) {
+
+    // ✅ Added normalization (case-insensitive + trim)
+    const normalizedTxCategory = txCategory.trim().toLowerCase();
+    const normalizedTargetCategory = category.trim().toLowerCase();
+
+    if (normalizedTxCategory !== normalizedTargetCategory) {
       console.log("  -> skipped (category mismatch)", txCategory);
       return;
     }
@@ -145,11 +150,11 @@ export function getCategorySummary(category, transactions = []) {
     }
 
     if (d >= thisWeekStart && d <= thisWeekEnd) {
-      totalThisWeek += tx.amount || 0;
+      totalThisWeek += Number(tx.amount) || 0; // ✅ ensure numeric
       recent.push(tx);
       console.log("  -> counted in thisWeek, amount:", tx.amount);
     } else if (d >= lastWeekStart && d <= lastWeekEnd) {
-      totalLastWeek += tx.amount || 0;
+      totalLastWeek += Number(tx.amount) || 0; // ✅ ensure numeric
       console.log("  -> counted in lastWeek, amount:", tx.amount);
     } else {
       console.log("  -> skipped (outside range)");
