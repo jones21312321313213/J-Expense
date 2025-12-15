@@ -1,12 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import NotificationPanel from "./NotificationPanel";
 
-// navbar for dashboard
-function Navbar(){
-    const [notificationOpen, setNotificationOpen] = useState(false);
-    const outletContext = useOutletContext() || {};
-    
+// Helper to decode JWT payload
+const parseJwt = (token) => {
+  try {
+    const base64Payload = token.split('.')[1];
+    const payload = atob(base64Payload);
+    return JSON.parse(payload);
+  } catch (e) {
+    console.error("Failed to parse JWT:", e);
+    return null;
+  }
+};
+
+// Navbar for dashboard
+function Navbar() {
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [username, setUsername] = useState("User"); // default
+  const outletContext = useOutletContext() || {};
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = parseJwt(token);
+      if (decoded && decoded.sub) {
+        setUsername(decoded.sub); // JWT typically stores username in 'sub'
+      }
+    }
+  }, []);
+
   const headerContainerStyle = {
     display: "flex", 
     justifyContent: "space-between", 
@@ -33,29 +56,29 @@ function Navbar(){
     }
   };
 
-    return(
-        <>
-          <div style={headerContainerStyle}>
-            <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Hello User</span>
-            <i 
-              className="bi bi-bell" 
-              style={bellIconStyle}
-              onClick={handleNotificationToggle}
-              title="Notifications"
-            ></i>
-          </div>
-          
-          <NotificationPanel 
-            isOpen={notificationOpen} 
-            onClose={() => {
-              setNotificationOpen(false);
-              if (outletContext.setNotificationOpen) {
-                outletContext.setNotificationOpen(false);
-              }
-            }}
-          />
-        </>
-    );
+  return(
+    <>
+      <div style={headerContainerStyle}>
+        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Hello {username}</span>
+        <i 
+          className="bi bi-bell" 
+          style={bellIconStyle}
+          onClick={handleNotificationToggle}
+          title="Notifications"
+        ></i>
+      </div>
+      
+      <NotificationPanel 
+        isOpen={notificationOpen} 
+        onClose={() => {
+          setNotificationOpen(false);
+          if (outletContext.setNotificationOpen) {
+            outletContext.setNotificationOpen(false);
+          }
+        }}
+      />
+    </>
+  );
 }
 
-export default Navbar
+export default Navbar;

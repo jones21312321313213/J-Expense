@@ -40,23 +40,25 @@ export default function Expenses() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: "20px",
+          gap: "100px",
         }}
       >
         {categories.map((category) => {
           const { total } = getCategorySummary(category, transactions);
           return total > 0 ? (
-            <ExpenseBreakdownCard
-              key={category}
-              category={category.charAt(0).toUpperCase() + category.slice(1)}
-              transactions={transactions}
-            />
+            <div key={category} style={{ marginRight: "15px" }}> {/* Added marginRight */}
+              <ExpenseBreakdownCard
+                category={category.charAt(0).toUpperCase() + category.slice(1)}
+                transactions={transactions}
+              />
+            </div>
           ) : null;
         })}
         {categories.every((c) => getCategorySummary(c, transactions).total === 0) && (
           <p style={{ color: "#6b7280", fontSize: "14px" }}>No expenses recorded yet</p>
         )}
       </div>
+
     </div>
   );
 }

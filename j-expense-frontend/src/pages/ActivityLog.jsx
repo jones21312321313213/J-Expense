@@ -79,8 +79,6 @@ function ActivityLog() {
 
   return (
     <div style={containerStyle}>
-      {/* Back button */}
-      <i className="bi bi-arrow-left" style={backButtonStyle}></i>
 
       {/* Header */}
       <h1 style={headerStyle}>Activity Log</h1>
@@ -106,12 +104,7 @@ function ActivityLog() {
         )}
       </div>
 
-      {/* Add button */}
-      <div style={addButtonWrapperStyle}>
-        <div style={addButtonIconStyle}>
-          <i className="bi bi-plus"></i>
-        </div>
-      </div>
+
 
       {/* Inline style to hide scrollbar for Webkit browsers */}
       <style>

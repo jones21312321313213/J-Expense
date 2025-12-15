@@ -60,7 +60,7 @@ function UpcomingBill() {
     <div style={containerStyle}>
       <div style={listContainerStyle} className="hide-scrollbar">
         {upcomingBills.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#666' }}>
+          <div style={{ textAlign:'center', marginTop:'120px', color: '#666' }}>
             No upcoming bills
           </div>
         ) : (
