@@ -48,8 +48,12 @@ function ActivityLog() {
   const scrollAreaStyle = {
     width: "100%",
     maxWidth: "500px",
-    overflowY: "auto",
+    overflowY: "scroll", // allow scrolling
     padding: "0 10px",
+    flexGrow: 1,
+    // Hide scrollbar
+    scrollbarWidth: "none", // Firefox
+    msOverflowStyle: "none", // IE 10+
   };
 
   const addButtonWrapperStyle = {
@@ -75,10 +79,14 @@ function ActivityLog() {
 
   return (
     <div style={containerStyle}>
+      {/* Back button */}
       <i className="bi bi-arrow-left" style={backButtonStyle}></i>
+
+      {/* Header */}
       <h1 style={headerStyle}>Activity Log</h1>
 
-      <div style={scrollAreaStyle}>
+      {/* Scrollable content area */}
+      <div style={scrollAreaStyle} className="hide-scrollbar">
         {loading ? (
           <p>Loading...</p>
         ) : activities.length === 0 ? (
@@ -90,7 +98,7 @@ function ActivityLog() {
               date={activity.date}
               title={activity.title}
               amount={activity.amount}
-              type={activity.type.toLowerCase()} // "income" or "expense" or others
+              type={activity.type.toLowerCase()}
               category={activity.category}
               iconName={activity.iconName}
             />
@@ -98,11 +106,21 @@ function ActivityLog() {
         )}
       </div>
 
+      {/* Add button */}
       <div style={addButtonWrapperStyle}>
         <div style={addButtonIconStyle}>
           <i className="bi bi-plus"></i>
         </div>
       </div>
+
+      {/* Inline style to hide scrollbar for Webkit browsers */}
+      <style>
+        {`
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
     </div>
   );
 }
