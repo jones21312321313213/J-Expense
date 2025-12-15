@@ -83,6 +83,27 @@ public class CategoryController {
         return new ResponseEntity<>(globals, HttpStatus.OK);
     }
 
+    // GET: Get categories for a specific user (includes global defaults)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CategoryEntity>> getCategoriesForUser(@PathVariable int userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        var optUser = userRepository.findByUsername(auth.getName());
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (optUser.get().getUserID() != userId) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        java.util.List<CategoryEntity> globals = categoryService.getGlobalCategories();
+        java.util.List<CategoryEntity> userCats = categoryService.getCategoriesByUserId(userId);
+        java.util.List<CategoryEntity> combined = new java.util.ArrayList<>();
+        combined.addAll(globals);
+        combined.addAll(userCats);
+        return new ResponseEntity<>(combined, HttpStatus.OK);
+    }
+
     // GET: Get Category by ID
     @GetMapping("/{id}")
     public ResponseEntity<CategoryEntity> getCategoryById(@PathVariable int id) {
@@ -91,29 +112,66 @@ public class CategoryController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // PUT: Update an existing Category
+    // PUT: Update an existing Category (only owner may update; default/global categories cannot be edited)
     @PutMapping("/{id}")
     public ResponseEntity<CategoryEntity> updateCategory(@PathVariable int id, @RequestBody CategoryEntity categoryDetails) {
-        return categoryService.getCategoryById(id)
-                .map(existingCategory -> {
-                    // Update fields
-                    existingCategory.setCategory_name(categoryDetails.getCategory_name());
-                    existingCategory.setCategory_type(categoryDetails.getCategory_type());
-                    
-                    CategoryEntity updatedCategory = categoryService.saveCategory(existingCategory);
-                    return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
-                })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        var opt = categoryService.getCategoryById(id);
+        if (opt.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        CategoryEntity existingCategory = opt.get();
+
+        // Prevent editing global categories
+        if (Boolean.TRUE.equals(existingCategory.getIs_global())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        // Ensure authenticated
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        var optUser = userRepository.findByUsername(auth.getName());
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        int currentUserId = optUser.get().getUserID();
+
+        if (existingCategory.getUser() == null || existingCategory.getUser().getUserID() != currentUserId) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        // Update allowed fields
+        existingCategory.setCategory_name(categoryDetails.getCategory_name());
+        existingCategory.setCategory_type(categoryDetails.getCategory_type());
+        // Note: icon and is_global are not handled here
+
+        CategoryEntity updatedCategory = categoryService.saveCategory(existingCategory);
+        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
 
-    // DELETE: Delete Category by ID
+    // DELETE: Delete Category by ID (only user-owned categories may be deleted)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
-        if (categoryService.getCategoryById(id).isPresent()) {
-            categoryService.deleteCategory(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        var opt = categoryService.getCategoryById(id);
+        if (opt.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        CategoryEntity cat = opt.get();
+        // prevent deleting default/global categories
+        if (Boolean.TRUE.equals(cat.getIs_global())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
+        // ensure authenticated and owner
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        var optUser = userRepository.findByUsername(auth.getName());
+        if (optUser.isEmpty()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        int currentUserId = optUser.get().getUserID();
+
+        if (cat.getUser() == null || cat.getUser().getUserID() != currentUserId) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        categoryService.deleteCategory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

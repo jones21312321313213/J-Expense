@@ -23,16 +23,17 @@ function AddTransactionPage() {
   const [endDate, setEndDate] = useState("");
 
   // --- Selected category for submission ---
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Map category names to IDs (example)
-  const categoryMap = {
-    Food: 1,
-    Transport: 2,
-    Entertainment: 3,
-    Grocery: 4,
-    Shopping: 5,
-  };
+  const categoryMap = [
+    { categoryID: 1, categoryName: "Food" },
+    { categoryID: 2, categoryName: "Transport" },
+    { categoryID: 3, categoryName: "Entertainment" },
+    { categoryID: 4, categoryName: "Shopping" },
+    { categoryID: 5, categoryName: "Salary" },
+    { categoryID: 6, categoryName: "Misc" },
+  ];
 
   // --- Submit transaction ---
   const handleSubmit = async () => {
@@ -74,13 +75,19 @@ function AddTransactionPage() {
     }
 
 
+  // If user selected a DB category, it already has categoryID
+    const selectedCategoryObj = selectedCategory?.categoryID
+    ? selectedCategory
+    : categoryMap.find(cat => cat.categoryName === selectedCategory?.name || selectedCategory);
+
+
     // ---- Build the payload ----
     const transactionData = {
       name,
       amount: amountValue,
       creation_date: beginning,
       description,
-      categoryID: categoryMap[selectedCategory] || 0,
+      categoryID: selectedCategoryObj?.categoryID || null,
       userID: 27,
       isIncome: leftTab === "income",
       type: leftTab === "income" ? incomeType : undefined,
@@ -159,9 +166,9 @@ function AddTransactionPage() {
     color: "white",
   };
 
-  const handleCategorySelect = (categoryName) => {
-    setSelectedCategory(categoryName);
-    console.log("Selected category:", categoryName);
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    console.log("Selected category:", category);
   };
 
   return (

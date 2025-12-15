@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { transactionService } from "../Components/Services/TransactionsService";
 import { useGoals } from "../context/GoalsContext";
 import LatestGoalCard from "../Components/Goals/LatestGoalCard";
+import UpcomingBill from "../Components/Bill/UpcomingBill";
 
 function Dashboard() {
 
@@ -42,19 +43,25 @@ function Dashboard() {
     flex: "0 0 auto",
   };
 
-  const rowStyle = {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    overflowX: "auto",
-    whiteSpace: "nowrap",
-    gap: "40px",
-    paddingBottom: "10px",
-    cursor: isDragging ? "grabbing" : "grab",
-    userSelect: "none",
-    scrollbarWidth: "none",
-    msOverflowStyle: "none",
-  };
+const rowStyle = {
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "nowrap",
+  alignItems: "flex-start", // align top
+  overflowX: "auto",
+  whiteSpace: "nowrap",
+  gap: "40px",
+  paddingBottom: "10px",
+  cursor: isDragging ? "grabbing" : "grab",
+  userSelect: "none",
+
+  /* Hide scrollbar */
+  scrollbarWidth: "none", // Firefox
+  msOverflowStyle: "none", // IE 10+
+};
+
+
+
 
   const contentContainerStyle = {
     padding: "0 20px",
@@ -158,7 +165,7 @@ function Dashboard() {
               </Link>
             </div>
 
-            <Addcard />
+            <UpcomingBill />
           </div>
 
         </div>

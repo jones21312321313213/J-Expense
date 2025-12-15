@@ -52,8 +52,13 @@ public class TransactionController {
     // }
 
     @GetMapping("/getTransaction/{id}")
-    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable int id) {
-        return ResponseEntity.ok(tserv.getTransactionDTOById(id));
+    public ResponseEntity<TransactionEntity> getTransactionById(@PathVariable int id) {
+        TransactionEntity transaction = tserv.getTransactionById(id);
+        if (transaction != null) {
+            return ResponseEntity.ok(transaction);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

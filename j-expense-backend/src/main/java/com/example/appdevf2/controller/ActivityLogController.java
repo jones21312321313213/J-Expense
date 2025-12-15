@@ -1,7 +1,9 @@
 package com.example.appdevf2.controller;
 
+import java.security.Principal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.appdevf2.entity.ActivityLogDTO;
 import com.example.appdevf2.entity.ActivityLogEntity;
+import com.example.appdevf2.entity.UserEntity;
 import com.example.appdevf2.service.ActivityLogService;
+import com.example.appdevf2.service.UserService;
 
 @RestController
 @RequestMapping("/api/logs")
@@ -21,24 +26,28 @@ import com.example.appdevf2.service.ActivityLogService;
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
+    private final UserService userService;
 
-    public ActivityLogController(ActivityLogService activityLogService) {
+    @Autowired
+    public ActivityLogController(ActivityLogService activityLogService, UserService userService) {
         this.activityLogService = activityLogService;
+        this.userService = userService;
     }
 
-    // CREATE
+    // 🔹 Get all activities for logged-in user
+    @GetMapping("/user")
+    public ResponseEntity<List<ActivityLogDTO>> getUserActivities(Principal principal) {
+        UserEntity user = userService.getByUsername(principal.getName());
+        List<ActivityLogDTO> activities = activityLogService.getUserActivities(user.getUserID());
+        return ResponseEntity.ok(activities);
+    }
+
+    // Optional CRUD endpoints
     @PostMapping
     public ResponseEntity<ActivityLogEntity> create(@RequestBody ActivityLogEntity log) {
         return ResponseEntity.ok(activityLogService.save(log));
     }
 
-    // READ ALL
-    @GetMapping
-    public ResponseEntity<List<ActivityLogEntity>> getAll() {
-        return ResponseEntity.ok(activityLogService.getAll());
-    }
-
-    // READ BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ActivityLogEntity> getById(@PathVariable int id) {
         return activityLogService.getById(id)
@@ -46,7 +55,6 @@ public class ActivityLogController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // UPDATE
     @PutMapping("/update/{id}")
     public ResponseEntity<ActivityLogEntity> update(
             @PathVariable int id,
@@ -60,7 +68,6 @@ public class ActivityLogController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
         if (activityLogService.getById(id).isPresent()) {

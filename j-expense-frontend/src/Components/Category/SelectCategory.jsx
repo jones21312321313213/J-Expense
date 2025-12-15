@@ -41,8 +41,8 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             const hasInitialized = sessionStorage.getItem('categoriesInitialized');
             let needsDatabaseCheck = !hasInitialized;
             
-            // 2. Fetch ALL existing categories
-            const allCategories = await categoryService.getAllCategories();
+            // 2. Fetch categories for this user (includes defaults) when we have a userId, otherwise fetch all (unauthenticated returns defaults)
+            const allCategories = userId ? await categoryService.getCategoriesByUser(userId) : await categoryService.getAllCategories();
             let finalCategories = allCategories;
 
             if (needsDatabaseCheck) {
@@ -110,13 +110,17 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             categoryType = "Expense"; 
         }
 
+        if (!userId) {
+            alert('Please log in to create custom categories.');
+            return setAddClicked(false);
+        }
+
         setIsLoading(true);
         try {
-            // Save to database
+            // Save to database (backend will attach authenticated user)
             const savedCategory = await categoryService.createCategory({
                 name: newCategoryName.trim(),
                 categoryType: categoryType,
-                ...(userId ? { userID: userId } : {})
             });
 
             // Update local state 
@@ -166,13 +170,13 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
 
                 {/* Custom Categories from Database */}
                 {customCategories.map(cat => (
-                    <CategoryTile
-                        key={cat.categoryID}
-                        name={cat.category_name} 
-                        icon={cat.iconPath || cat.icon_path || miscellaneousBg} 
-                        bgColor={selectedCategory === cat.category_name ? '#bdbdbd' : '#D9D9D9'}
-                        onClick={() => onSelect(cat.category_name)}
-                    />
+                <CategoryTile
+                    key={cat.categoryID}
+                    name={cat.category_name} 
+                    icon={cat.iconPath || cat.icon_path || miscellaneousBg} 
+                    bgColor={selectedCategory?.categoryID === cat.categoryID ? '#bdbdbd' : '#D9D9D9'}
+                    onClick={() => onSelect({ name: cat.category_name, categoryID: cat.categoryID })}
+                />
                 ))}
 
                 {/* Add Button */}

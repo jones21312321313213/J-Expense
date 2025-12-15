@@ -232,7 +232,6 @@ function EditBudget({
                   category: selectedCategory
                 });
               }
-              alert("Changes saved!");
             }}
             style={{
               width: "300px",        // change width

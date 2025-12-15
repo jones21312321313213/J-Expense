@@ -1,5 +1,5 @@
 ﻿import Add from "../Components/Add";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 import SelectBudgetType from "../Components/Budget/SelectBudgetType";
@@ -13,7 +13,7 @@ function Budgets() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleCreateBudget = (budgetData) => {
+    const formatBudgetToCard = (budgetData, idx = null) => {
     const today = new Date();
 
     // Extract frequency and periodUnit from the 'period' field
@@ -21,51 +21,40 @@ function Budgets() {
     let periodUnit = "Month";
     
     if (budgetData.period) {
-        const periodParts = budgetData.period.trim().split(/\s+/);
-        if (periodParts.length >= 2) {
-            frequency = parseInt(periodParts[0], 10) || 1;
-            periodUnit = periodParts[1];
-        }
+      const periodParts = budgetData.period.trim().split(/\s+/);
+      if (periodParts.length >= 2) {
+        frequency = parseInt(periodParts[0], 10) || 1;
+        periodUnit = periodParts[1];
+      }
     } else {
-        frequency = budgetData.frequency || 1;
-        periodUnit = budgetData.periodUnit || "Month";
+      frequency = budgetData.frequency || 1;
+      periodUnit = budgetData.periodUnit || "Month";
     }
 
     const { type, category, amount, name, beginning } = budgetData;
 
     // Helper: parse beginning date correctly
     const parseBeginning = (b) => {
-        if (!b || typeof b !== 'string') return new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        
-        // Try ISO format first (YYYY-MM-DD from backend)
-        // Budgets.js -> handleCreateBudget -> parseBeginning helper (FIXED)
-
-        // Try ISO format first (YYYY-MM-DD from backend)
-        if (/^\d{4}-\d{2}-\d{2}/.test(b)) {
-            const parts = b.split('-');
-            const year = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
-            const day = parseInt(parts[2], 10);
-            
-            // *** FIX: Create the date object using UTC components ***
-            return new Date(Date.UTC(year, month, day));
+      if (!b || typeof b !== 'string') return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      if (/^\d{4}-\d{2}-\d{2}/.test(b)) {
+        const parts = b.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        return new Date(Date.UTC(year, month, day));
+      }
+      const isoDate = new Date(b);
+      if (!isNaN(isoDate)) return isoDate;
+      const parts = b.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        const mon = parts[0];
+        const day = parseInt(parts[1], 10);
+        const mIdx = monthNames.findIndex(x => x.slice(0,3).toLowerCase() === mon.toLowerCase().slice(0,3) || x.toLowerCase() === mon.toLowerCase());
+        if (mIdx !== -1 && !isNaN(day)) {
+          return new Date(today.getFullYear(), mIdx, day);
         }
-        
-        // Otherwise try standard Date parsing
-        const isoDate = new Date(b);
-        if (!isNaN(isoDate)) return isoDate;
-        
-        // Otherwise try parsing "Dec 4" format
-        const parts = b.trim().split(/\s+/);
-        if (parts.length >= 2) {
-            const mon = parts[0];
-            const day = parseInt(parts[1], 10);
-            const mIdx = monthNames.findIndex(x => x.slice(0,3).toLowerCase() === mon.toLowerCase().slice(0,3) || x.toLowerCase() === mon.toLowerCase());
-            if (mIdx !== -1 && !isNaN(day)) {
-                return new Date(today.getFullYear(), mIdx, day);
-            }
-        }
-        return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      }
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
     };
 
     const startDate = parseBeginning(beginning);
@@ -80,15 +69,15 @@ function Budgets() {
     else if (unit.indexOf('year') !== -1) unit = 'year';
 
     if (unit === 'day') {
-        endDate.setDate(endDate.getDate() + Math.max(1, frequency));
+      endDate.setDate(endDate.getDate() + Math.max(1, frequency));
     } else if (unit === 'week') {
-        endDate.setDate(endDate.getDate() + (Math.max(1, frequency) * 7));
+      endDate.setDate(endDate.getDate() + (Math.max(1, frequency) * 7));
     } else if (unit === 'month') {
-        endDate.setMonth(endDate.getMonth() + Math.max(1, frequency));
+      endDate.setMonth(endDate.getMonth() + Math.max(1, frequency));
     } else if (unit === 'year') {
-        endDate.setFullYear(endDate.getFullYear() + Math.max(1, frequency));
+      endDate.setFullYear(endDate.getFullYear() + Math.max(1, frequency));
     } else {
-        endDate.setMonth(endDate.getMonth() + 1);
+      endDate.setMonth(endDate.getMonth() + 1);
     }
 
     const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}, ${startDate.getFullYear()}`;
@@ -96,38 +85,67 @@ function Budgets() {
 
     let progressPercentage = 0;
     if (today <= startDate) {
-        progressPercentage = 0;
+      progressPercentage = 0;
     } else if (today >= endDate) {
-        progressPercentage = 100;
+      progressPercentage = 100;
     } else {
-        const total = endDate.getTime() - startDate.getTime();
-        const passed = today.getTime() - startDate.getTime();
-        progressPercentage = total > 0 ? Math.round((passed / total) * 100) : 0;
+      const total = endDate.getTime() - startDate.getTime();
+      const passed = today.getTime() - startDate.getTime();
+      progressPercentage = total > 0 ? Math.round((passed / total) * 100) : 0;
     }
 
     const dayProgress = Math.min(100, Math.max(0, progressPercentage));
 
     const newBudget = {
-        id: budgets.length + 1,
-        name: name || category || type,
-        type,
-        category,
-        amount: amount || 0,
-        periodUnit,
-        currentAmount: Math.floor(Math.random() * (amount || 1000)),
-        startDate: startDateStr,
-        endDate: endDateStr,
-        startDateISO: startDate.toISOString(),
-        endDateISO: endDate.toISOString(),
-        dayProgress,
-        progressPercentage,
-        frequency,
-        beginning
+      id: idx != null ? idx : (Math.floor(Math.random() * 1000000)),
+      name: name || category || type,
+      type,
+      category,
+      amount: amount || 0,
+      periodUnit,
+      // Start budgets with 0 spent/used by default; remove random initial values
+      currentAmount: 0,
+      startDate: startDateStr,
+      endDate: endDateStr,
+      startDateISO: startDate.toISOString(),
+      endDateISO: endDate.toISOString(),
+      dayProgress,
+      progressPercentage,
+      frequency,
+      beginning
     };
-    
+    return newBudget;
+    };
+
+    const handleCreateBudget = (budgetData) => {
+    const newBudget = formatBudgetToCard(budgetData, budgets.length + 1);
     setBudgets((b) => [...b, newBudget]);
     closeModal();
-};
+    };
+
+    // fetch budgets for current user on mount
+    useEffect(() => {
+    let mounted = true;
+    import('../Components/Services/budgetService').then(({ budgetService }) => {
+      budgetService.getAllBudgets().then(list => {
+      if (!mounted) return;
+      const cards = list.map((b, i) => formatBudgetToCard({
+        type: b.type,
+        category: b.category,
+        name: b.name,
+        amount: b.amount,
+        period: b.period,
+        beginning: b.beginning,
+        frequency: b.frequency
+      }, i + 1));
+      setBudgets(cards);
+      }).catch(err => {
+      // ignore fetch errors silently for now
+      console.debug('Error fetching budgets:', err);
+      });
+    });
+    return () => { mounted = false };
+    }, []);
 
   const containerStyle = {
     padding: "40px 20px",
