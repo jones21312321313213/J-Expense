@@ -45,13 +45,25 @@
  * - Modal prevents click-through with event propagation control.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Edit2, Plus } from 'lucide-react';
 
 export default function BudgetDetails({ budget, onClose }) {
   const [budgetName, setBudgetName] = useState(budget?.name || 'Name');
-  const [totalBudget, setTotalBudget] = useState(budget?.amount || 500);
-  const [spent, setSpent] = useState((budget?.amount || 500) - (budget?.currentAmount || 50));
+  const [totalBudget, setTotalBudget] = useState(budget?.amount ?? 500);
+  const [spent, setSpent] = useState(() => {
+    const amount = budget?.amount ?? 0;
+    const remaining = budget?.currentAmount ?? amount; // currentAmount is remaining/left
+    return Math.max(0, amount - remaining);
+  });
+
+  // Keep totals in sync if the `budget` prop changes (opening different budgets)
+  useEffect(() => {
+    const amount = budget?.amount ?? 0;
+    const remaining = budget?.currentAmount ?? amount;
+    setTotalBudget(amount || 500);
+    setSpent(Math.max(0, amount - remaining));
+  }, [budget?.amount, budget?.currentAmount]);
   const [transactions, setTransactions] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
@@ -175,26 +187,6 @@ export default function BudgetDetails({ budget, onClose }) {
                 </h1>
               )}
             </div>
-            
-            <button 
-              onClick={() => setIsEditing(true)}
-              style={{
-                width: '48px',
-                height: '48px',
-                border: '2px solid #1f2937',
-                backgroundColor: '#fff',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-            >
-              <Edit2 size={24} color="#1f2937" />
-            </button>
           </div>
 
           {/* Budget Summary */}

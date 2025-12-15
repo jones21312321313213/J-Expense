@@ -60,6 +60,7 @@ function App() {
         <Route path="goals/:id" element={<GoalsDetails />} />
         <Route path="category-details" element={<CategoryDetails />} />
         <Route path="edit-category" element={<EditCategory />} />
+        <Route path="edit-category/:id" element={<EditCategory />} />
       </Route>
     </Routes>
   );

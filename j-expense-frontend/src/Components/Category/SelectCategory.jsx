@@ -110,13 +110,17 @@ function SelectCategory({ onSelect, selectedCategory, budgetType }) {
             categoryType = "Expense"; 
         }
 
+        if (!userId) {
+            alert('Please log in to create custom categories.');
+            return setAddClicked(false);
+        }
+
         setIsLoading(true);
         try {
-            // Save to database
+            // Save to database (backend will attach authenticated user)
             const savedCategory = await categoryService.createCategory({
                 name: newCategoryName.trim(),
                 categoryType: categoryType,
-                ...(userId ? { userID: userId } : {})
             });
 
             // Update local state 

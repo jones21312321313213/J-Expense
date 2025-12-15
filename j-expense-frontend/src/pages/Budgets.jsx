@@ -103,7 +103,8 @@ function Budgets() {
       category,
       amount: amount || 0,
       periodUnit,
-      currentAmount: Math.floor(Math.random() * (amount || 1000)),
+      // Start budgets with 0 spent/used by default; remove random initial values
+      currentAmount: 0,
       startDate: startDateStr,
       endDate: endDateStr,
       startDateISO: startDate.toISOString(),
