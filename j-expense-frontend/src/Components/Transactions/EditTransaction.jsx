@@ -56,6 +56,8 @@ useEffect(() => {
   transactionService.getTransactionById(transactionId)
     .then(data => {
       console.log("Fetched transaction:", data);
+      console.log("Fetched transaction:", data);
+      console.log("Setting incomeType to:", data.incomeType); // 🔍 debug
       setName(data.name);
       setAmountValue(data.amount);
       setLeftTab(data.incomeFlag ? "income" : "expenses");
@@ -134,7 +136,7 @@ useEffect(() => {
       categoryID: categoryMap[selectedCategory] || 0,
       userID: 27,
       isIncome: leftTab === "income",
-      type: leftTab === "income" ? incomeType : undefined,
+      incomeType: leftTab === "income" ? incomeType : undefined,
       paymentMethod: leftTab === "expenses" ? paymentMethod : undefined,
       isRecurring: rightTab === "repetitive",
       
@@ -350,8 +352,8 @@ useEffect(() => {
                   setError={setError}
                   category={category}
                   setCategory={setCategory}
-                  type={incomeType}
-                  setType={setIncomeType}
+                  incomeType={incomeType}       
+                  setIncomeType={setIncomeType} 
                 />
               )}
             </div>

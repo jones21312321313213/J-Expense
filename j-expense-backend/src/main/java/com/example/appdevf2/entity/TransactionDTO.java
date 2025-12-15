@@ -21,7 +21,7 @@ public class TransactionDTO {
     private Boolean isIncome; // Flag to determine type 
 
     // Fields needed for IncomeEntity (based on IncomeEntity structure)
-    private String type; 
+    private String incomeType; 
     
     // Fields needed for ExpenseEntity (based on ExpenseEntity structure)
     private String paymentMethod; 
