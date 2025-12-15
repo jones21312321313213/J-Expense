@@ -180,13 +180,11 @@ function Budgets() {
   const addButtonContainerStyle = {
     borderRadius: "30px",
     overflow: "hidden",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     height: "fit-content",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     padding: "40px",
-    backgroundColor: "#fff",
     cursor: "pointer"
   };
 

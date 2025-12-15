@@ -216,9 +216,10 @@ function Sidebar() {
                         Budget Details
                       </Link>
                     </li>
-                    <li>
+
+                    {/* <li> commented this out 
                       <Link to="/app/goals-details" className={getLinkClass("/app/goals-details")} style={getLinkStyle("/app/goals-details")}>
-                        {/* Goals Details Icon */}
+                    
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:"12px"}}>
                             <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M22 12H18" stroke="white" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -228,7 +229,8 @@ function Sidebar() {
                             </svg>
                         Goals Details
                       </Link>
-                    </li>
+                    </li> */}
+                    
                     <li>
                       <Link to="/app/category-details" className={getLinkClass("/app/category-details")} style={getLinkStyle("/app/category-details")}>
                         {/* Category Details Icon*/}
@@ -265,25 +267,6 @@ function Sidebar() {
           )}
 
 
-          {/* Profile */}
-          <hr className="mt-3 mb-3"/>
-          <div className="d-flex align-items-center flex-column text-white">
-            <div className="d-flex align-items-center w-100">
-              <img
-                src="https://github.com/mdo.png"
-                alt="User"
-                width="40"
-                height="40"
-                className="rounded-circle me-2"
-              />
-              <div className="d-flex flex-column">
-                <strong style={{ fontSize: "1rem" }}>Random white dude</strong>
-                <a href="#" className="text-white text-decoration-none" style={{ fontSize: "0.85rem", opacity: 0.7 }}>
-                  View profile
-                </a>
-              </div>
-            </div>
-          </div>
 
 
 
