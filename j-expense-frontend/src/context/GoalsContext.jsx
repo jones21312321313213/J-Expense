@@ -14,13 +14,17 @@ export const GoalsProvider = ({ children }) => {
     try {
       setLoading(true);
       const data = await GoalService.getMyGoals();
-      setGoals(data); // only sets goals for the logged-in user
+      if (Array.isArray(data)) {
+        setGoals(data);
+      }
     } catch (err) {
       console.error("Error fetching goals:", err);
+      // 🚫 DO NOT clear goals here
     } finally {
       setLoading(false);
     }
   };
+
 
   // ➕ Add new goal
   const addGoal = async (newGoal) => {

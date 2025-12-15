@@ -79,7 +79,7 @@ public class GoalController {
     }
 
     // Delete Goal
-    @DeleteMapping("/api/goals/{id}")
+    @DeleteMapping("/deleteGoal/{id}")
     public ResponseEntity<Void> deleteGoal(@PathVariable int id) {
         boolean deleted = goalService.deleteGoal(id);
         return deleted ? ResponseEntity.noContent().build()
