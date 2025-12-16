@@ -107,78 +107,36 @@ export function getMonthData(transactions = []) {
 }
 
 // --- Category summary for breakdown cards ---
-export function getCategorySummary(category, transactions = []) {
-  const today = new Date();
-  const thisWeekStart = startOfWeek(today);
-  const thisWeekEnd = endOfWeek(today);
-
-  const lastWeekEnd = new Date(thisWeekStart);
-  lastWeekEnd.setDate(thisWeekStart.getDate() - 1);
-  const lastWeekStart = startOfWeek(lastWeekEnd);
-
-  console.log("[getCategorySummary] category:", category);
-  console.log("  thisWeek:", thisWeekStart, "-", thisWeekEnd);
-  console.log("  lastWeek:", lastWeekStart, "-", lastWeekEnd);
-
-  let totalThisWeek = 0;
-  let totalLastWeek = 0;
-  const recent = [];
-
-  transactions.forEach((tx) => {
-    console.log("[getCategorySummary] checking tx:", tx);
-
-    if (tx.type !== "expense") {
-      console.log("  -> skipped (not expense)");
-      return;
-    }
-
-    const txCategory = tx.category || "Uncategorized";
-
-    // ✅ Added normalization (case-insensitive + trim)
-    const normalizedTxCategory = txCategory.trim().toLowerCase();
-    const normalizedTargetCategory = category.trim().toLowerCase();
-
-    if (normalizedTxCategory !== normalizedTargetCategory) {
-      console.log("  -> skipped (category mismatch)", txCategory);
-      return;
-    }
-
-    const d = new Date(tx.date);
-    if (isNaN(d.getTime())) {
-      console.log("  -> skipped (invalid date)", tx.date);
-      return;
-    }
-
-    if (d >= thisWeekStart && d <= thisWeekEnd) {
-      totalThisWeek += Number(tx.amount) || 0; // ✅ ensure numeric
-      recent.push(tx);
-      console.log("  -> counted in thisWeek, amount:", tx.amount);
-    } else if (d >= lastWeekStart && d <= lastWeekEnd) {
-      totalLastWeek += Number(tx.amount) || 0; // ✅ ensure numeric
-      console.log("  -> counted in lastWeek, amount:", tx.amount);
-    } else {
-      console.log("  -> skipped (outside range)");
-    }
+// expenseUtils.jsx
+export const getCategorySummary = (category, transactions = []) => {
+  // Filter transactions for this category
+  const categoryTransactions = transactions.filter(tx => {
+    const txCategory = tx.category?.toLowerCase().trim();
+    const targetCategory = category?.toLowerCase().trim();
+    return txCategory === targetCategory;
   });
 
-  const changePercent =
-    totalLastWeek === 0
-      ? totalThisWeek > 0
-        ? 100
-        : 0
-      : Math.round(((totalThisWeek - totalLastWeek) / totalLastWeek) * 100);
+  // Calculate total
+  const total = categoryTransactions.reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
 
-  console.log("[getCategorySummary] result:", {
-    total: totalThisWeek,
-    changePercent,
-    recent,
-  });
+  // Get recent transactions (last 3)
+  const recent = categoryTransactions
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 3)
+    .map(tx => ({
+      id: tx.id,
+      name: tx.name,
+      amount: Number(tx.amount) || 0,
+      date: tx.date,
+      merchant: tx.merchant || "",
+    }));
+
+  // Calculate change percentage (simplified for now)
+  const changePercent = 0; // You can implement actual logic here
 
   return {
-    total: totalThisWeek,
+    total,
     changePercent,
-    recent: recent
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 2),
+    recent,
   };
-}
+};
