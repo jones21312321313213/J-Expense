@@ -73,73 +73,88 @@ export const transactionService = {
   /* -----------------------
      GET SINGLE TRANSACTION
   ----------------------- */
-  getTransactionById: async (transactionId) => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/getTransaction/${transactionId}`,
-        {
-          headers: authHeaders(),
-        }
-      );
-
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
-      const t = await response.json();
-
-      let paymentMethod = "";
-      if (!t.isIncome && t.expense) {
-        paymentMethod = t.expense.payment_method || "";
-      } else if (t.paymentMethod) {
-        paymentMethod = t.paymentMethod;
+/* -----------------------
+   GET SINGLE TRANSACTION
+----------------------- */
+getTransactionById: async (transactionId) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/getTransaction/${transactionId}`,
+      {
+        headers: authHeaders(),
       }
+    );
 
-      let incomeType = "";
-      if (t.income) {
-         incomeType = (t.income && t.income.type) || t.type || "";
-      } else if (t.type) {
-        incomeType = t.type;
-      }
+    if (!response.ok)
+      throw new Error(`HTTP error! status: ${response.status}`);
 
-      let periodLength = 1;
-      let periodUnit = "Day";
-      let endDate = "";
+    const t = await response.json();
 
-      const rec =
-        (t.recurringTransactions && t.recurringTransactions[0]) ||
-        t.recurringTransaction;
+    console.log("DEBUG - Full transaction object:", t);
+    console.log("DEBUG - recurringTransactions:", t.recurringTransactions);
+    console.log("DEBUG - isRecurring check:", 
+      t.recurringTransactions && t.recurringTransactions.length > 0);
 
-      if (rec) {
-        periodLength = rec.intervalDays ?? periodLength;
-        if (rec.recurringDate) {
-          const d = new Date(rec.recurringDate);
-          if (!isNaN(d.getTime()))
-            endDate = d.toISOString().split("T")[0];
-        }
-      }
-
-      return {
-        id: t.billID || t.id,
-        name: t.name,
-        amount: Number(t.amount) || 0,
-        creation_date: t.creation_date,
-        description: t.description || "",
-        incomeFlag: t.isIncome ?? t.incomeFlag,
-        category: t.category?.category_name || "",
-        categoryId: t.category?.categoryID || null,
-        isRecurring: !!rec,
-        paymentMethod,
-        incomeType,
-        periodLength,
-        periodUnit,
-        endDate,
-        recurringRaw: rec || null,
-      };
-    } catch (error) {
-      console.error("Error fetching transaction by ID:", error);
-      throw error;
+    let paymentMethod = "";
+    if (!t.incomeFlag && t.expense) {
+      paymentMethod = t.expense.payment_method || "";
+    } else if (t.paymentMethod) {
+      paymentMethod = t.paymentMethod;
     }
-  },
+
+    let incomeType = "";
+    if (t.income) {
+       incomeType = (t.income && t.income.type) || t.type || "";
+    } else if (t.type) {
+      incomeType = t.type;
+    }
+
+    let periodLength = 1;
+    let periodUnit = "Day";
+    let endDate = "";
+
+    const rec =
+      (t.recurringTransactions && t.recurringTransactions[0]) ||
+      t.recurringTransaction;
+
+    if (rec) {
+      console.log("DEBUG - Recurring transaction found:", rec);
+      periodLength = rec.intervalDays ?? periodLength;
+      console.log("DEBUG - intervalDays:", rec.intervalDays);
+      
+      if (rec.recurringDate) {
+        const d = new Date(rec.recurringDate);
+        if (!isNaN(d.getTime()))
+          endDate = d.toISOString().split("T")[0];
+      }
+      console.log("DEBUG - endDate:", endDate);
+    }
+
+    const isRecurring = !!rec;
+    console.log("DEBUG - Final isRecurring:", isRecurring);
+
+    return {
+      id: t.billID || t.id,
+      name: t.name,
+      amount: Number(t.amount) || 0,
+      creation_date: t.creation_date,
+      description: t.description || "",
+      incomeFlag: t.incomeFlag,
+      categoryName: t.category?.category_name || "",
+      categoryId: t.category?.categoryID || null,
+      isRecurring: isRecurring,
+      paymentMethod,
+      incomeType,
+      periodLength,
+      periodUnit,
+      endDate,
+      recurringRaw: rec || null,
+    };
+  } catch (error) {
+    console.error("Error fetching transaction by ID:", error);
+    throw error;
+  }
+},
 
   /* -----------------------
      CREATE TRANSACTION

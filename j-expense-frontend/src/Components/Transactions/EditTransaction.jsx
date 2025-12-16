@@ -53,26 +53,44 @@ function EditTransaction() {
 useEffect(() => {
   if (!transactionId) return;
 
+  console.log("STATE DEBUG - Current values:", {
+    rightTab,
+    periodLength,
+    periodUnit,
+    endDate,
+  });
+
   transactionService.getTransactionById(transactionId)
     .then(data => {
-      console.log("Fetched transaction:", data);
-      console.log("Fetched transaction:", data);
-      console.log("Setting incomeType to:", data.incomeType); // 🔍 debug
-      setName(data.name);
-      setAmountValue(data.amount);
+      console.log("DEBUG - Fetched transaction data:", data);
+      console.log("DEBUG - isRecurring:", data.isRecurring);
+      console.log("DEBUG - periodLength:", data.periodLength);
+      console.log("DEBUG - periodUnit:", data.periodUnit);
+      console.log("DEBUG - endDate:", data.endDate);
+      console.log("DEBUG - incomeType:", data.incomeType);
+      
+      setName(data.name || "");
+      setAmountValue(data.amount || 0);
       setLeftTab(data.incomeFlag ? "income" : "expenses");
       setDescription(data.description || "");
       setSelectedCategory(data.categoryName || "");
       setPaymentMethod(data.paymentMethod || "");
       setIncomeType(data.incomeType || "");
 
-      // Set repetitive transaction data FIRST
-      setPeriodLength(data.periodLength ?? 1);
-      setPeriodUnit(data.periodUnit ?? "Day");
-      setEndDate(data.endDate ?? "");
+      // Set repetitive transaction data
+      setPeriodLength(data.periodLength || 1);
+      setPeriodUnit(data.periodUnit || "Day");
+      setEndDate(data.endDate || "");
 
-      // Then set tab to repetitive if it's recurring
-      setRightTab(data.isRecurring ? "repetitive" : "default");
+      console.log("DEBUG - Before setting rightTab, isRecurring:", data.isRecurring);
+      console.log("DEBUG - Should set rightTab to:", data.isRecurring ? "repetitive" : "default");
+      
+      // Set the right tab based on whether it's recurring
+      // Use setTimeout to ensure state updates happen in order
+      setTimeout(() => {
+        setRightTab(data.isRecurring ? "repetitive" : "default");
+        console.log("DEBUG - Set rightTab to:", data.isRecurring ? "repetitive" : "default");
+      }, 0);
 
       // Date for beginning
       if (data.creation_date) {
@@ -91,8 +109,11 @@ useEffect(() => {
         setBeginning("");
       }
     })
-    .catch(err => console.error(err));
-}, [transactionId]);
+    .catch(err => {
+      console.error("Error fetching transaction:", err);
+      alert("Failed to load transaction data");
+    });
+}, [transactionId]); // REMOVE: rightTab, periodLength, periodUnit, endDate
 
 
 
